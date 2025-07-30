@@ -369,9 +369,11 @@
             border-bottom: 1px solid #3a3a3a;
         }
 
-        /* Members 섹션에서 구분선 제거 */
+        /* Members 섹션에서 구분선 제거 및 간격 축소 */
         #members .filter-controls {
             border-bottom: none;
+            margin-bottom: 15px;
+            padding: 10px 0;
         }
 
         .filter-controls         .chart-controls {
@@ -774,12 +776,7 @@
                     <h1 id="page-title">Dashboard Overview</h1>
                 </div>
                 <div class="header-right">
-                    <button class="analytics-btn" onclick="forceCacheRefresh()" title="캐시 새로고침">
-                        <span>🗑️</span> Clear Cache
-                    </button>
-                    <div id="performance-indicator" style="margin-left: 15px; font-size: 12px; color: #7a7a7a;">
-                        Ready
-                    </div>
+                    <!-- Clear Cache button and Ready status removed -->
                 </div>
             </header>
 
@@ -845,13 +842,16 @@
                         </div>
                         <div class="member-list" id="member-list">
                             <!-- 활동 리스트가 여기에 동적으로 표시됩니다 -->
+                            <div style="padding: 20px; text-align: center; color: #7a7a7a; background-color: #1a1a1a;">
+                                데이터를 불러오는 중...
+                            </div>
                         </div>
                     </div>
                 </div>
 
                 <!-- Members 섹션 -->
                 <div id="members" class="content-section">
-                    <div class="filter-controls" style="margin-bottom: 20px;">
+                    <div class="filter-controls" style="margin-bottom: 10px;">
                         <div class="chart-controls">
                             <!-- Refresh 버튼 제거 - Members 메뉴 클릭 시 자동 새로고침 -->
                         </div>
@@ -1331,7 +1331,7 @@
                         }, 100);
                         break;
                     case 'settings':
-                        pageTitle.textContent = '설정';
+                        pageTitle.textContent = 'Settings';
                         break;
                     default:
                         pageTitle.textContent = sectionName.charAt(0).toUpperCase() + sectionName.slice(1);
@@ -1862,10 +1862,16 @@
             const pageTitle = document.getElementById('page-title');
            
             if (isLoading) {
+                // Overview 섹션에서는 로딩 메시지를 표시하지 않음
+                if (pageTitle.textContent === 'Overview' || pageTitle.textContent === 'Dashboard Overview') {
+                    return;
+                }
                 pageTitle.innerHTML = '🔄 Loading Real API Data...';
             } else {
                 // 원래 제목으로 복원
-                pageTitle.textContent = 'Dashboard Overview';
+                if (pageTitle.textContent === '🔄 Loading Real API Data...') {
+                    pageTitle.textContent = 'Dashboard Overview';
+                }
             }
         }
 

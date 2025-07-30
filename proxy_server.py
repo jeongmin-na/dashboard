@@ -131,7 +131,7 @@ class CursorAPIProxy(http.server.SimpleHTTPRequestHandler):
         self.end_headers()
         self.wfile.write(error_data.encode())
 
-def run_proxy_server(port=8000):
+def run_proxy_server(port=8001):
     """프록시 서버 실행"""
     with socketserver.TCPServer(("", port), CursorAPIProxy) as httpd:
         print(f"🚀 Cursor API 프록시 서버가 포트 {port}에서 실행 중입니다...")
