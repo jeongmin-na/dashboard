@@ -1,0 +1,22 @@
+# Samsung AI Experience Group Dashboard 의존성
+
+# HTTP 요청 및 API 통신
+urllib3>=1.26.0
+
+# JSON 처리
+json5>=0.9.0
+
+# 날짜/시간 처리
+python-dateutil>=2.8.0
+
+# CSV 처리
+pandas>=1.3.0
+
+# HTTP 서버
+# Python 표준 라이브러리 사용 (추가 설치 불필요)
+
+# SSL 인증서 처리
+# Python 표준 라이브러리 사용 (추가 설치 불필요)
+
+# Base64 인코딩
+# Python 표준 라이브러리 사용 (추가 설치 불필요) 
