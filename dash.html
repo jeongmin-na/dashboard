@@ -327,6 +327,18 @@
             color: #b1b1b1;
         }
 
+        .clickable-email {
+            color: #4a9eff;
+            cursor: pointer;
+            text-decoration: none;
+            transition: color 0.2s ease;
+        }
+
+        .clickable-email:hover {
+            color: #2196f3;
+            text-decoration: underline;
+        }
+
         .member-type {
             padding: 4px 8px;
             border-radius: 4px;
@@ -395,6 +407,17 @@
             padding: 8px 12px;
             color: #fff;
             font-size: 14px;
+        }
+
+        /* 달력 아이콘 색상 변경 */
+        .date-picker input[type="date"]::-webkit-calendar-picker-indicator {
+            filter: invert(1) brightness(1.5) sepia(1) saturate(5) hue-rotate(45deg);
+            cursor: pointer;
+        }
+
+        .date-picker input[type="date"]::-moz-calendar-picker-indicator {
+            filter: invert(1) brightness(1.5) sepia(1) saturate(5) hue-rotate(45deg);
+            cursor: pointer;
         }
 
         .date-picker span {
@@ -2371,6 +2394,34 @@
             });
         }
 
+
+
+        // 이메일 클릭 시 Usage 섹션으로 이동 및 검색
+        function navigateToUsageWithEmail(email) {
+            console.log(`이메일 클릭: ${email} - Usage 섹션으로 이동 시작`);
+            
+            // 사이드바의 Usage 메뉴 클릭 (이렇게 하면 자동으로 데이터 로드됨)
+            const usageMenuItem = document.querySelector('.menu-item[data-section="usage"]');
+            if (usageMenuItem) {
+                usageMenuItem.click();
+            }
+            
+            // 약간의 지연 후 검색 실행 (섹션 전환과 데이터 로드 완료 대기)
+            setTimeout(() => {
+                const searchBox = document.querySelector('#usage .search-box');
+                if (searchBox) {
+                    searchBox.value = email;
+                    // 새로운 검색 함수 사용 (이메일 주소인 경우 정확한 매칭 우선)
+                    filterUsageMembers(email);
+                    console.log(`✅ 이메일 검색 완료: ${email}`);
+                } else {
+                    console.error('❌ Usage 섹션의 검색창을 찾을 수 없습니다.');
+                }
+            }, 500);
+            
+            console.log(`📧 이메일 클릭 처리 완료: ${email}`);
+        }
+
         // 활동 리스트 업데이트
         function updateActivityList(activities) {
             const memberList = document.getElementById('member-list');
@@ -2396,7 +2447,7 @@
             const activitiesHtml = activities.map(activity => `
                 <div class="member-item">
                     <div class="member-date">${activity.date}</div>
-                    <div class="member-email" title="${activity.name}">${activity.email}</div>
+                    <div class="member-email clickable-email" title="View usage for ${activity.email}" onclick="navigateToUsageWithEmail('${activity.email}')">${activity.email}</div>
                     <div class="member-type ${activity.type}">${activity.type === 'active' ? '활성' : '비활성'}</div>
                     <div class="member-kind">${activity.kind}</div>
                     <div class="member-request">${activity.request}</div>
@@ -2553,7 +2604,7 @@
                
                 row.innerHTML = `
                     <div>${member.name || 'Unnamed'}</div>
-                    <div>${member.email}</div>
+                    <div class="clickable-email" title="View usage for ${member.email}" onclick="navigateToUsageWithEmail('${member.email}')">${member.email}</div>
                     <div style="color: ${requestColor}; font-weight: 600;">${member.spendData.premiumRequests}</div>
                     <div>$${member.spendData.spend.toFixed(2)}</div>
                     <div><span class="role-badge ${roleBadgeClass}">${roleText}</span></div>
@@ -2973,21 +3024,225 @@
             renderRawEventsTableWithPagination();
         }
 
-        // Usage 멤버 검색 기능
+        // 필터링된 Raw Events 테이블 렌더링
+        function renderFilteredRawEventsTable(filteredEvents, container) {
+            if (!container || !filteredEvents) return;
+            
+            const tableHtml = `
+                <div class="user-cumulative-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>📋 All Raw Events - 검색 결과 (${filteredEvents.length}개)</span>
+                    <button onclick="clearUsageSearch()" style="background: #4a9eff; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                        전체 보기
+                    </button>
+                </div>
+                <div class="user-cumulative-table">
+                    <div>DATE</div>
+                    <div>USER</div>
+                    <div>KIND</div>
+                    <div>MAX_MODEL</div>
+                    <div>MODEL</div>
+                    <div>COST</div>
+                </div>
+                ${filteredEvents.map(event => {
+                    const date = new Date(parseInt(event.timestamp));
+                    const dateText = date.toLocaleDateString('en-US', { 
+                        month: 'short', 
+                        day: 'numeric', 
+                        hour: '2-digit', 
+                        minute: '2-digit' 
+                    });
+                    
+                    return `
+                        <div class="user-cumulative-row">
+                            <div>${dateText}</div>
+                            <div class="user-email">${event.userEmail}</div>
+                            <div>${(event.kindLabel || 'Unknown').substring(0, 15)}${(event.kindLabel || '').length > 15 ? '...' : ''}</div>
+                            <div>${event.maxMode ? 'Yes' : 'No'}</div>
+                            <div>${(event.model || 'auto').substring(0, 10)}${(event.model || '').length > 10 ? '...' : ''}</div>
+                            <div>${event.requestsCosts || 0}</div>
+                        </div>
+                    `;
+                }).join('')}
+            `;
+            
+            container.innerHTML = tableHtml;
+            console.log(`필터링된 Raw Events 테이블 렌더링 완료: ${filteredEvents.length}개 이벤트`);
+        }
+
+        // 빈 Raw Events 테이블 렌더링
+        function renderEmptyRawEventsTable(container, searchedEmails) {
+            if (!container) return;
+            
+            const emailList = searchedEmails.join(', ');
+            
+            const tableHtml = `
+                <div class="user-cumulative-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>📋 All Raw Events - 검색 결과 (0개)</span>
+                    <button onclick="clearUsageSearch()" style="background: #4a9eff; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">
+                        전체 보기
+                    </button>
+                </div>
+                <div class="user-cumulative-table">
+                    <div>DATE</div>
+                    <div>USER</div>
+                    <div>KIND</div>
+                    <div>MAX_MODEL</div>
+                    <div>MODEL</div>
+                    <div>COST</div>
+                </div>
+                <div style="padding: 40px 20px; text-align: center; color: #7a7a7a; background-color: #1a1a1a; grid-column: 1 / -1;">
+                    <h3 style="color: #e1e1e1; margin-bottom: 10px;">검색된 사용자의 활동이 없습니다</h3>
+                    <p style="margin-bottom: 15px;">검색 대상: <strong style="color: #4a9eff;">${emailList}</strong></p>
+                    <p style="font-size: 14px; line-height: 1.4;">
+                        • 해당 사용자가 선택된 기간에 활동하지 않았을 수 있습니다<br>
+                        • 다른 날짜 범위를 선택해보세요<br>
+                        • 또는 다른 사용자를 검색해보세요
+                    </p>
+                </div>
+            `;
+            
+            container.innerHTML = tableHtml;
+            console.log(`빈 Raw Events 테이블 렌더링 완료 (검색 대상: ${emailList})`);
+        }
+
+        // Usage 검색 초기화
+        function clearUsageSearch() {
+            const searchBox = document.querySelector('#usage .search-box');
+            if (searchBox) {
+                searchBox.value = '';
+                filterUsageMembers(''); // 빈 검색어로 필터링 (전체 표시)
+            }
+        }
+
+        // Usage 멤버 검색 기능 (사용자별 누적 사용량 정보와 All Raw Events 테이블 연동)
         function filterUsageMembers(searchTerm) {
-            const rows = document.querySelectorAll('#usage .user-cumulative-row');
-            const searchLower = searchTerm.toLowerCase();
-           
-            rows.forEach(row => {
-                const name = row.children[0].textContent.toLowerCase();
-                const email = row.children[1].textContent.toLowerCase();
-               
-                if (name.includes(searchLower) || email.includes(searchLower)) {
+            const searchLower = searchTerm.toLowerCase().trim();
+            
+            console.log(`🔍 Usage 멤버 검색 시작: "${searchTerm}"`);
+            
+            // 검색어가 비어있으면 모든 행 표시
+            if (searchLower === '') {
+                const allRows = document.querySelectorAll('#usage .user-cumulative-row');
+                allRows.forEach(row => {
                     row.style.display = 'grid';
+                });
+                console.log('✅ 검색어 없음 - 모든 행 표시');
+                return;
+            }
+            
+            // 이메일 주소인지 확인 (@ 포함 여부로 판단)
+            const isEmailSearch = searchLower.includes('@');
+            
+            // 모든 Usage 섹션의 user-cumulative-info 컨테이너 가져오기
+            const userInfoContainers = document.querySelectorAll('#usage .user-cumulative-info');
+            
+            if (userInfoContainers.length === 0) {
+                console.log('⚠️ Usage 섹션의 user-cumulative-info 컨테이너를 찾을 수 없습니다.');
+                return;
+            }
+            
+            console.log(`📋 발견된 테이블 컨테이너: ${userInfoContainers.length}개`);
+            
+            // 사용자별 누적 사용량 정보 테이블 (첫 번째 컨테이너)과 All Raw Events 테이블 (두 번째 컨테이너) 구분
+            const userCumulativeContainer = userInfoContainers[0]; // 첫 번째: 사용자별 누적 사용량 정보
+            const rawEventsContainer = userInfoContainers[1]; // 두 번째: All Raw Events
+            
+            // 1. 사용자별 누적 사용량 정보 테이블에서 필터링하고 매칭된 이메일 수집
+            const matchedEmails = new Set();
+            
+            // 정확한 이메일 매칭이 있는지 먼저 확인
+            let hasExactMatch = false;
+            if (isEmailSearch) {
+                const allEmailElements = userCumulativeContainer.querySelectorAll('.user-cumulative-row .user-email, .user-cumulative-row div:nth-child(2)');
+                hasExactMatch = Array.from(allEmailElements).some(element => 
+                    element.textContent.toLowerCase().trim() === searchLower
+                );
+                console.log(`🔍 정확한 이메일 매칭 확인: ${hasExactMatch ? '발견됨' : '없음'}`);
+            }
+            
+            // 사용자별 누적 사용량 정보 테이블 필터링
+            const userCumulativeRows = userCumulativeContainer.querySelectorAll('.user-cumulative-row');
+            console.log(`📊 사용자별 누적 사용량 정보: ${userCumulativeRows.length}개 행 발견`);
+            
+            userCumulativeRows.forEach(row => {
+                if (row.children.length < 2) return; // 충분한 컬럼이 없으면 스킵
+                
+                const name = row.children[0].textContent.toLowerCase().trim();
+                const email = row.children[1].textContent.toLowerCase().trim();
+                
+                let shouldShow = false;
+                
+                if (isEmailSearch) {
+                    if (hasExactMatch) {
+                        // 정확한 매칭이 있으면 정확한 매칭만 표시
+                        shouldShow = email === searchLower;
+                    } else {
+                        // 정확한 매칭이 없으면 부분 매칭 허용
+                        shouldShow = email.includes(searchLower);
+                    }
+                } else {
+                    // 일반 검색: 이름 또는 이메일 부분 매칭
+                    shouldShow = name.includes(searchLower) || email.includes(searchLower);
+                }
+                
+                if (shouldShow) {
+                    row.style.display = 'grid';
+                    // 매칭된 이메일을 수집 (원본 이메일 저장)
+                    const originalEmail = row.children[1].textContent.trim();
+                    matchedEmails.add(originalEmail);
                 } else {
                     row.style.display = 'none';
                 }
             });
+            
+            console.log(`📧 매칭된 이메일: ${Array.from(matchedEmails).join(', ')}`);
+            
+            // 2. All Raw Events 테이블 연동 필터링 (전체 데이터에서 검색)
+            if (rawEventsContainer && currentRawEventsData && currentRawEventsData.length > 0) {
+                console.log(`📋 All Raw Events 전체 데이터: ${currentRawEventsData.length}개 이벤트`);
+                console.log(`🔍 매칭 대상 이메일: ${Array.from(matchedEmails).join(', ')}`);
+                
+                // 검색어가 있으면 매칭된 이메일의 이벤트만 필터링
+                if (matchedEmails.size > 0) {
+                    const filteredEvents = currentRawEventsData.filter(event => {
+                        const eventUserEmail = event.userEmail?.trim() || '';
+                        
+                        // 매칭 확인 (대소문자 무시)
+                        return Array.from(matchedEmails).some(email => {
+                            const emailLower = email.toLowerCase();
+                            const eventEmailLower = eventUserEmail.toLowerCase();
+                            return emailLower === eventEmailLower || 
+                                   emailLower.includes(eventEmailLower) || 
+                                   eventEmailLower.includes(emailLower);
+                        });
+                    });
+                    
+                    console.log(`✅ 필터링된 Raw Events: ${filteredEvents.length}개`);
+                    
+                    if (filteredEvents.length > 0) {
+                        // 필터링된 데이터로 테이블 다시 렌더링
+                        renderFilteredRawEventsTable(filteredEvents, rawEventsContainer);
+                        console.log(`✅ ${filteredEvents.length}개의 매칭된 이벤트를 표시했습니다.`);
+                    } else {
+                        // 매칭된 이벤트가 없으면 빈 테이블 표시
+                        renderEmptyRawEventsTable(rawEventsContainer, Array.from(matchedEmails));
+                        console.log('⚠️ 매칭된 사용자의 Raw Events가 없습니다.');
+                        console.log('💡 해당 사용자가 선택된 기간에 활동하지 않았을 수 있습니다.');
+                    }
+                } else {
+                    // 검색어가 없으면 원래 페이지네이션 방식으로 복원
+                    renderRawEventsTableWithPagination();
+                    console.log('✅ 검색어 없음 - 전체 Raw Events 페이지네이션 복원');
+                }
+            } else {
+                console.log('⚠️ All Raw Events 컨테이너 또는 데이터를 찾을 수 없습니다.');
+                console.log(`   - 컨테이너 존재: ${!!rawEventsContainer}`);
+                console.log(`   - 데이터 존재: ${!!currentRawEventsData}`);
+                console.log(`   - 데이터 길이: ${currentRawEventsData?.length || 0}`);
+            }
+            
+            const matchingType = isEmailSearch ? (hasExactMatch ? '정확한 이메일 매칭' : '이메일 부분 매칭') : '부분 매칭';
+            console.log(`✅ Usage 검색 완료: "${searchTerm}" - ${matchingType}으로 두 테이블 연동 필터링 완료 (매칭된 사용자 ${matchedEmails.size}명)`);
         }
 
         // 멤버 정렬 기능
