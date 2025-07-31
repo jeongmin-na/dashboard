@@ -2400,26 +2400,70 @@
         function navigateToUsageWithEmail(email) {
             console.log(`이메일 클릭: ${email} - Usage 섹션으로 이동 시작`);
             
-            // 사이드바의 Usage 메뉴 클릭 (이렇게 하면 자동으로 데이터 로드됨)
+            // 검색 예정 플래그 설정 (자동 새로고침 방지용)
+            window.pendingEmailSearch = email;
+            
+            // 수동으로 섹션 전환 (자동 데이터 로드 방지)
             const usageMenuItem = document.querySelector('.menu-item[data-section="usage"]');
+            const allMenuItems = document.querySelectorAll('.menu-item');
+            const allSections = document.querySelectorAll('.content-section');
+            
+            // 메뉴 상태 업데이트
+            allMenuItems.forEach(menu => menu.classList.remove('active'));
             if (usageMenuItem) {
-                usageMenuItem.click();
+                usageMenuItem.classList.add('active');
             }
             
-            // 약간의 지연 후 검색 실행 (섹션 전환과 데이터 로드 완료 대기)
-            setTimeout(() => {
-                const searchBox = document.querySelector('#usage .search-box');
-                if (searchBox) {
-                    searchBox.value = email;
-                    // 새로운 검색 함수 사용 (이메일 주소인 경우 정확한 매칭 우선)
-                    filterUsageMembers(email);
-                    console.log(`✅ 이메일 검색 완료: ${email}`);
-                } else {
-                    console.error('❌ Usage 섹션의 검색창을 찾을 수 없습니다.');
-                }
-            }, 500);
+            // 섹션 전환
+            allSections.forEach(section => section.classList.remove('active'));
+            const usageSection = document.getElementById('usage');
+            if (usageSection) {
+                usageSection.classList.add('active');
+            }
+            
+            // 페이지 제목 업데이트
+            const pageTitle = document.getElementById('page-title');
+            if (pageTitle) {
+                pageTitle.textContent = 'Usage Analytics';
+            }
+            
+            // Usage 데이터가 이미 로드되어 있는지 확인
+            const hasData = currentRawEventsData && currentRawEventsData.length > 0;
+            
+            if (hasData) {
+                // 데이터가 이미 있으면 즉시 검색 실행
+                executeEmailSearch(email);
+            } else {
+                // 데이터가 없으면 먼저 로드한 후 검색
+                console.log('Usage 데이터를 먼저 로드합니다...');
+                updateUsageWithCurrentFilter(30).then(() => {
+                    // 데이터 로드 완료 후 검색 실행
+                    setTimeout(() => {
+                        executeEmailSearch(email);
+                    }, 500);
+                }).catch(error => {
+                    console.error('Usage 데이터 로드 실패:', error);
+                    // 로드 실패해도 검색은 시도
+                    executeEmailSearch(email);
+                });
+            }
             
             console.log(`📧 이메일 클릭 처리 완료: ${email}`);
+        }
+        
+        // 이메일 검색 실행 함수
+        function executeEmailSearch(email) {
+            const searchBox = document.querySelector('#usage .search-box');
+            if (searchBox) {
+                searchBox.value = email;
+                filterUsageMembers(email);
+                console.log(`✅ 이메일 검색 완료: ${email}`);
+                
+                // 검색 완료 후 플래그 제거
+                delete window.pendingEmailSearch;
+            } else {
+                console.error('❌ Usage 섹션의 검색창을 찾을 수 없습니다.');
+            }
         }
 
         // 활동 리스트 업데이트
@@ -2895,6 +2939,18 @@
             const tableContainer = document.querySelector('#usage .user-cumulative-info:last-child');
             if (!tableContainer || !eventsData || !eventsData.usageEvents) return;
             
+            // 검색 중인 경우 자동 업데이트 방지
+            if (window.pendingEmailSearch) {
+                console.log(`⏳ 이메일 검색 대기 중 (${window.pendingEmailSearch}) - Raw Events 테이블 자동 업데이트 건너뜀`);
+                // 데이터는 저장하되 테이블 렌더링은 하지 않음
+                currentRawEventsData = eventsData.usageEvents.sort((a, b) => {
+                    const timestampA = parseInt(a.timestamp) || 0;
+                    const timestampB = parseInt(b.timestamp) || 0;
+                    return timestampB - timestampA; // 내림차순 (최신 → 과거)
+                });
+                return;
+            }
+            
             // 전체 데이터 저장 및 DATE 기준 내림차순 정렬 (최신순)
             currentRawEventsData = eventsData.usageEvents.sort((a, b) => {
                 const timestampA = parseInt(a.timestamp) || 0;
@@ -3110,6 +3166,13 @@
             const searchBox = document.querySelector('#usage .search-box');
             if (searchBox) {
                 searchBox.value = '';
+                
+                // 검색 플래그 제거
+                if (window.pendingEmailSearch) {
+                    console.log(`🔄 전체 보기 클릭으로 이메일 검색 플래그 제거: ${window.pendingEmailSearch}`);
+                    delete window.pendingEmailSearch;
+                }
+                
                 filterUsageMembers(''); // 빈 검색어로 필터링 (전체 표시)
             }
         }
@@ -3243,6 +3306,12 @@
             
             const matchingType = isEmailSearch ? (hasExactMatch ? '정확한 이메일 매칭' : '이메일 부분 매칭') : '부분 매칭';
             console.log(`✅ Usage 검색 완료: "${searchTerm}" - ${matchingType}으로 두 테이블 연동 필터링 완료 (매칭된 사용자 ${matchedEmails.size}명)`);
+            
+            // 검색 완료 후 대기 중인 이메일 검색 플래그 제거
+            if (window.pendingEmailSearch) {
+                console.log(`🔄 이메일 검색 플래그 제거: ${window.pendingEmailSearch}`);
+                delete window.pendingEmailSearch;
+            }
         }
 
         // 멤버 정렬 기능
