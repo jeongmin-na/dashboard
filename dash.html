@@ -121,6 +121,8 @@
             background-color: #3a3a3a;
         }
 
+
+
         .header-left h1 {
             color: #fff;
             font-size: 24px;
@@ -272,14 +274,7 @@
             font-weight: 600;
         }
 
-        .member-count {
-            background-color: #3a3a3a;
-            color: #e1e1e1;
-            padding: 4px 12px;
-            border-radius: 12px;
-            font-size: 12px;
-            font-weight: 500;
-        }
+
 
         .member-list {
             display: grid;
@@ -369,6 +364,149 @@
         .member-spend {
             color: #4a9eff;
             font-weight: 600;
+        }
+
+        /* 활동리스트 페이지네이션 스타일 */
+        .activity-pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 20px;
+            background-color: #2a2a2a;
+            border-top: 1px solid #3a3a3a;
+        }
+
+        .activity-pagination button {
+            background: #3a3a3a;
+            border: 1px solid #4a4a4a;
+            color: #e1e1e1;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .activity-pagination button:hover {
+            background: #4a4a4a;
+        }
+
+        .activity-pagination button.active {
+            background: #4a9eff;
+            border-color: #4a9eff;
+            color: white;
+        }
+
+        .activity-pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+
+        .activity-pagination .page-info {
+            color: #b1b1b1;
+            font-size: 12px;
+            margin: 0 10px;
+        }
+
+        .activity-page-size-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-left: auto;
+        }
+
+        .activity-page-size-selector select {
+            background: #3a3a3a;
+            color: #fff;
+            border: 1px solid #4a4a4a;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        
+        /* 사용자별 누적 사용량 정보 페이지네이션 스타일 */
+        .user-cumulative-pagination {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 10px;
+            padding: 15px 20px;
+            background-color: #2a2a2a;
+            border-top: 1px solid #3a3a3a;
+        }
+        
+        .user-cumulative-pagination button {
+            background: #3a3a3a;
+            color: #e1e1e1;
+            border: 1px solid #4a4a4a;
+            padding: 8px 12px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: all 0.2s ease;
+        }
+        
+        .user-cumulative-pagination button:hover:not(:disabled) {
+            background: #4a4a4a;
+            border-color: #5a5a5a;
+        }
+        
+        .user-cumulative-pagination button:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+        }
+        
+        .user-cumulative-pagination .page-info {
+            color: #b1b1b1;
+            font-size: 14px;
+            min-width: 120px;
+            text-align: center;
+        }
+        
+        .user-cumulative-page-size-selector {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .user-cumulative-page-size-selector select {
+            background: #3a3a3a;
+            color: #fff;
+            border: 1px solid #4a4a4a;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+
+        /* Members 페이지네이션 스타일 (All Raw Events와 동일) */
+        #members-pagination button {
+            background: #3a3a3a;
+            border: 1px solid #4a4a4a;
+            color: #e1e1e1;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 12px;
+            margin: 0 2px;
+            transition: all 0.2s ease;
+        }
+
+        #members-pagination button:hover {
+            background: #4a4a4a;
+            border-color: #5a5a5a;
+        }
+
+        #members-pagination button.active {
+            background: #4a9eff;
+            border-color: #4a9eff;
+            color: white;
+            font-weight: 600;
+        }
+
+        #members-pagination span {
+            color: #7a7a7a;
+            padding: 0 5px;
         }
 
         /* 필터 및 검색 영역 */
@@ -859,15 +997,16 @@
 
                     <!-- 멤버 세부 리스트 -->
                     <div class="overview-member-details">
-                        <div class="member-details-header">
-                            <h3 id="member-list-title">📊 전체 활동 리스트</h3>
-                            <div class="member-count" id="member-count">(20건)</div>
-                        </div>
-                        <div class="member-list" id="member-list">
-                            <!-- 활동 리스트가 여기에 동적으로 표시됩니다 -->
+                        <div id="overview-activity-container">
+                            <!-- 동적으로 생성될 테이블 헤더와 내용 -->
                             <div style="padding: 20px; text-align: center; color: #7a7a7a; background-color: #1a1a1a;">
                                 데이터를 불러오는 중...
                             </div>
+                        </div>
+                        
+                        <!-- Overview 활동리스트 페이지네이션 (Members 스타일) -->
+                        <div id="overview-activity-pagination" style="display: none; padding: 15px 20px; background-color: #2a2a2a; border-top: 1px solid #3a3a3a; text-align: center;">
+                            <!-- 숫자 페이지 버튼들이 동적으로 생성됨 -->
                         </div>
                     </div>
                 </div>
@@ -882,18 +1021,16 @@
                             <input type="text" class="search-box" placeholder="Search members..." onkeyup="filterMembers(this.value)">
                         </div>
                     </div>
-                    <div class="data-table">
-                        <div class="table-header">
-                            <div onclick="sortMembers('name')" style="cursor: pointer;">NAME ↕</div>
-                            <div onclick="sortMembers('email')" style="cursor: pointer;">EMAIL ↕</div>
-                            <div onclick="sortMembers('requests')" style="cursor: pointer;">PREMIUM REQUESTS ↕</div>
-                            <div onclick="sortMembers('spend')" style="cursor: pointer;">SPEND ↕</div>
-                            <div onclick="sortMembers('role')" style="cursor: pointer;">ROLE ↕</div>
-                            <div></div>
-                        </div>
+                    <div class="data-table" id="members-table-container">
+                        <!-- 동적으로 생성될 테이블 헤더와 내용 -->
                         <div style="padding: 20px; text-align: center; color: #7a7a7a; background-color: #1a1a1a;">
                             실제 멤버 데이터를 로딩하는 중...
                         </div>
+                    </div>
+                    
+                    <!-- Members 페이지네이션 (All Raw Events 스타일) -->
+                    <div id="members-pagination" style="display: none; padding: 15px 20px; background-color: #2a2a2a; border-top: 1px solid #3a3a3a; text-align: center;">
+                        <!-- 숫자 페이지 버튼들이 동적으로 생성됨 -->
                     </div>
                 </div>
 
@@ -938,17 +1075,16 @@
 
                     <!-- 사용자별 누적 정보 -->
                     <div class="user-cumulative-info">
-                        <div class="user-cumulative-header">📊 사용자별 누적 사용량 정보</div>
-                        <div class="user-cumulative-table">
-                            <div>NAME</div>
-                            <div>EMAIL</div>
-                            <div>ROLE</div>
-                            <div>REQUEST</div>
-                            <div>SPEND</div>
-                            <div>LAST ACT</div>
+                        <div id="user-cumulative-container">
+                            <!-- 동적으로 생성될 테이블 헤더와 내용 -->
+                            <div style="padding: 20px; text-align: center; color: #7a7a7a; background-color: #1a1a1a;">
+                                데이터를 불러오는 중...
+                            </div>
                         </div>
-                        <div style="padding: 20px; text-align: center; color: #7a7a7a; background-color: #1a1a1a;">
-                            데이터를 불러오는 중...
+                        
+                        <!-- 사용자별 누적 사용량 정보 페이지네이션 (All Raw Events 스타일) -->
+                        <div id="user-cumulative-pagination" style="display: none; padding: 15px 20px; background-color: #2a2a2a; border-top: 1px solid #3a3a3a; text-align: center;">
+                            <!-- 숫자 페이지 버튼들이 동적으로 생성됨 -->
                         </div>
                     </div>
 
@@ -1148,7 +1284,6 @@
         function renderMemberList(type) {
             const memberList = document.getElementById('member-list');
             const memberListTitle = document.getElementById('member-list-title');
-            const memberCount = document.getElementById('member-count');
            
             let activities = [];
             let title = "";
@@ -1172,7 +1307,6 @@
             }
            
             memberListTitle.textContent = `${icon} ${title}`;
-            memberCount.textContent = `(${activities.length}건)`;
            
             memberList.innerHTML = `
                 <div class="member-list-header">
@@ -1338,7 +1472,7 @@
                         }, 100);
                         break;
                     case 'members':
-                        pageTitle.textContent = 'Members';
+                        pageTitle.textContent = 'Dashboard Members';
                         // Members 메뉴 클릭 시 자동 새로고침
                         setTimeout(async () => {
                             console.log('=== Members 메뉴 클릭 시 자동 실제 API 데이터 새로고침 시작 ===');
@@ -1399,8 +1533,9 @@
             currentFilterType = type;
            
             // 클릭 즉시 로딩 상태 표시
+            currentActivityPage = 1; // 페이지네이션 초기화
             updateActivityList([]);
-            updateMemberListTitle(type, 0);
+            // 제목은 동적으로 생성됨
            
             // 실제 API 데이터 새로 가져와서 표시
             await updateMembersByTypeWithRealData(type);
@@ -1461,8 +1596,9 @@
                 await showActiveMembersWithData(membersData, eventsData, 'total');
             } else {
                 console.error(`알 수 없는 타입: ${type}`);
+                currentActivityPage = 1; // 페이지네이션 초기화
                 updateActivityList([]);
-                updateMemberListTitle(type, 0);
+                // 제목은 동적으로 생성됨
             }
            
             console.log(`=== ${type} 멤버 실제 API 데이터 로드 완료 ===`);
@@ -1474,8 +1610,9 @@
            
             if (!eventsData || !eventsData.usageEvents) {
                 console.log('활동 이벤트 데이터가 없습니다.');
+                currentActivityPage = 1; // 페이지네이션 초기화
                 updateActivityList([]);
-                updateMemberListTitle(type, 0);
+                // 제목은 동적으로 생성됨
                 return;
             }
            
@@ -1513,7 +1650,7 @@
             console.log('표시될 멤버 목록:', filteredActivities.map(a => `${a.email} (${a.request} requests)`));
            
             updateActivityList(filteredActivities);
-            updateMemberListTitle(type, filteredActivities.length);
+            // 제목은 동적으로 생성됨
            
             console.log(`=== ${type} 멤버 데이터 표시 완료 ===`);
         }
@@ -1574,8 +1711,9 @@
                 };
             });
            
+            currentActivityPage = 1; // 페이지네이션 초기화
             updateActivityList(inactiveActivities);
-            updateMemberListTitle('inactive', inactiveActivities.length);
+            // 제목은 동적으로 생성됨
         }
 
         // 비활성 멤버 표시 함수 (기존 호환성 유지)
@@ -1634,11 +1772,9 @@
             return filteredActivities;
         }
 
-        // 멤버 리스트 제목 업데이트 (Usage 섹션과 동일한 형식)
-        function updateMemberListTitle(type, count) {
-            const titleElement = document.getElementById('member-list-title');
-            const countElement = document.getElementById('member-count');
-           
+        // Overview 활동리스트 제목 업데이트 (동적으로 헤더에 포함됨)
+        function updateOverviewActivityTitle(type, count, totalCount) {
+            // 제목은 renderOverviewActivityTableWithPagination에서 동적으로 생성됨
             let title, emoji;
             switch (type) {
                 case 'active':
@@ -1656,10 +1792,8 @@
                     break;
             }
            
-            // Usage 섹션과 동일한 형식으로 제목에 기간 정보 포함
-            const periodText = getCurrentOverviewPeriodText();
-            if (titleElement) titleElement.textContent = `${emoji} ${title} (${periodText})`;
-            if (countElement) countElement.textContent = `(${count}명)`;
+            // 동적으로 생성되는 제목에 사용될 기본 정보 반환
+            return { title, emoji };
         }
 
         // 현재 Overview 필터 기간을 텍스트로 반환
@@ -1675,7 +1809,11 @@
             const startDate = new Date(dateRange.startDate).toLocaleDateString('ko-KR');
             const endDate = new Date(dateRange.endDate).toLocaleDateString('ko-KR');
             
-            return `${startDate} ~ ${endDate}`;
+            // 날짜 끝의 "." 제거
+            const cleanStartDate = startDate.replace(/\.$/, '');
+            const cleanEndDate = endDate.replace(/\.$/, '');
+            
+            return `${cleanStartDate} ~ ${cleanEndDate}`;
         }
 
         // 차트 버튼 클릭 이벤트
@@ -1831,13 +1969,15 @@
                    
                     // 현재 선택된 타입에 따라 필터링
                     const filteredActivities = filterActivitiesByType(currentActivities, currentFilterType);
+                    currentActivityPage = 1; // 페이지네이션 초기화
                     updateActivityList(filteredActivities);
-                    updateMemberListTitle(currentFilterType, filteredActivities.length);
+                    // 제목은 동적으로 생성됨
                 } else {
                     console.log('활동 이벤트 데이터가 없습니다.');
                     currentActivities = [];
                     const totalMembers = membersData ? membersData.teamMembers.length : 0;
                     updateStatsCards(totalMembers, 0, totalMembers);
+                    currentActivityPage = 1; // 페이지네이션 초기화
                     updateActivityList([]);
                 }
                
@@ -1907,6 +2047,23 @@
         let currentRawEventsData = []; // 현재 Raw Events 전체 데이터
         let currentRawEventsPage = 1; // 현재 Raw Events 페이지
         let currentRawEventsPageSize = 10; // 현재 Raw Events 페이지 크기
+        
+        // 활동리스트 페이지네이션 변수
+        let currentActivityPage = 1; // 현재 활동리스트 페이지
+        let currentActivityPageSize = 20; // 현재 활동리스트 페이지 크기
+        let currentActivityData = []; // 현재 활동리스트 데이터
+        
+        // 사용자별 누적 사용량 정보 페이지네이션 변수
+        let currentUserCumulativePage = 1; // 현재 사용자별 누적 사용량 정보 페이지
+        let currentUserCumulativePageSize = 20; // 현재 사용자별 누적 사용량 정보 페이지 크기
+        let currentUserCumulativeData = []; // 현재 사용자별 누적 사용량 정보 데이터
+        let currentUserCumulativeStartDate = null; // 현재 사용자별 누적 사용량 정보 시작 날짜
+        let currentUserCumulativeEndDate = null; // 현재 사용자별 누적 사용량 정보 종료 날짜
+        
+        // Members 페이지네이션 변수
+        let currentMembersPage = 1; // 현재 Members 페이지
+        let currentMembersPageSize = 20; // 현재 Members 페이지 크기
+        let currentMembersData = []; // 현재 Members 데이터
 
         // ============================================================================
         // 성능 최적화 시스템 (2025.07.29 추가)
@@ -1922,7 +2079,7 @@
 
         // API 호출을 위한 설정
         const API_CONFIG = {
-            baseUrl: 'http://localhost:8000', // 로컬 프록시 서버
+            baseUrl: 'http://localhost:8001', // 로컬 프록시 서버
             apiKey: 'key_e46368ce482125bbd568b7d55090c657e30e4b73c824f522cbc9ef9b1bf3f0d3',
             headers: {
                 'Content-Type': 'application/json'
@@ -2050,13 +2207,61 @@
             }
         }
 
-        // 필터링된 이벤트 가져오기
+        // 필터링된 이벤트 가져오기 (모든 페이지 데이터 수집)
         async function getFilteredEvents(startDate, endDate) {
-            return await callAPI('/teams/filtered-usage-events', 'POST', {
-                startDate: startDate,
-                endDate: endDate,
-                pageSize: 1000
-            });
+            try {
+                console.log('=== 필터링된 이벤트 데이터 가져오기 시작 ===');
+                
+                // 첫 번째 페이지 요청
+                let allEvents = [];
+                let currentPage = 1;
+                let hasMorePages = true;
+                
+                while (hasMorePages) {
+                    console.log(`📄 페이지 ${currentPage} 요청 중...`);
+                    
+                    const pageData = await callAPI('/teams/filtered-usage-events', 'POST', {
+                        startDate: startDate,
+                        endDate: endDate,
+                        page: currentPage,
+                        pageSize: 1000
+                    });
+                    
+                    if (pageData && pageData.usageEvents) {
+                        allEvents = allEvents.concat(pageData.usageEvents);
+                        console.log(`✅ 페이지 ${currentPage}: ${pageData.usageEvents.length}개 이벤트 수집 (누적: ${allEvents.length}개)`);
+                        
+                        // 더 많은 페이지가 있는지 확인
+                        hasMorePages = pageData.pagination && pageData.pagination.hasNextPage;
+                        currentPage++;
+                        
+                        // 무한 루프 방지 (최대 10페이지)
+                        if (currentPage > 10) {
+                            console.log('⚠️ 최대 페이지 수 도달 - 무한 루프 방지');
+                            break;
+                        }
+                    } else {
+                        console.log(`❌ 페이지 ${currentPage} 데이터 없음`);
+                        hasMorePages = false;
+                    }
+                }
+                
+                console.log(`=== 필터링된 이벤트 데이터 수집 완료: 총 ${allEvents.length}개 이벤트 ===`);
+                
+                // 기존 형식으로 반환
+                return {
+                    totalUsageEventsCount: allEvents.length,
+                    usageEvents: allEvents,
+                    period: {
+                        startDate: startDate,
+                        endDate: endDate
+                    }
+                };
+                
+            } catch (error) {
+                console.error('❌ 필터링된 이벤트 가져오기 실패:', error);
+                throw error;
+            }
         }
 
         // 현재 선택된 필터 기간 가져오기
@@ -2400,34 +2605,121 @@
         function navigateToUsageWithEmail(email) {
             console.log(`이메일 클릭: ${email} - Usage 섹션으로 이동 시작`);
             
-            // 사이드바의 Usage 메뉴 클릭 (이렇게 하면 자동으로 데이터 로드됨)
+            // 검색 예정 플래그 설정 (자동 새로고침 방지용)
+            window.pendingEmailSearch = email;
+            
+            // 수동으로 섹션 전환 (자동 데이터 로드 방지)
             const usageMenuItem = document.querySelector('.menu-item[data-section="usage"]');
+            const allMenuItems = document.querySelectorAll('.menu-item');
+            const allSections = document.querySelectorAll('.content-section');
+            
+            // 메뉴 상태 업데이트
+            allMenuItems.forEach(menu => menu.classList.remove('active'));
             if (usageMenuItem) {
-                usageMenuItem.click();
+                usageMenuItem.classList.add('active');
             }
             
-            // 약간의 지연 후 검색 실행 (섹션 전환과 데이터 로드 완료 대기)
-            setTimeout(() => {
-                const searchBox = document.querySelector('#usage .search-box');
-                if (searchBox) {
-                    searchBox.value = email;
-                    // 새로운 검색 함수 사용 (이메일 주소인 경우 정확한 매칭 우선)
-                    filterUsageMembers(email);
-                    console.log(`✅ 이메일 검색 완료: ${email}`);
-                } else {
-                    console.error('❌ Usage 섹션의 검색창을 찾을 수 없습니다.');
-                }
-            }, 500);
+            // 섹션 전환
+            allSections.forEach(section => section.classList.remove('active'));
+            const usageSection = document.getElementById('usage');
+            if (usageSection) {
+                usageSection.classList.add('active');
+            }
+            
+            // 페이지 제목 업데이트
+            const pageTitle = document.getElementById('page-title');
+            if (pageTitle) {
+                pageTitle.textContent = 'Usage Analytics';
+            }
+            
+            // Usage 데이터가 이미 로드되어 있는지 확인
+            const hasData = currentRawEventsData && currentRawEventsData.length > 0;
+            
+            if (hasData) {
+                // 데이터가 이미 있으면 즉시 검색 실행
+                executeEmailSearch(email);
+            } else {
+                // 데이터가 없으면 먼저 로드한 후 검색
+                console.log('Usage 데이터를 먼저 로드합니다...');
+                updateUsageWithCurrentFilter(30).then(() => {
+                    // 데이터 로드 완료 후 검색 실행
+                    setTimeout(() => {
+                        executeEmailSearch(email);
+                    }, 500);
+                }).catch(error => {
+                    console.error('Usage 데이터 로드 실패:', error);
+                    // 로드 실패해도 검색은 시도
+                    executeEmailSearch(email);
+                });
+            }
             
             console.log(`📧 이메일 클릭 처리 완료: ${email}`);
         }
+        
+        // 이메일 검색 실행 함수
+        function executeEmailSearch(email) {
+            const searchBox = document.querySelector('#usage .search-box');
+            if (searchBox) {
+                searchBox.value = email;
+                filterUsageMembers(email);
+                console.log(`✅ 이메일 검색 완료: ${email}`);
+                
+                // 검색 완료 후 플래그 제거
+                delete window.pendingEmailSearch;
+            } else {
+                console.error('❌ Usage 섹션의 검색창을 찾을 수 없습니다.');
+            }
+        }
 
-        // 활동 리스트 업데이트
+        // 활동 리스트 업데이트 (Members 스타일 페이지네이션)
         function updateActivityList(activities) {
-            const memberList = document.getElementById('member-list');
-            if (!memberList) return;
+            currentActivityData = activities; // 데이터 저장
+            renderOverviewActivityTableWithPagination(activities);
+        }
 
-            const header = `
+        // Overview 활동리스트 테이블 렌더링 (Members 스타일)
+        function renderOverviewActivityTableWithPagination(activities) {
+            if (!activities || activities.length === 0) {
+                const container = document.getElementById('overview-activity-container');
+                if (container) {
+                    container.innerHTML = `
+                        <div style="padding: 20px; text-align: center; color: #7a7a7a; background-color: #1a1a1a;">
+                            활동 데이터가 없습니다.
+                        </div>
+                    `;
+                }
+                // 페이지네이션 숨기기
+                const pagination = document.getElementById('overview-activity-pagination');
+                if (pagination) pagination.style.display = 'none';
+                return;
+            }
+
+            // 페이지네이션 계산
+            const totalActivities = activities.length;
+            const totalPages = Math.ceil(totalActivities / currentActivityPageSize);
+            const startIndex = (currentActivityPage - 1) * currentActivityPageSize;
+            const endIndex = Math.min(startIndex + currentActivityPageSize, totalActivities);
+            const pageActivities = activities.slice(startIndex, endIndex);
+
+            console.log(`📄 Overview 활동리스트 페이지네이션: ${startIndex + 1}-${endIndex} of ${totalActivities} (페이지 ${currentActivityPage}/${totalPages})`);
+
+            // 현재 필터 타입에 따른 제목 결정
+            const titleInfo = updateOverviewActivityTitle(currentFilterType, totalActivities, totalActivities);
+            const periodText = getCurrentOverviewPeriodText();
+            
+            // 테이블 HTML 생성 (Members 스타일)
+            const tableHtml = `
+                <div class="user-cumulative-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span id="overview-activity-title">${titleInfo.emoji} ${titleInfo.title} (${periodText})(${startIndex + 1}-${endIndex} of ${totalActivities})</span>
+                    <select id="overviewActivityPageSize" onchange="changeOverviewActivityPageSize(this.value)" style="background: #3a3a3a; color: #fff; border: 1px solid #4a4a4a; padding: 5px 10px; border-radius: 4px; font-size: 12px;">
+                        <option value="10" ${currentActivityPageSize === 10 ? 'selected' : ''}>10개 보기</option>
+                        <option value="20" ${currentActivityPageSize === 20 ? 'selected' : ''}>20개 보기</option>
+                        <option value="30" ${currentActivityPageSize === 30 ? 'selected' : ''}>30개 보기</option>
+                        <option value="50" ${currentActivityPageSize === 50 ? 'selected' : ''}>50개 보기</option>
+                        <option value="100" ${currentActivityPageSize === 100 ? 'selected' : ''}>100개 보기</option>
+                    </select>
+                </div>
+
                 <div class="member-list-header">
                     <div>마지막 활동</div>
                     <div>사용자</div>
@@ -2437,14 +2729,8 @@
                     <div>비용</div>
                     <div>제한</div>
                 </div>
-            `;
 
-            if (!activities || activities.length === 0) {
-                memberList.innerHTML = header + '<div class="member-item"><div colspan="7">활동 데이터가 없습니다.</div></div>';
-                return;
-            }
-
-            const activitiesHtml = activities.map(activity => `
+                ${pageActivities.map(activity => `
                 <div class="member-item">
                     <div class="member-date">${activity.date}</div>
                     <div class="member-email clickable-email" title="View usage for ${activity.email}" onclick="navigateToUsageWithEmail('${activity.email}')">${activity.email}</div>
@@ -2454,16 +2740,32 @@
                     <div class="member-spend">${activity.spend}</div>
                     <div class="member-limit">${activity.limit || '$0'}</div>
                 </div>
-            `).join('');
+                `).join('')}
+            `;
 
-            memberList.innerHTML = header + activitiesHtml;
+            // 컨테이너에 테이블 삽입
+            const container = document.getElementById('overview-activity-container');
+            if (container) {
+                container.innerHTML = tableHtml;
+            }
+
+            // 페이지네이션 업데이트
+            const paginationContainer = document.getElementById('overview-activity-pagination');
+            if (paginationContainer && totalPages > 1) {
+                paginationContainer.innerHTML = generateOverviewActivityPagination(totalPages);
+                paginationContainer.style.display = 'block';
+            } else if (paginationContainer) {
+                paginationContainer.style.display = 'none';
+            }
            
             // 통계 업데이트
             const activeCount = activities.filter(a => a.type === 'active').length;
             const totalRequests = activities.reduce((sum, a) => sum + (typeof a.request === 'number' ? a.request : 0), 0);
            
-            console.log(`활동 리스트 업데이트: 총 ${activities.length}명, 활성 ${activeCount}명, 총 요청 ${totalRequests}건`);
+            console.log(`📊 Overview 활동 리스트 업데이트: 총 ${activities.length}명, 활성 ${activeCount}명, 총 요청 ${totalRequests}건 (페이지 ${currentActivityPage}/${totalPages})`);
         }
+
+
 
         // 필터 기간 업데이트
         function updateFilterPeriod(startDate, endDate) {
@@ -2547,24 +2849,8 @@
 
         // 멤버 테이블 업데이트 (실제 지출 데이터 사용)
         function updateMembersTable(members, memberSpendMap) {
-            const dataTable = document.querySelector('#members .data-table');
-            if (!dataTable) {
-                console.error('❌ 멤버 테이블을 찾을 수 없습니다.');
-                return;
-            }
-
             console.log(`🔄 멤버 테이블 업데이트 시작: ${members.length}명의 멤버 데이터`);
             console.log('📊 지출 데이터 매핑 정보:', Object.keys(memberSpendMap));
-
-            // 헤더는 유지
-            const header = dataTable.querySelector('.table-header');
-           
-            // 기존 행들과 로딩 메시지 제거
-            const existingRows = dataTable.querySelectorAll('.table-row');
-            const loadingMessages = dataTable.querySelectorAll('div[style*="padding: 20px"]');
-            console.log(`🗑️ 기존 ${existingRows.length}개 행과 ${loadingMessages.length}개 로딩 메시지 제거`);
-            existingRows.forEach(row => row.remove());
-            loadingMessages.forEach(msg => msg.remove());
            
             // 멤버 정보와 실제 지출 데이터 결합
             const membersWithSpending = members.map(member => {
@@ -2581,50 +2867,89 @@
             });
            
             console.log(`📋 처리된 멤버 데이터: ${membersWithSpending.length}명`);
-            membersWithSpending.forEach((member, index) => {
-                console.log(`   ${index + 1}. ${member.name || 'Unnamed'} (${member.email}) - Premium: ${member.spendData.premiumRequests}, Spend: $${member.spendData.spend}`);
-            });
            
             // Premium Requests 기준으로 정렬 (높은 순)
             membersWithSpending.sort((a, b) => b.spendData.premiumRequests - a.spendData.premiumRequests);
            
-            // 새로운 행들 추가
-            let addedRows = 0;
-            membersWithSpending.forEach(member => {
-                const row = document.createElement('div');
-                row.className = 'table-row';
-               
+            // 전역 데이터 저장
+            currentMembersData = membersWithSpending;
+            currentMembersPage = 1; // 페이지 리셋
+            
+            // 페이지네이션과 함께 렌더링
+            renderMembersTableWithPagination(membersWithSpending);
+        }
+        
+        // Members 테이블 페이지네이션과 함께 렌더링 (All Raw Events 스타일)
+        function renderMembersTableWithPagination(membersWithSpending) {
+            const tableContainer = document.querySelector('#members-table-container');
+            if (!tableContainer) {
+                console.error('❌ 멤버 테이블 컨테이너를 찾을 수 없습니다.');
+                return;
+            }
+            
+            // 페이지네이션 적용
+            const totalMembers = membersWithSpending.length;
+            const totalPages = Math.ceil(totalMembers / currentMembersPageSize);
+            const startIndex = (currentMembersPage - 1) * currentMembersPageSize;
+            const endIndex = Math.min(startIndex + currentMembersPageSize, totalMembers);
+            const pageMembers = membersWithSpending.slice(startIndex, endIndex);
+            
+            console.log(`📄 페이지네이션: ${startIndex + 1}-${endIndex} of ${totalMembers} (페이지 ${currentMembersPage}/${totalPages})`);
+           
+            // 테이블 HTML 생성 (All Raw Events 스타일)
+            const tableHtml = `
+                <div class="user-cumulative-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>👥 전체 멤버 보기 (${startIndex + 1}-${endIndex} of ${totalMembers})</span>
+                    <select id="membersPageSize" onchange="changeMembersPageSize(this.value)" style="background: #3a3a3a; color: #fff; border: 1px solid #4a4a4a; padding: 5px 10px; border-radius: 4px; font-size: 12px;">
+                        <option value="10" ${currentMembersPageSize === 10 ? 'selected' : ''}>10개 보기</option>
+                        <option value="20" ${currentMembersPageSize === 20 ? 'selected' : ''}>20개 보기</option>
+                        <option value="30" ${currentMembersPageSize === 30 ? 'selected' : ''}>30개 보기</option>
+                        <option value="50" ${currentMembersPageSize === 50 ? 'selected' : ''}>50개 보기</option>
+                        <option value="100" ${currentMembersPageSize === 100 ? 'selected' : ''}>100개 보기</option>
+                    </select>
+                </div>
+                <div class="table-header">
+                    <div onclick="sortMembers('name')" style="cursor: pointer;">NAME ↕</div>
+                    <div onclick="sortMembers('email')" style="cursor: pointer;">EMAIL ↕</div>
+                    <div onclick="sortMembers('requests')" style="cursor: pointer;">PREMIUM REQUESTS ↕</div>
+                    <div onclick="sortMembers('spend')" style="cursor: pointer;">SPEND ↕</div>
+                    <div onclick="sortMembers('role')" style="cursor: pointer;">ROLE ↕</div>
+                    <div></div>
+                </div>
+                ${pageMembers.length > 0 ? pageMembers.map(member => {
                 const roleBadgeClass = member.role === 'owner' ? 'admin' : '';
                 const roleText = member.role === 'owner' ? 'Admin' : 'Member';
-               
-                // Premium Requests에 따른 색상 표시
                 const requestColor = member.spendData.premiumRequests > 100 ? '#4caf50' :
                                    member.spendData.premiumRequests > 20 ? '#ff9800' :
                                    member.spendData.premiumRequests > 0 ? '#2196f3' : '#f44336';
                
-                row.innerHTML = `
+                    return `
+                        <div class="table-row">
                     <div>${member.name || 'Unnamed'}</div>
                     <div class="clickable-email" title="View usage for ${member.email}" onclick="navigateToUsageWithEmail('${member.email}')">${member.email}</div>
                     <div style="color: ${requestColor}; font-weight: 600;">${member.spendData.premiumRequests}</div>
                     <div>$${member.spendData.spend.toFixed(2)}</div>
                     <div><span class="role-badge ${roleBadgeClass}">${roleText}</span></div>
                     <div>⋯</div>
-                `;
-               
-                dataTable.appendChild(row);
-                addedRows++;
-            });
-           
-            console.log(`✅ 테이블에 ${addedRows}개 행 추가 완료`);
+                        </div>
+                    `;
+                }).join('') : '<div style="padding: 20px; text-align: center; color: #7a7a7a; background-color: #1a1a1a; grid-column: 1 / -1;">멤버 데이터가 없습니다.</div>'}
+            `;
             
-            // 데이터가 없을 때 메시지 표시
-            if (addedRows === 0) {
-                const noDataRow = document.createElement('div');
-                noDataRow.style.cssText = 'padding: 20px; text-align: center; color: #7a7a7a; background-color: #1a1a1a; grid-column: 1 / -1;';
-                noDataRow.textContent = '멤버 데이터가 없습니다.';
-                dataTable.appendChild(noDataRow);
-                console.log('📝 데이터 없음 메시지 표시');
+            tableContainer.innerHTML = tableHtml;
+            
+            // 페이지네이션 표시/숨김
+            const paginationContainer = document.getElementById('members-pagination');
+            if (paginationContainer) {
+                if (totalMembers > currentMembersPageSize) {
+                    paginationContainer.style.display = 'block';
+                    paginationContainer.innerHTML = generateMembersPagination(totalPages);
+                } else {
+                    paginationContainer.style.display = 'none';
+                }
             }
+            
+            console.log(`✅ Members 테이블 업데이트 완료: 페이지 ${currentMembersPage}/${totalPages}, ${pageMembers.length}개 멤버 표시`);
            
             // 통계 정보 표시
             const totalRequests = membersWithSpending.reduce((sum, member) => sum + member.spendData.premiumRequests, 0);
@@ -2636,6 +2961,161 @@
             console.log(`   - 활성 멤버: ${activeMembers}명 (Premium Requests > 0)`);
             console.log(`   - 총 Premium Requests: ${totalRequests}건`);
             console.log(`   - 총 지출: $${totalSpend.toFixed(2)}`);
+        }
+        
+        // 사용자별 누적 사용량 정보 페이지네이션 생성 (All Raw Events 스타일)
+        function generateUserCumulativePagination(totalPages) {
+            let pagination = '';
+            
+            // 이전 버튼
+            if (currentUserCumulativePage > 1) {
+                pagination += `<button onclick="changeUserCumulativePage(${currentUserCumulativePage - 1})" style="background: #3a3a3a; border: 1px solid #4a4a4a; color: #e1e1e1; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 0 2px;">‹</button>`;
+            }
+            
+            // 페이지 번호들
+            let startPage = Math.max(1, currentUserCumulativePage - 2);
+            let endPage = Math.min(totalPages, currentUserCumulativePage + 2);
+            
+            // 첫 페이지가 범위에 없으면 추가
+            if (startPage > 1) {
+                pagination += `<button onclick="changeUserCumulativePage(1)" style="background: #3a3a3a; border: 1px solid #4a4a4a; color: #e1e1e1; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 0 2px;">1</button>`;
+                if (startPage > 2) {
+                    pagination += `<span style="color: #7a7a7a; padding: 0 5px;">...</span>`;
+                }
+            }
+            
+            // 현재 범위의 페이지들
+            for (let i = startPage; i <= endPage; i++) {
+                const isActive = i === currentUserCumulativePage;
+                pagination += `<button onclick="changeUserCumulativePage(${i})" style="background: ${isActive ? '#4a9eff' : '#3a3a3a'}; border: 1px solid ${isActive ? '#4a9eff' : '#4a4a4a'}; color: ${isActive ? 'white' : '#e1e1e1'}; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: ${isActive ? '600' : 'normal'}; margin: 0 2px;">${i}</button>`;
+            }
+            
+            // 마지막 페이지가 범위에 없으면 추가
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    pagination += `<span style="color: #7a7a7a; padding: 0 5px;">...</span>`;
+                }
+                pagination += `<button onclick="changeUserCumulativePage(${totalPages})" style="background: #3a3a3a; border: 1px solid #4a4a4a; color: #e1e1e1; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 0 2px;">${totalPages}</button>`;
+            }
+            
+            // 다음 버튼
+            if (currentUserCumulativePage < totalPages) {
+                pagination += `<button onclick="changeUserCumulativePage(${currentUserCumulativePage + 1})" style="background: #3a3a3a; border: 1px solid #4a4a4a; color: #e1e1e1; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 0 2px;">›</button>`;
+            }
+            
+            return pagination;
+        }
+
+        // Overview 활동리스트 페이지네이션 생성 (Members와 동일)
+        function generateOverviewActivityPagination(totalPages) {
+            let pagination = '';
+            
+            // 이전 버튼
+            if (currentActivityPage > 1) {
+                pagination += `<button onclick="changeOverviewActivityPage(${currentActivityPage - 1})" style="background: #3a3a3a; border: 1px solid #4a4a4a; color: #e1e1e1; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 0 2px;">‹</button>`;
+            }
+            
+            // 페이지 번호들
+            let startPage = Math.max(1, currentActivityPage - 2);
+            let endPage = Math.min(totalPages, currentActivityPage + 2);
+            
+            // 첫 페이지가 범위에 없으면 추가
+            if (startPage > 1) {
+                pagination += `<button onclick="changeOverviewActivityPage(1)" style="background: #3a3a3a; border: 1px solid #4a4a4a; color: #e1e1e1; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 0 2px;">1</button>`;
+                if (startPage > 2) {
+                    pagination += `<span style="color: #7a7a7a; padding: 0 5px;">...</span>`;
+                }
+            }
+            
+            // 현재 범위의 페이지들
+            for (let i = startPage; i <= endPage; i++) {
+                const isActive = i === currentActivityPage;
+                pagination += `<button onclick="changeOverviewActivityPage(${i})" style="background: ${isActive ? '#4a9eff' : '#3a3a3a'}; border: 1px solid ${isActive ? '#4a9eff' : '#4a4a4a'}; color: ${isActive ? 'white' : '#e1e1e1'}; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: ${isActive ? '600' : 'normal'}; margin: 0 2px;">${i}</button>`;
+            }
+            
+            // 마지막 페이지가 범위에 없으면 추가
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    pagination += `<span style="color: #7a7a7a; padding: 0 5px;">...</span>`;
+                }
+                pagination += `<button onclick="changeOverviewActivityPage(${totalPages})" style="background: #3a3a3a; border: 1px solid #4a4a4a; color: #e1e1e1; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 0 2px;">${totalPages}</button>`;
+            }
+            
+            // 다음 버튼
+            if (currentActivityPage < totalPages) {
+                pagination += `<button onclick="changeOverviewActivityPage(${currentActivityPage + 1})" style="background: #3a3a3a; border: 1px solid #4a4a4a; color: #e1e1e1; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 0 2px;">›</button>`;
+            }
+            
+            return pagination;
+        }
+
+        // Overview 활동리스트 페이지 변경
+        function changeOverviewActivityPage(page) {
+            currentActivityPage = page;
+            renderOverviewActivityTableWithPagination(currentActivityData);
+        }
+
+        // Overview 활동리스트 페이지 크기 변경
+        function changeOverviewActivityPageSize(pageSize) {
+            currentActivityPageSize = parseInt(pageSize);
+            currentActivityPage = 1; // 페이지 크기 변경시 첫 페이지로 이동
+            renderOverviewActivityTableWithPagination(currentActivityData);
+        }
+
+        // Members 페이지네이션 생성 (All Raw Events와 동일)
+        function generateMembersPagination(totalPages) {
+            let pagination = '';
+            
+            // 이전 버튼
+            if (currentMembersPage > 1) {
+                pagination += `<button onclick="changeMembersPage(${currentMembersPage - 1})" style="background: #3a3a3a; border: 1px solid #4a4a4a; color: #e1e1e1; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 0 2px;">‹</button>`;
+            }
+            
+            // 페이지 번호들
+            let startPage = Math.max(1, currentMembersPage - 2);
+            let endPage = Math.min(totalPages, currentMembersPage + 2);
+            
+            // 첫 페이지가 범위에 없으면 추가
+            if (startPage > 1) {
+                pagination += `<button onclick="changeMembersPage(1)" style="background: #3a3a3a; border: 1px solid #4a4a4a; color: #e1e1e1; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 0 2px;">1</button>`;
+                if (startPage > 2) {
+                    pagination += `<span style="color: #7a7a7a; padding: 0 5px;">...</span>`;
+                }
+            }
+            
+            // 현재 범위의 페이지들
+            for (let i = startPage; i <= endPage; i++) {
+                const isActive = i === currentMembersPage;
+                pagination += `<button onclick="changeMembersPage(${i})" style="background: ${isActive ? '#4a9eff' : '#3a3a3a'}; border: 1px solid ${isActive ? '#4a9eff' : '#4a4a4a'}; color: ${isActive ? 'white' : '#e1e1e1'}; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; font-weight: ${isActive ? '600' : 'normal'}; margin: 0 2px;">${i}</button>`;
+            }
+            
+            // 마지막 페이지가 범위에 없으면 추가
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    pagination += `<span style="color: #7a7a7a; padding: 0 5px;">...</span>`;
+                }
+                pagination += `<button onclick="changeMembersPage(${totalPages})" style="background: #3a3a3a; border: 1px solid #4a4a4a; color: #e1e1e1; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 0 2px;">${totalPages}</button>`;
+            }
+            
+            // 다음 버튼
+            if (currentMembersPage < totalPages) {
+                pagination += `<button onclick="changeMembersPage(${currentMembersPage + 1})" style="background: #3a3a3a; border: 1px solid #4a4a4a; color: #e1e1e1; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px; margin: 0 2px;">›</button>`;
+            }
+            
+            return pagination;
+        }
+
+        // Members 페이지 변경
+        function changeMembersPage(page) {
+            currentMembersPage = page;
+            renderMembersTableWithPagination(currentMembersData);
+        }
+
+        // Members 페이지 크기 변경
+        function changeMembersPageSize(pageSize) {
+            currentMembersPageSize = parseInt(pageSize);
+            currentMembersPage = 1; // 페이지 크기 변경시 첫 페이지로 이동
+            renderMembersTableWithPagination(currentMembersData);
         }
 
         // 멤버 검색 기능
@@ -2772,10 +3252,130 @@
             console.log(`Usage 카드 업데이트: 사용자 ${activeUsers.size}명, 라인 ${totalLinesAdded + totalLinesAccepted}줄, 탭 ${totalTabsAccepted}개, 채팅 ${totalChats}건`);
         }
 
+        // 사용자별 누적 사용량 정보 테이블 렌더링 (All Raw Events 스타일)
+        function renderUserCumulativeTableWithPagination(userInfos, startDate, endDate) {
+            console.log('🎨 renderUserCumulativeTableWithPagination 함수 호출됨');
+            console.log('📊 렌더링 데이터:', {
+                userInfos: userInfos ? `${userInfos.length}명` : 'null',
+                startDate: startDate,
+                endDate: endDate
+            });
+            
+            if (!userInfos || userInfos.length === 0) {
+                const container = document.getElementById('user-cumulative-container');
+                if (container) {
+                    container.innerHTML = `
+                        <div style="padding: 20px; text-align: center; color: #7a7a7a; background-color: #1a1a1a;">
+                            사용자별 누적 사용량 데이터가 없습니다.
+                        </div>
+                    `;
+                }
+                // 페이지네이션 숨기기
+                const pagination = document.getElementById('user-cumulative-pagination');
+                if (pagination) pagination.style.display = 'none';
+                return;
+            }
+            
+            // 페이지네이션 계산
+            const totalUsers = userInfos.length;
+            const totalPages = Math.ceil(totalUsers / currentUserCumulativePageSize);
+            const startIndex = (currentUserCumulativePage - 1) * currentUserCumulativePageSize;
+            const endIndex = Math.min(startIndex + currentUserCumulativePageSize, totalUsers);
+            const pageUsers = userInfos.slice(startIndex, endIndex);
+
+            console.log(`📄 사용자별 누적 사용량 페이지네이션: ${startIndex + 1}-${endIndex} of ${totalUsers} (페이지 ${currentUserCumulativePage}/${totalPages})`);
+            
+            // 날짜 형식 변경 (날짜 끝의 "." 제거)
+            const cleanStartDate = new Date(startDate).toLocaleDateString('ko-KR').replace(/\.$/, '');
+            const cleanEndDate = new Date(endDate).toLocaleDateString('ko-KR').replace(/\.$/, '');
+            
+            // 테이블 HTML 생성 (All Raw Events 스타일)
+            const tableHtml = `
+                <div class="user-cumulative-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>📊 사용자별 누적 사용량 정보 (${cleanStartDate} ~ ${cleanEndDate})(${startIndex + 1}-${endIndex} of ${totalUsers})</span>
+                    <select id="userCumulativePageSize" onchange="changeUserCumulativePageSize(this.value)" style="background: #3a3a3a; color: #fff; border: 1px solid #4a4a4a; padding: 5px 10px; border-radius: 4px; font-size: 12px;">
+                        <option value="10" ${currentUserCumulativePageSize === 10 ? 'selected' : ''}>10개 보기</option>
+                        <option value="20" ${currentUserCumulativePageSize === 20 ? 'selected' : ''}>20개 보기</option>
+                        <option value="30" ${currentUserCumulativePageSize === 30 ? 'selected' : ''}>30개 보기</option>
+                        <option value="50" ${currentUserCumulativePageSize === 50 ? 'selected' : ''}>50개 보기</option>
+                        <option value="100" ${currentUserCumulativePageSize === 100 ? 'selected' : ''}>100개 보기</option>
+                    </select>
+                </div>
+
+                <div class="user-cumulative-table">
+                    <div>NAME</div>
+                    <div>EMAIL</div>
+                    <div>ROLE</div>
+                    <div>REQUEST</div>
+                    <div>SPEND</div>
+                    <div>LAST ACT</div>
+                </div>
+
+                ${pageUsers.map(user => `
+                    <div class="user-cumulative-row">
+                        <div>${user.name}</div>
+                        <div class="user-email clickable-email" title="View usage for ${user.email}" onclick="navigateToUsageWithEmail('${user.email}')">${user.email}</div>
+                        <div><span class="role-badge ${user.role === 'owner' ? 'admin' : ''}">${user.role === 'owner' ? 'Admin' : 'Member'}</span></div>
+                        <div style="font-weight: 600;">${user.periodRequests}</div>
+                        <div>$${user.spend.toFixed(2)}</div>
+                        <div>${user.lastActivity}</div>
+                    </div>
+                `).join('')}
+            `;
+            
+            // 컨테이너에 테이블 삽입
+            const container = document.getElementById('user-cumulative-container');
+            if (container) {
+                container.innerHTML = tableHtml;
+            }
+
+            // 페이지네이션 업데이트
+            const paginationContainer = document.getElementById('user-cumulative-pagination');
+            if (paginationContainer && totalPages > 1) {
+                paginationContainer.innerHTML = generateUserCumulativePagination(totalPages);
+                paginationContainer.style.display = 'block';
+            } else if (paginationContainer) {
+                paginationContainer.style.display = 'none';
+            }
+            
+            console.log('✅ 사용자별 누적 사용량 정보 테이블 HTML 렌더링 완료');
+            console.log(`📊 사용자별 누적 사용량 정보 업데이트: 총 ${userInfos.length}명 (페이지 ${currentUserCumulativePage}/${totalPages})`);
+        }
+        
+
+        
+        // 사용자별 누적 사용량 정보 페이지 변경 (All Raw Events 스타일)
+        function changeUserCumulativePage(page) {
+            currentUserCumulativePage = page;
+            renderUserCumulativeTableWithPagination(currentUserCumulativeData, currentUserCumulativeStartDate, currentUserCumulativeEndDate);
+        }
+        
+        // 사용자별 누적 사용량 정보 페이지 크기 변경 (All Raw Events 스타일)
+        function changeUserCumulativePageSize(pageSize) {
+            currentUserCumulativePageSize = parseInt(pageSize);
+            currentUserCumulativePage = 1; // 페이지 크기 변경시 첫 페이지로 이동
+            renderUserCumulativeTableWithPagination(currentUserCumulativeData, currentUserCumulativeStartDate, currentUserCumulativeEndDate);
+        }
+
         // 사용자별 누적 사용량 정보 업데이트
         function updateUserCumulativeInfo(membersData, eventsData, spendingData, startDate, endDate) {
-            const tableContainer = document.querySelector('#usage .user-cumulative-info');
-            if (!tableContainer || !membersData || !membersData.teamMembers) return;
+            console.log('🔍 updateUserCumulativeInfo 함수 호출됨');
+            console.log('📊 전달받은 데이터:', {
+                membersData: membersData ? `${membersData.teamMembers?.length || 0}명` : 'null',
+                eventsData: eventsData ? `${eventsData.usageEvents?.length || 0}개 이벤트` : 'null',
+                spendingData: spendingData ? `${spendingData.teamMemberSpend?.length || 0}개 지출` : 'null',
+                startDate: startDate,
+                endDate: endDate
+            });
+            
+            if (!membersData || !membersData.teamMembers) {
+                console.log('⚠️ 사용자별 누적 사용량 정보: 멤버 데이터가 없습니다.');
+                console.log('상세 정보:', {
+                    membersData: !!membersData,
+                    teamMembers: membersData?.teamMembers?.length || 0
+                });
+                return;
+            }
             
             console.log('=== 사용자별 누적 사용량 정보 업데이트 시작 ===');
             
@@ -2810,8 +3410,14 @@
                         userPeriodStats[userEmail].lastTimestamp = timestamp;
                     }
                     
-                    // 선택된 기간 내 요청 수 누적
-                    userPeriodStats[userEmail].periodRequests += (event.requestsCosts || 0);
+                    // 선택된 기간 내 요청 비용 누적 (All Raw Events의 COST값과 동일)
+                    const requestCost = event.requestsCosts || 0;
+                    userPeriodStats[userEmail].periodRequests += requestCost;
+                    
+                    // 디버깅을 위한 로그 (처음 5개 이벤트만)
+                    if (Object.keys(userPeriodStats).length <= 5 && userPeriodStats[userEmail].periodRequests <= requestCost * 3) {
+                        console.log(`💰 ${userEmail}: +${requestCost} (누적: ${userPeriodStats[userEmail].periodRequests})`);
+                    }
                 });
             }
             
@@ -2861,30 +3467,14 @@
                 return b.periodRequests - a.periodRequests;
             });
             
-            // 테이블 업데이트
-            const tableHtml = `
-                <div class="user-cumulative-header">📊 사용자별 누적 사용량 정보 (${new Date(startDate).toLocaleDateString()} ~ ${new Date(endDate).toLocaleDateString()})</div>
-                <div class="user-cumulative-table">
-                    <div>NAME</div>
-                    <div>EMAIL</div>
-                    <div>ROLE</div>
-                    <div>REQUEST</div>
-                    <div>SPEND</div>
-                    <div>LAST ACT</div>
-                </div>
-                ${userInfos.map(user => `
-                    <div class="user-cumulative-row">
-                        <div>${user.name}</div>
-                        <div class="user-email">${user.email}</div>
-                        <div><span class="role-badge ${user.role === 'owner' ? 'admin' : ''}">${user.role === 'owner' ? 'Admin' : 'Member'}</span></div>
-                        <div style="font-weight: 600;">${user.periodRequests}</div>
-                        <div>$${user.spend.toFixed(2)}</div>
-                        <div>${user.lastActivity}</div>
-                    </div>
-                `).join('')}
-            `;
+            // 데이터 저장 및 페이지네이션 적용
+            currentUserCumulativeData = userInfos;
+            currentUserCumulativeStartDate = startDate;
+            currentUserCumulativeEndDate = endDate;
+            currentUserCumulativePage = 1; // 첫 페이지로 리셋
             
-            tableContainer.innerHTML = tableHtml;
+            // 페이지네이션 적용
+            renderUserCumulativeTableWithPagination(userInfos, startDate, endDate);
             
             console.log(`사용자별 누적 사용량 정보 업데이트 완료: ${userInfos.length}명`);
             console.log(`선택된 기간 내 총 요청 수: ${userInfos.reduce((sum, user) => sum + user.periodRequests, 0)}건`);
@@ -2894,6 +3484,18 @@
         function updateRawEventsTable(eventsData) {
             const tableContainer = document.querySelector('#usage .user-cumulative-info:last-child');
             if (!tableContainer || !eventsData || !eventsData.usageEvents) return;
+            
+            // 검색 중인 경우 자동 업데이트 방지
+            if (window.pendingEmailSearch) {
+                console.log(`⏳ 이메일 검색 대기 중 (${window.pendingEmailSearch}) - Raw Events 테이블 자동 업데이트 건너뜀`);
+                // 데이터는 저장하되 테이블 렌더링은 하지 않음
+                currentRawEventsData = eventsData.usageEvents.sort((a, b) => {
+                    const timestampA = parseInt(a.timestamp) || 0;
+                    const timestampB = parseInt(b.timestamp) || 0;
+                    return timestampB - timestampA; // 내림차순 (최신 → 과거)
+                });
+                return;
+            }
             
             // 전체 데이터 저장 및 DATE 기준 내림차순 정렬 (최신순)
             currentRawEventsData = eventsData.usageEvents.sort((a, b) => {
@@ -3029,11 +3631,8 @@
             if (!container || !filteredEvents) return;
             
             const tableHtml = `
-                <div class="user-cumulative-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="user-cumulative-header">
                     <span>📋 All Raw Events - 검색 결과 (${filteredEvents.length}개)</span>
-                    <button onclick="clearUsageSearch()" style="background: #4a9eff; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">
-                        전체 보기
-                    </button>
                 </div>
                 <div class="user-cumulative-table">
                     <div>DATE</div>
@@ -3076,11 +3675,8 @@
             const emailList = searchedEmails.join(', ');
             
             const tableHtml = `
-                <div class="user-cumulative-header" style="display: flex; justify-content: space-between; align-items: center;">
+                <div class="user-cumulative-header">
                     <span>📋 All Raw Events - 검색 결과 (0개)</span>
-                    <button onclick="clearUsageSearch()" style="background: #4a9eff; color: white; border: none; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">
-                        전체 보기
-                    </button>
                 </div>
                 <div class="user-cumulative-table">
                     <div>DATE</div>
@@ -3105,14 +3701,7 @@
             console.log(`빈 Raw Events 테이블 렌더링 완료 (검색 대상: ${emailList})`);
         }
 
-        // Usage 검색 초기화
-        function clearUsageSearch() {
-            const searchBox = document.querySelector('#usage .search-box');
-            if (searchBox) {
-                searchBox.value = '';
-                filterUsageMembers(''); // 빈 검색어로 필터링 (전체 표시)
-            }
-        }
+
 
         // Usage 멤버 검색 기능 (사용자별 누적 사용량 정보와 All Raw Events 테이블 연동)
         function filterUsageMembers(searchTerm) {
@@ -3207,13 +3796,11 @@
                     const filteredEvents = currentRawEventsData.filter(event => {
                         const eventUserEmail = event.userEmail?.trim() || '';
                         
-                        // 매칭 확인 (대소문자 무시)
+                        // 정확한 이메일 매칭만 수행 (대소문자 무시)
                         return Array.from(matchedEmails).some(email => {
-                            const emailLower = email.toLowerCase();
-                            const eventEmailLower = eventUserEmail.toLowerCase();
-                            return emailLower === eventEmailLower || 
-                                   emailLower.includes(eventEmailLower) || 
-                                   eventEmailLower.includes(emailLower);
+                            const emailLower = email.toLowerCase().trim();
+                            const eventEmailLower = eventUserEmail.toLowerCase().trim();
+                            return emailLower === eventEmailLower;
                         });
                     });
                     
@@ -3243,6 +3830,12 @@
             
             const matchingType = isEmailSearch ? (hasExactMatch ? '정확한 이메일 매칭' : '이메일 부분 매칭') : '부분 매칭';
             console.log(`✅ Usage 검색 완료: "${searchTerm}" - ${matchingType}으로 두 테이블 연동 필터링 완료 (매칭된 사용자 ${matchedEmails.size}명)`);
+            
+            // 검색 완료 후 대기 중인 이메일 검색 플래그 제거
+            if (window.pendingEmailSearch) {
+                console.log(`🔄 이메일 검색 플래그 제거: ${window.pendingEmailSearch}`);
+                delete window.pendingEmailSearch;
+            }
         }
 
         // 멤버 정렬 기능

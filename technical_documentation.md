@@ -189,7 +189,12 @@ function filterUsageMembers(searchTerm) {
     // 2. All Raw Events 테이블 연동 필터링
     if (matchedEmails.size > 0) {
         const filteredEvents = currentRawEventsData.filter(event => {
-            // 이메일 매칭 로직
+            // 정확한 이메일 매칭 로직
+            return Array.from(matchedEmails).some(email => {
+                const emailLower = email.toLowerCase().trim();
+                const eventEmailLower = eventUserEmail.toLowerCase().trim();
+                return emailLower === eventEmailLower;
+            });
         });
         
         renderFilteredRawEventsTable(filteredEvents, container);
@@ -198,6 +203,63 @@ function filterUsageMembers(searchTerm) {
 ```
 
 **페이지네이션 시스템**
+
+**All Raw Events 스타일 페이지네이션**
+```javascript
+// 사용자별 누적 사용량 정보 테이블
+function renderUserCumulativeTableWithPagination(userInfos, startDate, endDate) {
+    // 상단 드롭박스 + 하단 숫자 페이지네이션
+    // All Raw Events와 동일한 스타일
+}
+
+// 페이지네이션 생성 함수
+function generateUserCumulativePagination(totalPages) {
+    // 숫자 페이지 버튼 (1, 2, 3, ...)
+    // 이전/다음 버튼
+    // "..." 표시 (건너뛴 페이지)
+}
+```
+
+**API 페이지네이션 처리**
+```javascript
+// 모든 페이지 데이터 수집
+async function getFilteredEvents(startDate, endDate) {
+    let allEvents = [];
+    let currentPage = 1;
+    let hasMorePages = true;
+    
+    while (hasMorePages) {
+        const pageData = await callAPI('/teams/filtered-usage-events', 'POST', {
+            startDate: startDate,
+            endDate: endDate,
+            page: currentPage,
+            pageSize: 1000
+        });
+        
+        if (pageData && pageData.usageEvents) {
+            allEvents = allEvents.concat(pageData.usageEvents);
+            hasMorePages = pageData.pagination && pageData.pagination.hasNextPage;
+            currentPage++;
+        }
+    }
+    
+    return {
+        totalUsageEventsCount: allEvents.length,
+        usageEvents: allEvents,
+        period: { startDate, endDate }
+    };
+}
+```
+
+**REQUEST 칼럼 계산 로직**
+```javascript
+// 사용자별 누적 사용량 정보의 REQUEST 칼럼
+// All Raw Events의 COST값(requestsCosts) 누적
+eventsData.usageEvents.forEach(event => {
+    const requestCost = event.requestsCosts || 0;
+    userPeriodStats[userEmail].periodRequests += requestCost;
+});
+```
 ```javascript
 function renderRawEventsTableWithPagination() {
     const totalEvents = currentRawEventsData.length;
@@ -477,9 +539,88 @@ export CURSOR_API_KEY="your_api_key_here"
 export PROXY_PORT=8000
 ```
 
-## 8. 향후 개선 사항
+## 8. 최근 업데이트 (2025-08-01)
 
-### 8.1 기능 개선
+### 8.1 주요 변경사항
+
+**All Raw Events 테이블 개선**
+- "전체보기" 버튼 제거 및 관련 기능 삭제
+- 이메일 매칭 로직 개선 (정확한 매칭으로 변경)
+- API 페이지네이션 처리 개선 (모든 페이지 데이터 수집)
+
+**사용자별 누적 사용량 정보 테이블 개선**
+- All Raw Events 스타일 페이지네이션 적용
+- REQUEST 칼럼 계산 로직 수정 (COST값 누적)
+- 상단 드롭박스 + 하단 숫자 페이지네이션 구현
+
+**API 데이터 수집 개선**
+```javascript
+// 모든 페이지 데이터 수집 로직
+async function getFilteredEvents(startDate, endDate) {
+    let allEvents = [];
+    let currentPage = 1;
+    let hasMorePages = true;
+    
+    while (hasMorePages) {
+        const pageData = await callAPI('/teams/filtered-usage-events', 'POST', {
+            startDate: startDate,
+            endDate: endDate,
+            page: currentPage,
+            pageSize: 1000
+        });
+        
+        if (pageData && pageData.usageEvents) {
+            allEvents = allEvents.concat(pageData.usageEvents);
+            hasMorePages = pageData.pagination && pageData.pagination.hasNextPage;
+            currentPage++;
+        }
+    }
+    
+    return {
+        totalUsageEventsCount: allEvents.length,
+        usageEvents: allEvents,
+        period: { startDate, endDate }
+    };
+}
+```
+
+**REQUEST 칼럼 계산 수정**
+```javascript
+// 이전: 각 이벤트를 1개씩 카운트
+userPeriodStats[userEmail].periodRequests += 1;
+
+// 수정: All Raw Events의 COST값(requestsCosts) 누적
+const requestCost = event.requestsCosts || 0;
+userPeriodStats[userEmail].periodRequests += requestCost;
+```
+
+### 8.2 버그 수정
+
+**이벤트 개수 불일치 문제 해결**
+- 원인: API 페이지네이션으로 인한 데이터 누락
+- 해결: 모든 페이지 데이터 수집 로직 구현
+- 결과: 실제 이벤트 개수와 표시 개수 일치
+
+**DOM 선택자 문제 해결**
+- 원인: 잘못된 DOM 선택자로 인한 데이터 표시 실패
+- 해결: 올바른 컨테이너 선택자 사용
+- 결과: 사용자별 누적 사용량 정보 테이블 정상 표시
+
+### 8.3 성능 개선
+
+**API 호출 최적화**
+- 페이지네이션 처리 개선
+- 불필요한 API 호출 제거
+- 데이터 캐싱 로직 개선
+
+**UI/UX 개선**
+- 일관된 페이지네이션 스타일 적용
+- 불필요한 UI 요소 제거
+- 사용자 경험 향상
+
+## 9. 향후 개선 사항
+
+### 9.1 기능 개선
 
 **예정된 기능**
 - 실시간 데이터 업데이트 (WebSocket)
@@ -487,7 +628,7 @@ export PROXY_PORT=8000
 - 데이터 내보내기 기능 강화
 - 다국어 지원
 
-### 8.2 성능 개선
+### 9.2 성능 개선
 
 **최적화 계획**
 - 가상 스크롤링 도입
@@ -495,7 +636,7 @@ export PROXY_PORT=8000
 - 이미지 최적화
 - 코드 스플리팅
 
-### 8.3 보안 강화
+### 9.3 보안 강화
 
 **보안 개선**
 - JWT 토큰 인증

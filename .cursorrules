@@ -1,0 +1,603 @@
+# Samsung AI Experience Group Dashboard - Cursor Development Rules
+
+## 📋 프로젝트 개요
+- **프로젝트명**: Samsung AI Experience Group Dashboard
+- **기술 스택**: HTML5, CSS3, JavaScript (ES6+), Canvas API
+- **아키텍처**: Single Page Application (SPA) with Proxy Server
+- **API 통신**: Cursor Admin API via Local Proxy Server (Port 8001)
+
+## 🎨 디자인 시스템
+
+### 색상 팔레트
+```css
+/* 다크 테마 색상 */
+--primary-bg: #1a1a1a;          /* 메인 배경 */
+--secondary-bg: #2a2a2a;         /* 카드/섹션 배경 */
+--border-color: #3a3a3a;         /* 테두리 */
+--hover-bg: #3a3a3a;             /* 호버 상태 */
+--text-primary: #e1e1e1;         /* 주요 텍스트 */
+--text-secondary: #b1b1b1;       /* 보조 텍스트 */
+--text-muted: #7a7a7a;           /* 비활성 텍스트 */
+--accent-blue: #4a9eff;          /* 강조색 (버튼, 링크) */
+--success-green: #4caf50;        /* 성공 상태 */
+--warning-orange: #ff9800;       /* 경고 상태 */
+--error-red: #f44336;            /* 오류 상태 */
+```
+
+### 타이포그래피
+```css
+/* 기본 폰트 스택 */
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+/* 제목 크기 */
+--h1-size: 24px;    /* 페이지 제목 */
+--h2-size: 18px;    /* 섹션 제목 */
+--h3-size: 16px;    /* 카드 제목 */
+
+/* 본문 크기 */
+--body-size: 14px;  /* 기본 텍스트 */
+--small-size: 12px; /* 보조 텍스트 */
+--large-size: 16px; /* 강조 텍스트 */
+```
+
+### 레이아웃 규칙
+```css
+/* 그리드 시스템 */
+--grid-gap: 20px;           /* 기본 간격 */
+--border-radius: 8px;       /* 카드 모서리 */
+--border-radius-small: 4px; /* 작은 요소 모서리 */
+--padding-standard: 20px;   /* 표준 패딩 */
+--padding-large: 30px;      /* 큰 패딩 */
+```
+
+## 🏗️ 컴포넌트 구조
+
+### 1. 사이드바 (Sidebar)
+```html
+<!-- 사이드바 구조 -->
+<nav class="sidebar">
+    <div class="logo">
+        <div class="logo-name">사용자명</div>
+        <div class="logo-business">Business • 이메일</div>
+        <div class="logo-group">그룹명</div>
+    </div>
+    <a href="javascript:void(0)" class="menu-item" data-section="section-name">
+        <span class="menu-icon">이모지</span>
+        <span class="menu-text">메뉴명</span>
+    </a>
+</nav>
+```
+
+### 2. 통계 카드 (Stat Cards)
+```html
+<!-- 통계 카드 구조 -->
+<div class="overview-stat-box clickable" data-type="type-name" onclick="handlerFunction()">
+    <div class="stat-number">숫자</div>
+    <div class="stat-label">
+        <span class="role-badge" style="background-color: #색상; color: white;">라벨</span>
+    </div>
+    <div class="stat-description">설명</div>
+</div>
+```
+
+### 3. 데이터 테이블 (Data Tables)
+```html
+<!-- 테이블 구조 -->
+<div class="data-table">
+    <div class="table-header">
+        <div onclick="sortFunction('field')">컬럼명 ↕</div>
+    </div>
+    <div class="table-row">
+        <div>데이터</div>
+    </div>
+</div>
+```
+
+### 4. 필터 컨트롤 (Filter Controls)
+```html
+<!-- 필터 구조 -->
+<div class="filter-controls">
+    <div class="chart-controls">
+        <button class="chart-btn" data-days="7">7d</button>
+        <div class="date-picker">
+            <input type="date" id="start-date" />
+            <span>~</span>
+            <input type="date" id="end-date" />
+            <button class="analytics-btn" onclick="applyFilter()">적용</button>
+        </div>
+    </div>
+    <div>
+        <input type="text" class="search-box" placeholder="검색어..." onkeyup="searchFunction(this.value)">
+    </div>
+</div>
+```
+
+## 🔧 JavaScript 코딩 규칙
+
+### 1. 함수 명명 규칙
+```javascript
+// 동사 + 명사 형태
+function updateStatsCards() { }
+function renderMemberList() { }
+function filterActivitiesByType() { }
+function applyDateFilter() { }
+
+// 이벤트 핸들러는 'handle' 접두사 사용
+function handleMenuClick() { }
+function handleFilterChange() { }
+
+// 비동기 함수는 'async' 키워드 사용
+async function fetchTeamMembers() { }
+async function updateWithRealData() { }
+```
+
+### 2. 변수 명명 규칙
+```javascript
+// 전역 변수는 camelCase
+let currentFilterType = 'total';
+let currentActivities = [];
+let currentDateRange = null;
+
+// 상수는 UPPER_SNAKE_CASE
+const API_CONFIG = {
+    baseUrl: 'http://localhost:8001',
+    apiKey: 'key_...',
+    headers: { 'Content-Type': 'application/json' }
+};
+
+// API 응답 데이터는 명확한 이름 사용
+const membersData = await getTeamMembers();
+const spendingData = await getTeamSpendingData();
+const eventsData = await getFilteredEvents();
+```
+
+### 3. 에러 처리 패턴
+```javascript
+// try-catch 블록 사용
+async function updateWithRealData() {
+    try {
+        console.log('=== 데이터 업데이트 시작 ===');
+        const data = await fetchData();
+        updateUI(data);
+        console.log('=== 데이터 업데이트 완료 ===');
+    } catch (error) {
+        console.error('❌ 데이터 업데이트 실패:', error);
+        showErrorMessage(error.message);
+    }
+}
+```
+
+### 4. 로깅 규칙
+```javascript
+// 시작/종료 로그
+console.log('=== 함수명 시작 ===');
+console.log('=== 함수명 완료 ===');
+
+// 진행 상황 로그
+console.log(`✅ ${count}개의 데이터 처리 완료`);
+console.log(`📊 통계: 전체 ${total}명, 활성 ${active}명`);
+
+// 에러 로그
+console.error('❌ 에러 발생:', error);
+```
+
+## 📊 API 통신 규칙
+
+### 1. API 설정
+```javascript
+const API_CONFIG = {
+    baseUrl: 'http://localhost:8001',
+    apiKey: 'key_...',
+    headers: {
+        'Content-Type': 'application/json'
+    }
+};
+```
+
+### 2. API 호출 함수
+```javascript
+async function callAPI(endpoint, method = 'GET', data = null) {
+    try {
+        const credentials = `${API_CONFIG.apiKey}:`;
+        const encodedCredentials = btoa(credentials);
+        
+        const options = {
+            method: method,
+            headers: {
+                ...API_CONFIG.headers,
+                'Authorization': `Basic ${encodedCredentials}`
+            }
+        };
+
+        if (data && method === 'POST') {
+            options.body = JSON.stringify(data);
+        }
+
+        console.log(`API 호출: ${method} ${API_CONFIG.baseUrl}${endpoint}`);
+        
+        const response = await fetch(API_CONFIG.baseUrl + endpoint, options);
+        
+        if (!response.ok) {
+            throw new Error(`API 호출 실패: ${response.status}`);
+        }
+
+        return await response.json();
+    } catch (error) {
+        console.error('API 호출 오류:', error);
+        throw error;
+    }
+}
+```
+
+### 3. 데이터 가져오기 함수
+```javascript
+// 팀원 정보
+async function getTeamMembers() {
+    return await callAPI('/teams/members');
+}
+
+// 사용량 데이터
+async function getUsageData(startDate, endDate) {
+    return await callAPI('/teams/daily-usage-data', 'POST', {
+        startDate: startDate,
+        endDate: endDate
+    });
+}
+
+// 지출 데이터
+async function getTeamSpendingData() {
+    return await callAPI('/teams/spend', 'POST', {
+        page: 1,
+        pageSize: 1000
+    });
+}
+```
+
+## 🎯 UI/UX 규칙
+
+### 1. 로딩 상태 표시
+```javascript
+// 로딩 상태 표시
+function showLoadingState(isLoading) {
+    const elements = document.querySelectorAll('.loading-target');
+    elements.forEach(el => {
+        el.style.opacity = isLoading ? '0.5' : '1';
+    });
+}
+```
+
+### 2. 에러 메시지 표시
+```javascript
+// 에러 메시지 표시
+function showErrorMessage(message) {
+    const errorDiv = document.createElement('div');
+    errorDiv.className = 'error-message';
+    errorDiv.innerHTML = `
+        <div style="text-align: center; padding: 20px; color: #ff6b6b;">
+            <h3>⚠️ 오류 발생</h3>
+            <p>${message}</p>
+        </div>
+    `;
+    // DOM에 추가
+}
+```
+
+### 3. 데이터 없음 상태
+```javascript
+// 데이터 없음 상태 표시
+function showEmptyState(container, message) {
+    container.innerHTML = `
+        <div style="padding: 20px; text-align: center; color: #7a7a7a; background-color: #1a1a1a;">
+            ${message}
+        </div>
+    `;
+}
+```
+
+## 🔄 상태 관리 규칙
+
+### 1. 전역 상태 변수
+```javascript
+// 현재 필터 상태
+let currentFilterType = 'total';
+let currentDateRange = null;
+let currentUsageDateRange = null;
+
+// 현재 데이터 상태
+let currentActivities = [];
+let currentMembers = [];
+let currentRawEventsData = [];
+
+// 페이지네이션 상태
+let currentRawEventsPage = 1;
+let currentRawEventsPageSize = 10;
+```
+
+### 2. 상태 업데이트 함수
+```javascript
+// 필터 상태 업데이트
+function updateFilterState(type, dateRange) {
+    currentFilterType = type;
+    currentDateRange = dateRange;
+    updateUIWithCurrentState();
+}
+
+// 데이터 상태 업데이트
+function updateDataState(newData) {
+    currentActivities = newData;
+    renderActivityList(currentActivities);
+}
+```
+
+## 📱 반응형 디자인 규칙
+
+### 1. 미디어 쿼리
+```css
+/* 모바일 대응 */
+@media (max-width: 768px) {
+    .sidebar {
+        width: 70px;
+    }
+    
+    .menu-text {
+        display: none;
+    }
+    
+    .overview-stats {
+        grid-template-columns: 1fr;
+    }
+    
+    .table-row {
+        grid-template-columns: 1fr;
+        gap: 8px;
+    }
+}
+```
+
+### 2. 그리드 시스템
+```css
+/* 기본 그리드 */
+.overview-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+/* 테이블 그리드 */
+.table-row {
+    display: grid;
+    grid-template-columns: 2fr 2fr 1fr 1fr 1fr 0.5fr;
+    gap: 20px;
+}
+```
+
+## 🚀 성능 최적화 규칙
+
+### 1. 디바운싱
+```javascript
+// 검색 디바운싱
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+const debouncedSearch = debounce(filterMembers, 300);
+```
+
+### 2. 캐싱
+```javascript
+// 데이터 캐싱
+const DataCache = {
+    members: null,
+    spending: null,
+    events: null,
+    
+    set(key, data) {
+        this[key] = {
+            data: data,
+            timestamp: Date.now()
+        };
+    },
+    
+    get(key) {
+        const cached = this[key];
+        if (cached && Date.now() - cached.timestamp < 5 * 60 * 1000) {
+            return cached.data;
+        }
+        return null;
+    }
+};
+```
+
+### 3. 점진적 로딩
+```javascript
+// 점진적 로딩
+async function progressiveLoad() {
+    // 1단계: 기본 UI 표시
+    showSkeletonUI();
+    
+    // 2단계: 캐시된 데이터 표시
+    const cachedData = DataCache.get('members');
+    if (cachedData) {
+        updateUIWithData(cachedData);
+    }
+    
+    // 3단계: 최신 데이터 로드
+    const freshData = await fetchLatestData();
+    updateUIWithData(freshData);
+    DataCache.set('members', freshData);
+}
+```
+
+## 🧪 테스트 및 디버깅 규칙
+
+### 1. 콘솔 로깅
+```javascript
+// 함수 시작/종료 로깅
+console.log('=== 함수명 시작 ===');
+console.log('=== 함수명 완료 ===');
+
+// 데이터 로깅
+console.log('📊 데이터:', data);
+console.log(`✅ ${count}개 처리 완료`);
+
+// 에러 로깅
+console.error('❌ 에러:', error);
+```
+
+### 2. 성능 모니터링
+```javascript
+// 성능 측정
+const PerformanceMonitor = {
+    timers: {},
+    
+    start(label) {
+        this.timers[label] = Date.now();
+        console.log(`⏱️ ${label} 시작`);
+    },
+    
+    end(label) {
+        const duration = Date.now() - this.timers[label];
+        console.log(`⏱️ ${label} 완료: ${duration}ms`);
+        return duration;
+    }
+};
+```
+
+## 📝 코드 주석 규칙
+
+### 1. 함수 주석
+```javascript
+/**
+ * 팀원 목록을 실제 API 데이터로 업데이트
+ * @returns {Promise<void>}
+ */
+async function updateMembersWithRealData() {
+    // 구현...
+}
+```
+
+### 2. 섹션 주석
+```javascript
+// ============================================================================
+// API 통신 함수들
+// ============================================================================
+
+// ============================================================================
+// UI 업데이트 함수들
+// ============================================================================
+```
+
+### 3. 인라인 주석
+```javascript
+// 현재 필터 기간 결정
+let dateRange;
+if (currentDateRange) {
+    dateRange = currentDateRange;
+} else {
+    const filterDays = getCurrentFilterDays();
+    dateRange = getDateRange(filterDays);
+}
+```
+
+## 🔒 보안 규칙
+
+### 1. API 키 관리
+```javascript
+// API 키는 환경변수나 별도 설정 파일에서 관리
+const API_CONFIG = {
+    baseUrl: 'http://localhost:8001',
+    apiKey: process.env.CURSOR_API_KEY || 'key_...',
+    headers: {
+        'Content-Type': 'application/json'
+    }
+};
+```
+
+### 2. 입력 검증
+```javascript
+// 사용자 입력 검증
+function validateDateRange(startDate, endDate) {
+    if (!startDate || !endDate) {
+        throw new Error('시작 날짜와 종료 날짜를 모두 선택해주세요.');
+    }
+    
+    if (startDate > endDate) {
+        throw new Error('시작 날짜는 종료 날짜보다 빠를 수 없습니다.');
+    }
+}
+```
+
+## 📚 파일 구조 규칙
+
+### 1. HTML 구조
+```html
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>페이지 제목</title>
+    <style>
+        /* CSS 스타일 */
+    </style>
+</head>
+<body>
+    <div class="dashboard-container">
+        <!-- 사이드바 -->
+        <nav class="sidebar">
+            <!-- 사이드바 내용 -->
+        </nav>
+        
+        <!-- 메인 콘텐츠 -->
+        <main class="main-content">
+            <!-- 헤더 -->
+            <header class="header">
+                <!-- 헤더 내용 -->
+            </header>
+            
+            <!-- 콘텐츠 영역 -->
+            <div class="content-area">
+                <!-- 섹션들 -->
+            </div>
+        </main>
+    </div>
+    
+    <script>
+        // JavaScript 코드
+    </script>
+</body>
+</html>
+```
+
+### 2. CSS 구조
+```css
+/* 기본 리셋 */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+/* 레이아웃 */
+.dashboard-container { /* 메인 컨테이너 */ }
+.sidebar { /* 사이드바 */ }
+.main-content { /* 메인 콘텐츠 */ }
+
+/* 컴포넌트 */
+.overview-stats { /* 통계 카드 */ }
+.data-table { /* 데이터 테이블 */ }
+.filter-controls { /* 필터 컨트롤 */ }
+
+/* 유틸리티 */
+.clickable-email { /* 클릭 가능한 이메일 */ }
+.role-badge { /* 역할 배지 */ }
+
+/* 반응형 */
+@media (max-width: 768px) { /* 모바일 대응 */ }
+```
+
+이 규칙들을 따라 개발하면 일관성 있고 유지보수하기 쉬운 코드를 작성할 수 있습니다. 
