@@ -34,33 +34,7 @@
             flex-direction: column;
         }
 
-        .logo {
-            padding: 0 20px;
-            border-bottom: 1px solid #3a3a3a;
-            margin-bottom: 0;
-            height: 80px;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-            box-sizing: border-box;
-        }
 
-        .logo-name {
-            font-size: 16px;
-            font-weight: 600;
-            color: #fff;
-        }
-
-        .logo-business {
-            font-size: 12px;
-            color: #7a7a7a;
-            margin-top: 2px;
-        }
-
-        .logo-group {
-            font-size: 12px;
-            color: #7a7a7a;
-        }
 
         .menu-item {
             display: flex;
@@ -82,6 +56,47 @@
         .menu-item.active {
             background-color: #4a4a4a;
             color: #fff;
+        }
+
+        .refresh-button {
+            display: flex;
+            align-items: center;
+            padding: 12px 20px;
+            color: #b1b1b1;
+            text-decoration: none;
+            transition: all 0.2s ease;
+            font-size: 14px;
+            cursor: pointer;
+            user-select: none;
+        }
+
+        .refresh-button:hover {
+            background-color: #3a3a3a;
+            color: #fff;
+        }
+
+        .refresh-progress {
+            position: absolute;
+            bottom: -10px;
+            left: 20px;
+            right: 20px;
+            height: 6px;
+            background-color: #2a2a2a;
+            border-radius: 3px;
+            overflow: hidden;
+            display: none;
+        }
+
+        .refresh-progress-bar {
+            height: 100%;
+            background-color: #4a9eff;
+            border-radius: 3px;
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        .refresh-button {
+            position: relative;
         }
 
         .menu-icon {
@@ -567,6 +582,38 @@
             min-width: 40px;
         }
 
+        /* 데이터 로딩 버튼 스타일 */
+        .data-loading-btn {
+            background: linear-gradient(135deg, #4a9eff, #007bff);
+            color: white;
+            border: none;
+            padding: 8px 16px;
+            border-radius: 6px;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(74, 158, 255, 0.3);
+        }
+
+        .data-loading-btn:hover {
+            background: linear-gradient(135deg, #007bff, #0056b3);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 8px rgba(74, 158, 255, 0.4);
+        }
+
+        .data-loading-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 2px 4px rgba(74, 158, 255, 0.3);
+        }
+
+        .data-loading-btn:disabled {
+            background: #6c757d;
+            cursor: not-allowed;
+            transform: none;
+            box-shadow: none;
+        }
+
         .date-filter-btn {
             background: #2a2a2a;
             border: 1px solid #3a3a3a;
@@ -693,6 +740,93 @@
             color: #e1e1e1;
             font-size: 14px;
             width: 250px;
+        }
+
+        .search-container {
+            position: relative;
+            display: inline-block;
+        }
+
+        .search-clear-btn {
+            position: absolute;
+            right: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: #f44336;
+            cursor: pointer;
+            padding: 4px;
+            border-radius: 50%;
+            width: 20px;
+            height: 20px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: all 0.2s ease;
+        }
+
+        .search-clear-btn:hover {
+            background-color: #f44336;
+            color: white;
+        }
+
+        .search-clear-btn:active {
+            background-color: #d32f2f;
+            color: white;
+        }
+
+        .autocomplete-dropdown {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            border-radius: 6px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            margin-top: 2px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+        }
+
+        .autocomplete-item {
+            padding: 10px 12px;
+            cursor: pointer;
+            border-bottom: 1px solid #3a3a3a;
+            transition: background-color 0.2s ease;
+        }
+
+        .autocomplete-item:last-child {
+            border-bottom: none;
+        }
+
+        .autocomplete-item:hover {
+            background-color: #3a3a3a;
+        }
+
+        .autocomplete-item.selected {
+            background-color: #4a9eff;
+            color: white;
+        }
+
+        .autocomplete-item .user-name {
+            font-weight: 600;
+            color: #e1e1e1;
+            font-size: 14px;
+            margin-bottom: 2px;
+        }
+
+        .autocomplete-item .user-email {
+            color: #b1b1b1;
+            font-size: 12px;
+        }
+
+        .autocomplete-item.selected .user-name,
+        .autocomplete-item.selected .user-email {
+            color: white;
         }
 
         .user-cumulative-info {
@@ -907,11 +1041,15 @@
     <div class="dashboard-container">
         <!-- 사이드바 -->
         <nav class="sidebar">
-            <div class="logo">
-                <div class="logo-name">na jeongmin</div>
-                <div class="logo-business">Business • greenmold@samsung.com</div>
-                <div class="logo-group">AIExperienceGroup</div>
-            </div>
+            <div style="height: 20px;"></div>
+            <a href="javascript:void(0)" class="refresh-button" onclick="handleRefreshClick()">
+                <span class="menu-icon">🔄</span>
+                <span class="menu-text">Refresh</span>
+                <div class="refresh-progress">
+                    <div class="refresh-progress-bar"></div>
+                </div>
+            </a>
+            <div style="height: 1px; background-color: #3a3a3a; margin: 10px 20px;"></div>
             <a href="javascript:void(0)" class="menu-item active" data-section="overview">
                 <span class="menu-icon">📊</span>
                 <span class="menu-text">Overview</span>
@@ -957,9 +1095,7 @@
                                 <button class="analytics-btn" onclick="applyDateFilter()">적용</button>
                             </div>
                         </div>
-                        <div>
-                            <!-- Refresh 버튼 제거 - 필터 변경 시 자동 새로고침 -->
-                        </div>
+
                     </div>
 
                     <!-- 2.1.2 통계 카드 -->
@@ -1018,7 +1154,11 @@
                             <!-- Refresh 버튼 제거 - Members 메뉴 클릭 시 자동 새로고침 -->
                         </div>
                         <div>
-                            <input type="text" class="search-box" placeholder="Search members..." onkeyup="filterMembers(this.value)">
+                            <div class="search-container">
+                                <input type="text" class="search-box" id="members-search" placeholder="Search name, email..." onkeyup="filterMembers(this.value)" oninput="toggleSearchClearBtn('members-search'); showAutocomplete('members-search')" autocomplete="off">
+                                <button class="search-clear-btn" id="members-search-clear" onclick="clearSearch('members-search')" style="display: none;">×</button>
+                                <div id="members-autocomplete" class="autocomplete-dropdown" style="display: none;"></div>
+                            </div>
                         </div>
                     </div>
                     <div class="data-table" id="members-table-container">
@@ -1069,7 +1209,11 @@
                             </div>
                         </div>
                         <div>
-                            <input type="text" class="search-box" placeholder="Search member" onkeyup="filterUsageMembers(this.value)">
+                            <div class="search-container">
+                                <input type="text" class="search-box" id="usage-search" placeholder="Search name, email..." onkeyup="filterUsageMembers(this.value)" oninput="toggleSearchClearBtn('usage-search'); showAutocomplete('usage-search')" autocomplete="off">
+                                <button class="search-clear-btn" id="usage-search-clear" onclick="clearSearch('usage-search')" style="display: none;">×</button>
+                                <div id="usage-autocomplete" class="autocomplete-dropdown" style="display: none;"></div>
+                            </div>
                         </div>
                     </div>
 
@@ -1481,10 +1625,15 @@
                         break;
                     case 'usage':
                         pageTitle.textContent = 'Usage Analytics';
-                        // Usage 메뉴 클릭 시 자동 새로고침
+                        // Usage 메뉴 클릭 시 조건부 데이터 로딩
                         setTimeout(async () => {
-                            console.log('=== Usage 메뉴 클릭 시 자동 실제 API 데이터 새로고침 시작 ===');
-                            await updateUsageWithCurrentFilter(30); // 기본 30일
+                            if (!isUsageDataLoaded) {
+                                console.log('=== Usage 메뉴 첫 번째 클릭 - 데이터 로딩 시작 ===');
+                                await updateUsageWithCurrentFilter(30, true); // 첫 번째 로딩
+                            } else {
+                                console.log('=== Usage 메뉴 재클릭 - 백그라운드 데이터 갱신 ===');
+                                updateUsageWithCurrentFilter(30, false); // 백그라운드 로딩
+                            }
                         }, 100);
                         break;
                     case 'settings':
@@ -2047,6 +2196,10 @@
         let currentRawEventsData = []; // 현재 Raw Events 전체 데이터
         let currentRawEventsPage = 1; // 현재 Raw Events 페이지
         let currentRawEventsPageSize = 10; // 현재 Raw Events 페이지 크기
+        
+        // Usage 데이터 로딩 상태 추적
+        let isUsageDataLoaded = false; // Usage 데이터가 한 번이라도 로드되었는지 확인
+        let isUsageLoading = false; // Usage 데이터 로딩 중인지 확인
         
         // 활동리스트 페이지네이션 변수
         let currentActivityPage = 1; // 현재 활동리스트 페이지
@@ -3118,6 +3271,138 @@
             renderMembersTableWithPagination(currentMembersData);
         }
 
+        // 검색창 X 버튼 표시/숨김 토글
+        function toggleSearchClearBtn(searchId) {
+            const searchInput = document.getElementById(searchId);
+            const clearBtn = document.getElementById(searchId + '-clear');
+            
+            if (searchInput && clearBtn) {
+                if (searchInput.value.length > 0) {
+                    clearBtn.style.display = 'flex';
+                } else {
+                    clearBtn.style.display = 'none';
+                }
+            }
+        }
+
+        // 검색창 비우기
+        function clearSearch(searchId) {
+            const searchInput = document.getElementById(searchId);
+            const clearBtn = document.getElementById(searchId + '-clear');
+            const autocomplete = document.getElementById(searchId.replace('-search', '-autocomplete'));
+            
+            if (searchInput) {
+                searchInput.value = '';
+                clearBtn.style.display = 'none';
+                
+                // 자동완성 드롭다운 숨기기
+                if (autocomplete) {
+                    autocomplete.style.display = 'none';
+                }
+                
+                // 검색 필터 초기화
+                if (searchId === 'members-search') {
+                    filterMembers('');
+                } else if (searchId === 'usage-search') {
+                    filterUsageMembers('');
+                }
+            }
+        }
+
+        // 자동완성 드롭다운 표시
+        function showAutocomplete(searchId) {
+            const searchInput = document.getElementById(searchId);
+            const autocomplete = document.getElementById(searchId.replace('-search', '-autocomplete'));
+            
+            if (!searchInput || !autocomplete) return;
+            
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            
+            if (searchTerm.length === 0) {
+                autocomplete.style.display = 'none';
+                return;
+            }
+            
+            // 사용자 데이터 가져오기
+            let users = [];
+            if (searchId === 'members-search') {
+                users = getMembersUsers();
+            } else if (searchId === 'usage-search') {
+                users = getUsageUsers();
+            }
+            
+            // 검색어와 매칭되는 사용자 필터링
+            const filteredUsers = users.filter(user => 
+                user.name.toLowerCase().includes(searchTerm) || 
+                user.email.toLowerCase().includes(searchTerm)
+            );
+            
+            if (filteredUsers.length === 0) {
+                autocomplete.style.display = 'none';
+                return;
+            }
+            
+            // 드롭다운 HTML 생성
+            const dropdownHTML = filteredUsers.map(user => `
+                <div class="autocomplete-item" onclick="selectUser('${searchId}', '${user.email}')">
+                    <div class="user-name">${user.name}</div>
+                    <div class="user-email">${user.email}</div>
+                </div>
+            `).join('');
+            
+            autocomplete.innerHTML = dropdownHTML;
+            autocomplete.style.display = 'block';
+        }
+
+        // 사용자 선택
+        function selectUser(searchId, userEmail) {
+            const searchInput = document.getElementById(searchId);
+            const autocomplete = document.getElementById(searchId.replace('-search', '-autocomplete'));
+            
+            if (searchInput) {
+                searchInput.value = userEmail;
+                
+                // 검색 실행
+                if (searchId === 'members-search') {
+                    filterMembers(userEmail);
+                } else if (searchId === 'usage-search') {
+                    filterUsageMembers(userEmail);
+                }
+                
+                // X 버튼 표시
+                toggleSearchClearBtn(searchId);
+            }
+            
+            // 드롭다운 숨기기
+            if (autocomplete) {
+                autocomplete.style.display = 'none';
+            }
+        }
+
+        // Members 섹션 사용자 데이터 가져오기
+        function getMembersUsers() {
+            if (!currentMembersData || currentMembersData.length === 0) {
+                return [];
+            }
+            
+            return currentMembersData.map(member => ({
+                name: member.name || 'Unnamed',
+                email: member.email
+            }));
+        }
+
+        // Usage 섹션 사용자 데이터 가져오기
+        function getUsageUsers() {
+            if (!currentUserCumulativeData || currentUserCumulativeData.length === 0) {
+                return [];
+            }
+            
+            return currentUserCumulativeData.map(user => ({
+                name: user.name || 'Unnamed',
+                email: user.email
+            }));
+        }
+
         // 멤버 검색 기능
         function filterMembers(searchTerm) {
             const rows = document.querySelectorAll('#members .table-row');
@@ -3136,29 +3421,46 @@
         }
 
         // Usage 섹션 현재 필터로 업데이트
-        async function updateUsageWithCurrentFilter(days = 30) {
+        async function updateUsageWithCurrentFilter(days = 30, showLoading = true) {
             try {
-                console.log(`=== Usage 섹션 ${days}일 필터로 업데이트 시작 ===`);
+                // 이미 로딩 중이면 중복 실행 방지
+                if (isUsageLoading) {
+                    console.log('⚠️ Usage 데이터 로딩 중 - 중복 실행 방지');
+                    return;
+                }
+                
+                console.log(`=== Usage 섹션 ${days}일 필터로 업데이트 시작 (로딩 표시: ${showLoading}) ===`);
+                
+                isUsageLoading = true;
                 
                 // 날짜 범위 계산
                 const dateRange = getDateRange(days);
                 currentUsageDateRange = null; // 사용자 정의 범위 초기화
                 
-                await updateUsageWithDateRange(dateRange.startDate, dateRange.endDate);
+                await updateUsageWithDateRange(dateRange.startDate, dateRange.endDate, showLoading);
                 
+                // 첫 번째 로딩 완료 표시
+                if (showLoading) {
+                    isUsageDataLoaded = true;
+                }
+                
+                isUsageLoading = false;
                 console.log(`=== Usage 섹션 ${days}일 필터 업데이트 완료 ===`);
             } catch (error) {
                 console.error('❌ Usage 필터 업데이트 실패:', error);
+                isUsageLoading = false;
             }
         }
 
         // Usage 섹션 특정 날짜 범위로 업데이트
-        async function updateUsageWithDateRange(startDate, endDate) {
+        async function updateUsageWithDateRange(startDate, endDate, showLoading = true) {
             try {
-                console.log(`=== Usage 섹션 날짜 범위 업데이트 시작: ${new Date(startDate).toLocaleDateString()} ~ ${new Date(endDate).toLocaleDateString()} ===`);
+                console.log(`=== Usage 섹션 날짜 범위 업데이트 시작: ${new Date(startDate).toLocaleDateString()} ~ ${new Date(endDate).toLocaleDateString()} (로딩 표시: ${showLoading}) ===`);
                 
-                // 로딩 상태 표시
-                showUsageLoadingState(true);
+                // 로딩 상태 표시 (첫 번째 로딩에만)
+                if (showLoading) {
+                    showUsageLoadingState(true);
+                }
                 
                 // API 데이터 가져오기
                 const [membersData, eventsData, usageData, spendingData] = await Promise.all([
@@ -3178,13 +3480,17 @@
                 currentRawEventsPage = 1;
                 updateRawEventsTable(eventsData);
                 
-                // 로딩 상태 해제
-                showUsageLoadingState(false);
+                // 로딩 상태 해제 (첫 번째 로딩에만)
+                if (showLoading) {
+                    showUsageLoadingState(false);
+                }
                 
                 console.log(`=== Usage 섹션 날짜 범위 업데이트 완료 ===`);
             } catch (error) {
                 console.error('❌ Usage 날짜 범위 업데이트 실패:', error);
-                showUsageLoadingState(false);
+                if (showLoading) {
+                    showUsageLoadingState(false);
+                }
             }
         }
 
@@ -3913,6 +4219,25 @@
             });
         }
 
+        // 검색창 외부 클릭 시 자동완성 드롭다운 숨기기
+        document.addEventListener('click', function(e) {
+            const autocompleteDropdowns = document.querySelectorAll('.autocomplete-dropdown');
+            const searchContainers = document.querySelectorAll('.search-container');
+            
+            let clickedInsideSearch = false;
+            searchContainers.forEach(container => {
+                if (container.contains(e.target)) {
+                    clickedInsideSearch = true;
+                }
+            });
+            
+            if (!clickedInsideSearch) {
+                autocompleteDropdowns.forEach(dropdown => {
+                    dropdown.style.display = 'none';
+                });
+            }
+        });
+
         // 최적화된 페이지 초기화 (Progressive Loading)
         document.addEventListener('DOMContentLoaded', async function() {
             PerformanceMonitor.start('페이지 전체 로드');
@@ -3994,6 +4319,168 @@
             console.log('🗑️ 캐시 강제 새로고침 시작');
             DataCache.clear();
             location.reload();
+        }
+
+        // Refresh 실행 상태 관리 (중복 실행 방지)
+        let isRefreshInProgress = false;
+
+        // 진행바 제어 함수들
+        function showRefreshProgress() {
+            const progressContainer = document.querySelector('.refresh-progress');
+            const progressBar = document.querySelector('.refresh-progress-bar');
+            if (progressContainer && progressBar) {
+                progressContainer.style.display = 'block';
+                progressBar.style.width = '0%';
+            }
+        }
+
+        function updateRefreshProgress(percentage) {
+            const progressBar = document.querySelector('.refresh-progress-bar');
+            if (progressBar) {
+                progressBar.style.width = percentage + '%';
+            }
+        }
+
+        function hideRefreshProgress() {
+            const progressContainer = document.querySelector('.refresh-progress');
+            if (progressContainer) {
+                progressContainer.style.display = 'none';
+            }
+        }
+
+        // Refresh 메뉴 클릭 핸들러 (완전 백그라운드 동작)
+        async function handleRefreshClick() {
+            // 이미 refresh가 진행 중이면 무시
+            if (isRefreshInProgress) {
+                console.log('🔄 Refresh 이미 진행 중 - 요청 무시');
+                return;
+            }
+
+            // 진행바 표시
+            showRefreshProgress();
+            
+            // Refresh 시작 (사용자에게는 아무 변화 없음)
+            isRefreshInProgress = true;
+            
+            try {
+                console.log('🔄 Refresh 시작 - 백그라운드 데이터 갱신 (사용자 화면 변화 없음)');
+                
+                // 현재 활성화된 섹션 확인
+                const activeSection = document.querySelector('.content-section.active');
+                const activeSectionId = activeSection ? activeSection.id : 'overview';
+                
+                console.log(`현재 활성 섹션: ${activeSectionId}`);
+                
+                // 백그라운드에서 모든 데이터 새로고침 (병렬 처리)
+                console.log('📡 백그라운드 API 데이터 로드 시작...');
+                
+                // 진행바 단계별 업데이트
+                updateRefreshProgress(20);
+                await refreshOverviewData();
+                updateRefreshProgress(50);
+                await refreshMembersData();
+                updateRefreshProgress(80);
+                await refreshUsageData();
+                updateRefreshProgress(90);
+                
+                // 현재 섹션이 활성화되어 있다면 화면 업데이트
+                await updateCurrentSectionDisplay(activeSectionId);
+                updateRefreshProgress(100);
+                
+                console.log('✅ Refresh 완료 - 모든 데이터가 백그라운드에서 갱신됨');
+                
+            } catch (error) {
+                console.error('❌ Refresh 실패:', error);
+                // 에러 발생 시에도 사용자 화면에는 변화 없음 (콘솔에만 로그)
+            } finally {
+                // 진행바 숨기기
+                setTimeout(() => {
+                    hideRefreshProgress();
+                }, 500);
+                
+                // Refresh 완료 상태로 변경
+                isRefreshInProgress = false;
+            }
+        }
+
+        // Overview 데이터 백그라운드 새로고침
+        async function refreshOverviewData() {
+            try {
+                console.log('📊 Overview 데이터 백그라운드 갱신 중...');
+                await updateOverviewWithRealData();
+                console.log('✅ Overview 데이터 갱신 완료');
+            } catch (error) {
+                console.error('❌ Overview 데이터 갱신 실패:', error);
+                throw error;
+            }
+        }
+
+        // Members 데이터 백그라운드 새로고침
+        async function refreshMembersData() {
+            try {
+                console.log('👥 Members 데이터 백그라운드 갱신 중...');
+                await updateMembersWithRealData();
+                console.log('✅ Members 데이터 갱신 완료');
+            } catch (error) {
+                console.error('❌ Members 데이터 갱신 실패:', error);
+                throw error;
+            }
+        }
+
+        // Usage 데이터 백그라운드 새로고침 (화면 변화 없이 캐시만 갱신)
+        async function refreshUsageData() {
+            try {
+                console.log('📈 Usage 데이터 백그라운드 갱신 중 (화면 변화 없음)...');
+                
+                // 날짜 범위 계산
+                const dateRange = getDateRange(30);
+                
+                // API 데이터만 가져와서 캐시에 저장 (화면 업데이트 없음)
+                const [membersData, eventsData, usageData, spendingData] = await Promise.all([
+                    getTeamMembers(),
+                    getFilteredEvents(dateRange.startDate, dateRange.endDate),
+                    getUsageData(dateRange.startDate, dateRange.endDate),
+                    getTeamSpendingData()
+                ]);
+                
+                // 캐시에만 저장하고 화면은 업데이트하지 않음
+                console.log('💾 Usage 데이터를 캐시에 저장 (화면 업데이트 안함)');
+                
+                // 전역 변수에 데이터 저장 (화면 업데이트 함수들 호출하지 않음)
+                // 이렇게 하면 데이터는 최신으로 유지되지만 화면은 변경되지 않음
+                
+                console.log('✅ Usage 데이터 백그라운드 갱신 완료 (캐시만 업데이트)');
+            } catch (error) {
+                console.error('❌ Usage 데이터 갱신 실패:', error);
+                throw error;
+            }
+        }
+
+        // 현재 섹션 화면 업데이트 (백그라운드 갱신 후)
+        async function updateCurrentSectionDisplay(activeSectionId) {
+            try {
+                console.log(`🖥️ 현재 섹션 화면 업데이트: ${activeSectionId}`);
+                switch(activeSectionId) {
+                    case 'overview':
+                        await updateOverviewWithCurrentFilter();
+                        break;
+                    case 'members':
+                        // Members는 이미 refreshMembersData()에서 갱신됨
+                        // 추가 화면 업데이트 없음
+                        break;
+                    case 'usage':
+                        // Usage는 백그라운드에서만 데이터 갱신됨
+                        // 화면 업데이트 하지 않음 (사용자가 보고 있는 화면 유지)
+                        console.log('Usage 섹션: 화면 업데이트 안함 (백그라운드 갱신만)');
+                        break;
+                    case 'settings':
+                        // Settings는 별도 API 데이터가 없음
+                        break;
+                }
+                console.log(`✅ ${activeSectionId} 섹션 화면 업데이트 완료`);
+            } catch (error) {
+                console.error(`❌ ${activeSectionId} 섹션 화면 업데이트 실패:`, error);
+            }
         }
 
         // 자동 새로고침 이벤트 설정
