@@ -860,6 +860,45 @@
             text-transform: uppercase;
         }
 
+        /* Overview 활동 테이블 스타일 */
+        .overview-activity-header {
+            background-color: #1a1a1a;
+            color: #fff;
+            padding: 15px 20px;
+            margin: 0;
+            border-bottom: 1px solid #3a3a3a;
+            font-size: 18px;
+            font-weight: 600;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .overview-activity-table {
+            background-color: #2a2a2a;
+            padding: 15px 20px;
+            border-bottom: 1px solid #3a3a3a;
+            display: grid;
+            grid-template-columns: 1.5fr 2fr 1fr 1.5fr 1fr 1fr 1fr;
+            gap: 20px;
+            font-size: 12px;
+            font-weight: 600;
+            color: #b1b1b1;
+            text-transform: uppercase;
+        }
+
+        /* Export CSV 버튼 호버 효과 */
+        .export-csv-btn:hover {
+            background-color: #45a049 !important;
+            transform: translateY(-1px);
+            box-shadow: 0 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .export-csv-btn:active {
+            transform: translateY(0);
+            box-shadow: 0 1px 2px rgba(0,0,0,0.2);
+        }
+
         .user-cumulative-row {
             padding: 15px 20px;
             border-bottom: 1px solid #3a3a3a;
@@ -1098,6 +1137,34 @@
 
                     </div>
 
+                    <!-- 사용량 개요 카드 (Usage에서 이동) -->
+                    <div class="usage-cards">
+                        <div class="usage-card">
+                            <div class="usage-card-number">-</div>
+                            <div class="usage-card-label">Total Users</div>
+                        </div>
+                        <div class="usage-card">
+                            <div class="usage-card-number">-</div>
+                            <div class="usage-card-label">Lines of Agent Edits</div>
+                        </div>
+                        <div class="usage-card">
+                            <div class="usage-card-number">-</div>
+                            <div class="usage-card-label">Tabs Accepted</div>
+                        </div>
+                        <div class="usage-card">
+                            <div class="usage-card-number">-</div>
+                            <div class="usage-card-label">Chats</div>
+                        </div>
+                    </div>
+
+                    <!-- 그래프 영역 -->
+                    <div class="overview-chart-container">
+                        <div class="chart-header">
+                            <h3>일별 활동 추이</h3>
+                        </div>
+                        <canvas id="overviewChart" style="width: 100%; height: 300px;"></canvas>
+                    </div>
+
                     <!-- 2.1.2 통계 카드 -->
                     <div class="overview-stats">
                         <div class="overview-stat-box clickable" data-type="total" onclick="filterOverviewMembersByType('total')">
@@ -1123,18 +1190,20 @@
                         </div>
                     </div>
 
-                    <!-- 그래프 영역 -->
-                    <div class="overview-chart-container">
-                        <div class="chart-header">
-                            <h3>일별 활동 추이</h3>
-                        </div>
-                        <canvas id="overviewChart" style="width: 100%; height: 300px;"></canvas>
-                    </div>
-
                     <!-- 멤버 세부 리스트 -->
                     <div class="overview-member-details">
+                        <div class="overview-activity-header">📋 활동 리스트</div>
+                        <div class="overview-activity-table">
+                            <div>마지막 활동</div>
+                            <div>사용자</div>
+                            <div>상태</div>
+                            <div>활동 유형</div>
+                            <div>요청 수</div>
+                            <div>비용</div>
+                            <div>제한</div>
+                        </div>
                         <div id="overview-activity-container">
-                            <!-- 동적으로 생성될 테이블 헤더와 내용 -->
+                            <!-- 동적으로 생성될 테이블 내용 -->
                             <div style="padding: 20px; text-align: center; color: #7a7a7a; background-color: #1a1a1a;">
                                 데이터를 불러오는 중...
                             </div>
@@ -1150,14 +1219,22 @@
                 <!-- Members 섹션 -->
                 <div id="members" class="content-section">
                     <div class="filter-controls" style="margin-bottom: 10px;">
-                        <div class="chart-controls">
-                            <!-- Refresh 버튼 제거 - Members 메뉴 클릭 시 자동 새로고침 -->
-                        </div>
-                        <div>
-                            <div class="search-container">
-                                <input type="text" class="search-box" id="members-search" placeholder="Search name, email..." onkeyup="filterMembers(this.value)" oninput="toggleSearchClearBtn('members-search'); showAutocomplete('members-search')" autocomplete="off">
-                                <button class="search-clear-btn" id="members-search-clear" onclick="clearSearch('members-search')" style="display: none;">×</button>
-                                <div id="members-autocomplete" class="autocomplete-dropdown" style="display: none;"></div>
+                        <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
+                            <div style="color: #e1e1e1; font-size: 14px; font-weight: 500; margin-left: 20px;">
+                                Fast Requests last reset on: <span id="fast-requests-reset-date" style="color: #ffffff; font-weight: 600;">2025년 7월 22일</span> (오늘 날짜: <span id="today-date" style="color: #ff9800; font-weight: 600;">2025-08-03</span>)
+                            </div>
+                            <div style="display: flex; align-items: center; gap: 15px; margin-left: auto;">
+                                <div class="search-container">
+                                    <div style="position: relative; display: flex; align-items: center;">
+                                        <span style="position: absolute; left: 12px; color: #7a7a7a; font-size: 14px;">🔍</span>
+                                        <input type="text" class="search-box" id="members-search" placeholder="Search name, email..." onkeyup="filterMembers(this.value)" oninput="toggleSearchClearBtn('members-search'); showAutocomplete('members-search')" autocomplete="off" style="padding-left: 35px;">
+                                        <button class="search-clear-btn" id="members-search-clear" onclick="clearSearch('members-search')" style="display: none;">×</button>
+                                    </div>
+                                    <div id="members-autocomplete" class="autocomplete-dropdown" style="display: none;"></div>
+                                </div>
+                                <button class="export-csv-btn" onclick="exportMembersToCSV()" style="background: #4caf50; color: white; border: none; padding: 8px 16px; border-radius: 4px; font-size: 14px; font-weight: 500; cursor: pointer; transition: background-color 0.2s ease;">
+                                    📊 Export CSV
+                                </button>
                             </div>
                         </div>
                     </div>
@@ -1176,25 +1253,6 @@
 
                 <!-- Usage 섹션 -->
                 <div id="usage" class="content-section">
-                    <div class="usage-cards">
-                        <div class="usage-card">
-                            <div class="usage-card-number">-</div>
-                            <div class="usage-card-label">Total Users</div>
-                        </div>
-                        <div class="usage-card">
-                            <div class="usage-card-number">-</div>
-                            <div class="usage-card-label">Lines of Agent Edits</div>
-                        </div>
-                        <div class="usage-card">
-                            <div class="usage-card-number">-</div>
-                            <div class="usage-card-label">Tabs Accepted</div>
-                        </div>
-                        <div class="usage-card">
-                            <div class="usage-card-number">-</div>
-                            <div class="usage-card-label">Chats</div>
-                        </div>
-                    </div>
-
                     <!-- 날짜 필터와 검색 -->
                     <div class="filter-controls">
                         <div class="chart-controls">
@@ -1210,8 +1268,11 @@
                         </div>
                         <div>
                             <div class="search-container">
-                                <input type="text" class="search-box" id="usage-search" placeholder="Search name, email..." onkeyup="filterUsageMembers(this.value)" oninput="toggleSearchClearBtn('usage-search'); showAutocomplete('usage-search')" autocomplete="off">
-                                <button class="search-clear-btn" id="usage-search-clear" onclick="clearSearch('usage-search')" style="display: none;">×</button>
+                                <div style="position: relative; display: flex; align-items: center;">
+                                    <span style="position: absolute; left: 12px; color: #7a7a7a; font-size: 14px;">🔍</span>
+                                    <input type="text" class="search-box" id="usage-search" placeholder="Search name, email..." onkeyup="filterUsageMembers(this.value)" oninput="toggleSearchClearBtn('usage-search'); showAutocomplete('usage-search')" autocomplete="off" style="padding-left: 35px;">
+                                    <button class="search-clear-btn" id="usage-search-clear" onclick="clearSearch('usage-search')" style="display: none;">×</button>
+                                </div>
                                 <div id="usage-autocomplete" class="autocomplete-dropdown" style="display: none;"></div>
                             </div>
                         </div>
@@ -1219,8 +1280,17 @@
 
                     <!-- 사용자별 누적 정보 -->
                     <div class="user-cumulative-info">
+                        <div class="user-cumulative-header">📊 사용자별 누적 사용량 정보</div>
+                        <div class="user-cumulative-table">
+                            <div>NAME</div>
+                            <div>EMAIL</div>
+                            <div>ROLE</div>
+                            <div>REQUEST</div>
+                            <div>SPEND</div>
+                            <div>LAST ACT</div>
+                        </div>
                         <div id="user-cumulative-container">
-                            <!-- 동적으로 생성될 테이블 헤더와 내용 -->
+                            <!-- 동적으로 생성될 테이블 내용 -->
                             <div style="padding: 20px; text-align: center; color: #7a7a7a; background-color: #1a1a1a;">
                                 데이터를 불러오는 중...
                             </div>
@@ -2552,6 +2622,12 @@
                     const chartData = createChartData(usageData.data);
                     updateChart(chartData);
                     console.log(`✅ ${usageData.data.length}건의 차트 데이터를 처리했습니다.`);
+                    
+                    // 사용량 카드 업데이트 (Overview 섹션의 카드들도 포함)
+                    console.log('사용량 카드 업데이트 중...');
+                    const eventsData = await getFilteredEvents(chartDateRange.startDate, chartDateRange.endDate);
+                    updateUsageCards(usageData, eventsData);
+                    console.log('✅ 사용량 카드 업데이트 완료');
                 }
 
                 // 필터 기간 표시
@@ -2927,6 +3003,34 @@
 
         // Overview 활동리스트 테이블 렌더링 (Members 스타일)
         function renderOverviewActivityTableWithPagination(activities) {
+            // 헤더 업데이트
+            const headerElement = document.querySelector('.overview-activity-header');
+            if (headerElement) {
+                if (!activities || activities.length === 0) {
+                    headerElement.innerHTML = '📋 활동 리스트';
+                } else {
+                    const totalActivities = activities.length;
+                    const totalPages = Math.ceil(totalActivities / currentActivityPageSize);
+                    const startIndex = (currentActivityPage - 1) * currentActivityPageSize;
+                    const endIndex = Math.min(startIndex + currentActivityPageSize, totalActivities);
+                    
+                    // 현재 필터 타입에 따른 제목 결정
+                    const titleInfo = updateOverviewActivityTitle(currentFilterType, totalActivities, totalActivities);
+                    const periodText = getCurrentOverviewPeriodText();
+                    
+                    headerElement.innerHTML = `
+                        <span>${titleInfo.emoji} ${titleInfo.title} (${periodText})(${startIndex + 1}-${endIndex} of ${totalActivities})</span>
+                        <select id="overviewActivityPageSize" onchange="changeOverviewActivityPageSize(this.value)" style="background: #3a3a3a; color: #fff; border: 1px solid #4a4a4a; padding: 5px 10px; border-radius: 4px; font-size: 12px;">
+                            <option value="10" ${currentActivityPageSize === 10 ? 'selected' : ''}>10개 보기</option>
+                            <option value="20" ${currentActivityPageSize === 20 ? 'selected' : ''}>20개 보기</option>
+                            <option value="30" ${currentActivityPageSize === 30 ? 'selected' : ''}>30개 보기</option>
+                            <option value="50" ${currentActivityPageSize === 50 ? 'selected' : ''}>50개 보기</option>
+                            <option value="100" ${currentActivityPageSize === 100 ? 'selected' : ''}>100개 보기</option>
+                        </select>
+                    `;
+                }
+            }
+            
             if (!activities || activities.length === 0) {
                 const container = document.getElementById('overview-activity-container');
                 if (container) {
@@ -2951,34 +3055,8 @@
 
             console.log(`📄 Overview 활동리스트 페이지네이션: ${startIndex + 1}-${endIndex} of ${totalActivities} (페이지 ${currentActivityPage}/${totalPages})`);
 
-            // 현재 필터 타입에 따른 제목 결정
-            const titleInfo = updateOverviewActivityTitle(currentFilterType, totalActivities, totalActivities);
-            const periodText = getCurrentOverviewPeriodText();
-            
-            // 테이블 HTML 생성 (Members 스타일)
-            const tableHtml = `
-                <div class="user-cumulative-header" style="display: flex; justify-content: space-between; align-items: center;">
-                    <span id="overview-activity-title">${titleInfo.emoji} ${titleInfo.title} (${periodText})(${startIndex + 1}-${endIndex} of ${totalActivities})</span>
-                    <select id="overviewActivityPageSize" onchange="changeOverviewActivityPageSize(this.value)" style="background: #3a3a3a; color: #fff; border: 1px solid #4a4a4a; padding: 5px 10px; border-radius: 4px; font-size: 12px;">
-                        <option value="10" ${currentActivityPageSize === 10 ? 'selected' : ''}>10개 보기</option>
-                        <option value="20" ${currentActivityPageSize === 20 ? 'selected' : ''}>20개 보기</option>
-                        <option value="30" ${currentActivityPageSize === 30 ? 'selected' : ''}>30개 보기</option>
-                        <option value="50" ${currentActivityPageSize === 50 ? 'selected' : ''}>50개 보기</option>
-                        <option value="100" ${currentActivityPageSize === 100 ? 'selected' : ''}>100개 보기</option>
-                    </select>
-                </div>
-
-                <div class="member-list-header">
-                    <div>마지막 활동</div>
-                    <div>사용자</div>
-                    <div>상태</div>
-                    <div>활동 유형</div>
-                    <div>요청 수</div>
-                    <div>비용</div>
-                    <div>제한</div>
-                </div>
-
-                ${pageActivities.map(activity => `
+            // 테이블 내용만 업데이트
+            const tableContent = pageActivities.map(activity => `
                 <div class="member-item">
                     <div class="member-date">${activity.date}</div>
                     <div class="member-email clickable-email" title="View usage for ${activity.email}" onclick="navigateToUsageWithEmail('${activity.email}')">${activity.email}</div>
@@ -2988,13 +3066,12 @@
                     <div class="member-spend">${activity.spend}</div>
                     <div class="member-limit">${activity.limit || '$0'}</div>
                 </div>
-                `).join('')}
-            `;
+            `).join('');
 
-            // 컨테이너에 테이블 삽입
+            // 컨테이너에 테이블 내용만 삽입
             const container = document.getElementById('overview-activity-container');
             if (container) {
-                container.innerHTML = tableHtml;
+                container.innerHTML = tableContent;
             }
 
             // 페이지네이션 업데이트
@@ -3081,8 +3158,12 @@
 
                 console.log('지출 데이터 매핑 결과:', memberSpendMap);
 
-                // 4. 멤버 테이블 업데이트
-                console.log('4. 멤버 테이블 UI 업데이트 중...');
+                // 4. Fast Requests 리셋 날짜 표시
+                console.log('4. Fast Requests 리셋 날짜 표시 중...');
+                updateFastRequestsResetDate(spendingData.teamMemberSpend);
+                
+                // 5. 멤버 테이블 업데이트
+                console.log('5. 멤버 테이블 UI 업데이트 중...');
                 updateMembersTable(membersData.teamMembers, memberSpendMap);
                
                 console.log('=== 실제 API 데이터로 멤버 테이블 업데이트 완료! ===');
@@ -3092,6 +3173,108 @@
                 
                 // 사용자에게 알림
                 alert(`실제 API 데이터 로드에 실패했습니다:\n${error.message}\n\n프록시 서버가 실행 중인지 확인하세요.`);
+            }
+        }
+
+        // Fast Requests 리셋 날짜 표시
+        function updateFastRequestsResetDate(teamMemberSpend) {
+            try {
+                // Premium Requests가 0인 멤버들을 찾아서 리셋 날짜 계산
+                const zeroRequestMembers = teamMemberSpend.filter(member => 
+                    member.fastPremiumRequests === 0
+                );
+                
+                // 실제로는 API에서 제공하는 리셋 날짜 정보가 필요하지만,
+                // 현재로서는 고정된 날짜를 사용
+                const resetDate = '2025년 7월 22일';
+                
+                const resetDateElement = document.getElementById('fast-requests-reset-date');
+                if (resetDateElement) {
+                    resetDateElement.textContent = resetDate;
+                }
+                
+                // 한국 시간 기준 오늘 날짜 업데이트
+                updateTodayDate();
+                
+                console.log(`📅 Fast Requests 리셋 날짜: ${resetDate} (Premium Requests 0인 멤버: ${zeroRequestMembers.length}명)`);
+            } catch (error) {
+                console.error('❌ Fast Requests 리셋 날짜 계산 오류:', error);
+                const resetDateElement = document.getElementById('fast-requests-reset-date');
+                if (resetDateElement) {
+                    resetDateElement.textContent = '2025년 7월 22일';
+                }
+                // 오류 발생 시에도 오늘 날짜는 업데이트
+                updateTodayDate();
+            }
+        }
+
+        // 한국 시간 기준 오늘 날짜 업데이트
+        function updateTodayDate() {
+            try {
+                // 한국 시간 기준 (UTC+9)
+                const now = new Date();
+                const koreaTime = new Date(now.getTime() + (9 * 60 * 60 * 1000)); // UTC+9
+                const todayDate = koreaTime.toISOString().split('T')[0]; // YYYY-MM-DD 형식
+                
+                const todayDateElement = document.getElementById('today-date');
+                if (todayDateElement) {
+                    todayDateElement.textContent = todayDate;
+                    todayDateElement.style.color = '#ff9800'; // 오렌지색
+                }
+                
+                console.log(`📅 오늘 날짜 (한국 시간): ${todayDate}`);
+            } catch (error) {
+                console.error('❌ 오늘 날짜 계산 오류:', error);
+                const todayDateElement = document.getElementById('today-date');
+                if (todayDateElement) {
+                    todayDateElement.textContent = '2025-08-03';
+                    todayDateElement.style.color = '#ff9800'; // 오렌지색
+                }
+            }
+        }
+
+        // Export CSV 기능
+        function exportMembersToCSV() {
+            try {
+                if (!currentMembersData || currentMembersData.length === 0) {
+                    alert('내보낼 멤버 데이터가 없습니다.');
+                    return;
+                }
+                
+                // CSV 헤더
+                const headers = ['Name', 'Email', 'Role', 'Premium Requests', 'Spend ($)', 'Hard Limit Override ($)'];
+                
+                // CSV 데이터 생성
+                const csvData = currentMembersData.map(member => [
+                    member.name || '',
+                    member.email || '',
+                    member.role || '',
+                    member.spendData?.premiumRequests || 0,
+                    (member.spendData?.spend || 0).toFixed(2),
+                    (member.spendData?.hardLimitOverride || 0).toFixed(2)
+                ]);
+                
+                // CSV 문자열 생성
+                const csvContent = [
+                    headers.join(','),
+                    ...csvData.map(row => row.join(','))
+                ].join('\n');
+                
+                // 파일 다운로드
+                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.setAttribute('href', url);
+                link.setAttribute('download', `members_export_${new Date().toISOString().split('T')[0]}.csv`);
+                link.style.visibility = 'hidden';
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+                
+                console.log(`📊 CSV 내보내기 완료: ${currentMembersData.length}명의 멤버 데이터`);
+            } catch (error) {
+                console.error('❌ CSV 내보내기 오류:', error);
+                alert('CSV 내보내기에 실패했습니다.');
             }
         }
 
@@ -3620,15 +3803,18 @@
             }
         }
 
-        // Usage 카드 업데이트
+        // Usage 카드 업데이트 (Overview와 Usage 섹션 모두)
         function updateUsageCards(usageData, eventsData) {
-            const cards = document.querySelectorAll('#usage .usage-card-number');
+            // Overview 섹션과 Usage 섹션 모두의 카드를 찾음
+            const overviewCards = document.querySelectorAll('#overview .usage-card-number');
+            const usageCards = document.querySelectorAll('#usage .usage-card-number');
+            const allCards = [...overviewCards, ...usageCards];
             
             if (!usageData || !usageData.data) {
-                cards[0].textContent = '0'; // Total Users
-                cards[1].textContent = '0'; // Lines of Agent Edits
-                cards[2].textContent = '0'; // Tabs Accepted
-                cards[3].textContent = '0'; // Chats
+                allCards.forEach((card, index) => {
+                    const cardIndex = index % 4; // 4개 카드 반복
+                    card.textContent = '0';
+                });
                 console.log('📊 Usage 카드 업데이트: 데이터 없음 - 모든 값을 0으로 설정');
                 return;
             }
@@ -3656,11 +3842,18 @@
                 totalChats += (dayData.chatRequests || 0);
             });
             
-            // 카드 업데이트
-            cards[0].textContent = activeUsers.size.toLocaleString(); // Total Users
-            cards[1].textContent = (totalLinesAdded + totalLinesAccepted).toLocaleString(); // Lines of Agent Edits
-            cards[2].textContent = totalTabsAccepted.toLocaleString(); // Tabs Accepted
-            cards[3].textContent = totalChats.toLocaleString(); // Chats
+            // 카드 업데이트 (Overview와 Usage 섹션 모두)
+            const values = [
+                activeUsers.size.toLocaleString(), // Total Users
+                (totalLinesAdded + totalLinesAccepted).toLocaleString(), // Lines of Agent Edits
+                totalTabsAccepted.toLocaleString(), // Tabs Accepted
+                totalChats.toLocaleString() // Chats
+            ];
+            
+            allCards.forEach((card, index) => {
+                const cardIndex = index % 4; // 4개 카드 반복
+                card.textContent = values[cardIndex];
+            });
             
             console.log(`Usage 카드 업데이트: 사용자 ${activeUsers.size}명, 라인 ${totalLinesAdded + totalLinesAccepted}줄, 탭 ${totalTabsAccepted}개, 채팅 ${totalChats}건`);
         }
@@ -3673,6 +3866,36 @@
                 startDate: startDate,
                 endDate: endDate
             });
+            
+            // 헤더 업데이트
+            const headerElement = document.querySelector('.user-cumulative-info .user-cumulative-header');
+            if (headerElement) {
+                if (!userInfos || userInfos.length === 0) {
+                    headerElement.innerHTML = '📊 사용자별 누적 사용량 정보';
+                } else {
+                    const totalUsers = userInfos.length;
+                    const totalPages = Math.ceil(totalUsers / currentUserCumulativePageSize);
+                    const startIndex = (currentUserCumulativePage - 1) * currentUserCumulativePageSize;
+                    const endIndex = Math.min(startIndex + currentUserCumulativePageSize, totalUsers);
+                    
+                    // 날짜 형식 변경 (날짜 끝의 "." 제거)
+                    const cleanStartDate = new Date(startDate).toLocaleDateString('ko-KR').replace(/\.$/, '');
+                    const cleanEndDate = new Date(endDate).toLocaleDateString('ko-KR').replace(/\.$/, '');
+                    
+                    headerElement.innerHTML = `
+                        <div style="display: flex; justify-content: space-between; align-items: center;">
+                            <span>📊 사용자별 누적 사용량 정보 (${cleanStartDate} ~ ${cleanEndDate})(${startIndex + 1}-${endIndex} of ${totalUsers})</span>
+                            <select id="userCumulativePageSize" onchange="changeUserCumulativePageSize(this.value)" style="background: #3a3a3a; color: #fff; border: 1px solid #4a4a4a; padding: 5px 10px; border-radius: 4px; font-size: 12px;">
+                                <option value="10" ${currentUserCumulativePageSize === 10 ? 'selected' : ''}>10개 보기</option>
+                                <option value="20" ${currentUserCumulativePageSize === 20 ? 'selected' : ''}>20개 보기</option>
+                                <option value="30" ${currentUserCumulativePageSize === 30 ? 'selected' : ''}>30개 보기</option>
+                                <option value="50" ${currentUserCumulativePageSize === 50 ? 'selected' : ''}>50개 보기</option>
+                                <option value="100" ${currentUserCumulativePageSize === 100 ? 'selected' : ''}>100개 보기</option>
+                            </select>
+                        </div>
+                    `;
+                }
+            }
             
             if (!userInfos || userInfos.length === 0) {
                 const container = document.getElementById('user-cumulative-container');
@@ -3698,48 +3921,22 @@
 
             console.log(`📄 사용자별 누적 사용량 페이지네이션: ${startIndex + 1}-${endIndex} of ${totalUsers} (페이지 ${currentUserCumulativePage}/${totalPages})`);
             
-            // 날짜 형식 변경 (날짜 끝의 "." 제거)
-            const cleanStartDate = new Date(startDate).toLocaleDateString('ko-KR').replace(/\.$/, '');
-            const cleanEndDate = new Date(endDate).toLocaleDateString('ko-KR').replace(/\.$/, '');
-            
-            // 테이블 HTML 생성 (All Raw Events 스타일)
-            const tableHtml = `
-                <div class="user-cumulative-header" style="display: flex; justify-content: space-between; align-items: center;">
-                    <span>📊 사용자별 누적 사용량 정보 (${cleanStartDate} ~ ${cleanEndDate})(${startIndex + 1}-${endIndex} of ${totalUsers})</span>
-                    <select id="userCumulativePageSize" onchange="changeUserCumulativePageSize(this.value)" style="background: #3a3a3a; color: #fff; border: 1px solid #4a4a4a; padding: 5px 10px; border-radius: 4px; font-size: 12px;">
-                        <option value="10" ${currentUserCumulativePageSize === 10 ? 'selected' : ''}>10개 보기</option>
-                        <option value="20" ${currentUserCumulativePageSize === 20 ? 'selected' : ''}>20개 보기</option>
-                        <option value="30" ${currentUserCumulativePageSize === 30 ? 'selected' : ''}>30개 보기</option>
-                        <option value="50" ${currentUserCumulativePageSize === 50 ? 'selected' : ''}>50개 보기</option>
-                        <option value="100" ${currentUserCumulativePageSize === 100 ? 'selected' : ''}>100개 보기</option>
-                    </select>
+            // 테이블 내용만 업데이트
+            const tableContent = pageUsers.map(user => `
+                <div class="user-cumulative-row">
+                    <div>${user.name}</div>
+                    <div class="user-email clickable-email" title="View usage for ${user.email}" onclick="navigateToUsageWithEmail('${user.email}')">${user.email}</div>
+                    <div><span class="role-badge ${user.role === 'owner' ? 'admin' : ''}">${user.role === 'owner' ? 'Admin' : 'Member'}</span></div>
+                    <div style="font-weight: 600;">${user.periodRequests}</div>
+                    <div>$${user.spend.toFixed(2)}</div>
+                    <div>${user.lastActivity}</div>
                 </div>
-
-                <div class="user-cumulative-table">
-                    <div>NAME</div>
-                    <div>EMAIL</div>
-                    <div>ROLE</div>
-                    <div>REQUEST</div>
-                    <div>SPEND</div>
-                    <div>LAST ACT</div>
-                </div>
-
-                ${pageUsers.map(user => `
-                    <div class="user-cumulative-row">
-                        <div>${user.name}</div>
-                        <div class="user-email clickable-email" title="View usage for ${user.email}" onclick="navigateToUsageWithEmail('${user.email}')">${user.email}</div>
-                        <div><span class="role-badge ${user.role === 'owner' ? 'admin' : ''}">${user.role === 'owner' ? 'Admin' : 'Member'}</span></div>
-                        <div style="font-weight: 600;">${user.periodRequests}</div>
-                        <div>$${user.spend.toFixed(2)}</div>
-                        <div>${user.lastActivity}</div>
-                    </div>
-                `).join('')}
-            `;
+            `).join('');
             
-            // 컨테이너에 테이블 삽입
+            // 컨테이너에 테이블 내용만 삽입
             const container = document.getElementById('user-cumulative-container');
             if (container) {
-                container.innerHTML = tableHtml;
+                container.innerHTML = tableContent;
             }
 
             // 페이지네이션 업데이트
