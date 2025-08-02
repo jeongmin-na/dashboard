@@ -16,7 +16,7 @@
 ```
 ┌─────────────────┐    ┌─────────────────┐    ┌─────────────────┐
 │   Web Browser   │    │  Proxy Server   │    │  Cursor Admin   │
-│                 │◄──►│  (localhost:8000)│◄──►│      API       │
+│                 │◄──►│  (localhost:8001)│◄──►│      API       │
 │   Dashboard     │    │                 │    │                 │
 └─────────────────┘    └─────────────────┘    └─────────────────┘
 ```
@@ -42,7 +42,7 @@
 ### 1.3 파일 구조
 
 ```
-0728/
+dashboard/
 ├── dash.html              # 메인 대시보드 파일
 ├── proxy_server.py        # 프록시 서버
 ├── cursor_teams_api.py    # API 클라이언트
@@ -59,7 +59,7 @@
 **기본 설정**
 ```javascript
 const API_CONFIG = {
-    baseUrl: 'http://localhost:8000',
+    baseUrl: 'http://localhost:8001', // 포트 변경
     apiKey: 'key_e46368ce482125bbd568b7d55090c657e30e4b73c824f522cbc9ef9b1bf3f0d3',
     headers: {
         'Content-Type': 'application/json'
@@ -152,7 +152,45 @@ const authHeader = `Basic ${encodedCredentials}`;
 
 ### 3.2 섹션별 컴포넌트
 
-#### 3.2.1 Overview 섹션
+#### 3.2.1 Overview 섹션 ⭐ **UPDATED**
+
+**사용량 개요 카드 (Usage Cards)**
+```javascript
+// Overview 섹션 상단에 추가된 사용량 카드
+const usageCards = [
+    { label: 'Total Users', value: 17 },
+    { label: 'Lines of Agent Edits', value: 290172 },
+    { label: 'Tabs Accepted', value: 25 },
+    { label: 'Chats', value: 1294 }
+];
+```
+
+**활동 차트 (Activity Chart) - 개선된 데이터**
+```javascript
+// 실제 사용자 활동 데이터 기반 차트
+function createOverviewChart() {
+    const canvas = document.getElementById('overviewChart');
+    const ctx = canvas.getContext('2d');
+    
+    // 실제 데이터 패턴: 7월 22일부터 활동 시작
+    // 7월 23일과 28일에 피크(10명), 이후 점진적 감소
+    const chartData = [
+        { date: 'Jul 05', users: 0 },
+        { date: 'Jul 22', users: 6 },
+        { date: 'Jul 23', users: 10 },
+        { date: 'Jul 24', users: 6 },
+        { date: 'Jul 25', users: 7 },
+        { date: 'Jul 26', users: 1 },
+        { date: 'Jul 27', users: 6 },
+        { date: 'Jul 28', users: 10 },
+        { date: 'Jul 29', users: 5 },
+        { date: 'Jul 30', users: 5 },
+        { date: 'Jul 31', users: 5 },
+        { date: 'Aug 01', users: 4 },
+        { date: 'Aug 02', users: 3 }
+    ];
+}
+```
 
 **통계 카드 (Statistics Cards)**
 ```javascript
@@ -164,21 +202,99 @@ const statCards = [
 ];
 ```
 
-**활동 차트 (Activity Chart)**
+**활동 리스트 페이지네이션 (Overview Activity List)**
 ```javascript
-// Canvas 기반 차트 렌더링
-function createOverviewChart() {
-    const canvas = document.getElementById('overviewChart');
-    const ctx = canvas.getContext('2d');
+// Overview 활동 리스트에 페이지네이션 추가
+function renderOverviewActivityTableWithPagination(activities) {
+    const totalActivities = activities.length;
+    const totalPages = Math.ceil(totalActivities / currentActivityPageSize);
+    const startIndex = (currentActivityPage - 1) * currentActivityPageSize;
+    const endIndex = Math.min(startIndex + currentActivityPageSize, totalActivities);
     
-    // 그리드 그리기
-    // 데이터 포인트 계산
-    // 선 그래프 렌더링
-    // 데이터 포인트 원 그리기
+    // 페이지네이션 헤더 업데이트
+    const headerElement = document.querySelector('.overview-activity-header');
+    headerElement.innerHTML = `
+        <span>📋 활동 리스트 (${startIndex + 1}-${endIndex} of ${totalActivities})</span>
+        <select id="overviewActivityPageSize" onchange="changeOverviewActivityPageSize(this.value)">
+            <option value="10">10개 보기</option>
+            <option value="20">20개 보기</option>
+            <option value="30">30개 보기</option>
+            <option value="50">50개 보기</option>
+            <option value="100">100개 보기</option>
+        </select>
+    `;
 }
 ```
 
-#### 3.2.2 Usage 섹션
+**실시간 데이터 새로고침**
+```javascript
+// 사이드바에 추가된 새로고침 버튼
+function handleRefreshClick() {
+    // 진행 상황 표시
+    const progressBar = document.querySelector('.refresh-progress-bar');
+    progressBar.style.width = '0%';
+    document.querySelector('.refresh-progress').style.display = 'block';
+    
+    // 데이터 새로고침
+    refreshAllRealData().then(() => {
+        progressBar.style.width = '100%';
+        setTimeout(() => {
+            document.querySelector('.refresh-progress').style.display = 'none';
+        }, 1000);
+    });
+}
+```
+
+#### 3.2.2 Members 섹션
+
+**Fast Requests 정보 표시**
+```javascript
+// Members 섹션 상단에 Fast Requests 리셋 정보 추가
+function updateFastRequestsResetDate(teamMemberSpend) {
+    const resetDate = '2025년 7월 22일';
+    const resetDateElement = document.getElementById('fast-requests-reset-date');
+    if (resetDateElement) {
+        resetDateElement.textContent = resetDate;
+    }
+    
+    // 한국 시간 기준 오늘 날짜 업데이트
+    updateTodayDate();
+}
+```
+
+**멤버 테이블 업데이트**
+```javascript
+// 멤버 테이블을 실제 API 데이터로 업데이트
+async function updateMembersWithRealData() {
+    try {
+        // 1. 실제 팀원 정보 가져오기
+        const membersData = await getTeamMembers();
+        
+        // 2. 실제 지출 데이터 가져오기
+        const spendingData = await getTeamSpendingData();
+        
+        // 3. 이메일 기준으로 멤버와 지출 데이터 매핑
+        const memberSpendMap = {};
+        spendingData.teamMemberSpend.forEach(spendInfo => {
+            memberSpendMap[spendInfo.email] = {
+                premiumRequests: spendInfo.fastPremiumRequests || 0,
+                spend: (spendInfo.spendCents || 0) / 100,
+                hardLimitOverride: spendInfo.hardLimitOverrideDollars || 0
+            };
+        });
+        
+        // 4. Fast Requests 리셋 날짜 표시
+        updateFastRequestsResetDate(spendingData.teamMemberSpend);
+        
+        // 5. 멤버 테이블 업데이트
+        updateMembersTable(membersData.teamMembers, memberSpendMap);
+    } catch (error) {
+        console.error('❌ 실제 API 데이터 로드 실패:', error);
+    }
+}
+```
+
+#### 3.2.3 Usage 섹션
 
 **연동 검색 시스템**
 ```javascript
@@ -282,6 +398,28 @@ let currentUsageDateRange = null;         // 현재 날짜 범위 (Usage)
 let currentRawEventsData = [];            // 현재 Raw Events 전체 데이터
 let currentRawEventsPage = 1;             // 현재 Raw Events 페이지
 let currentRawEventsPageSize = 10;        // 현재 Raw Events 페이지 크기
+
+// Overview 활동리스트 페이지네이션 변수
+let currentActivityPage = 1;              // 현재 활동리스트 페이지
+let currentActivityPageSize = 20;         // 현재 활동리스트 페이지 크기
+let currentActivityData = [];             // 현재 활동리스트 데이터
+
+// 사용자별 누적 사용량 정보 페이지네이션 변수
+let currentUserCumulativePage = 1;        // 현재 사용자별 누적 사용량 정보 페이지
+let currentUserCumulativePageSize = 20;   // 현재 사용자별 누적 사용량 정보 페이지 크기
+let currentUserCumulativeData = [];       // 현재 사용자별 누적 사용량 정보 데이터
+let currentUserCumulativeStartDate = null; // 현재 사용자별 누적 사용량 정보 시작 날짜
+let currentUserCumulativeEndDate = null;  // 현재 사용자별 누적 사용량 정보 종료 날짜
+
+// Members 페이지네이션 변수
+let currentMembersPage = 1;               // 현재 Members 페이지
+let currentMembersPageSize = 20;          // 현재 Members 페이지 크기
+let currentMembersData = [];              // 현재 Members 데이터
+let originalMembersData = [];             // 원본 멤버 데이터 (필터링용)
+
+// Usage 데이터 로딩 상태 추적
+let isUsageDataLoaded = false;            // Usage 데이터가 한 번이라도 로드되었는지 확인
+let isUsageLoading = false;               // Usage 데이터 로딩 중인지 확인
 ```
 
 ## 4. 데이터 플로우
@@ -329,6 +467,18 @@ graph TD
     D --> E[UI 업데이트]
     E --> F[차트 업데이트]
     F --> G[활동 리스트 업데이트]
+```
+
+### 4.4 Overview 섹션 데이터 플로우 ⭐ **NEW**
+
+```mermaid
+graph TD
+    A[Overview 섹션 로드] --> B[사용량 카드 데이터 로드]
+    B --> C[활동 차트 데이터 로드]
+    C --> D[통계 카드 데이터 로드]
+    D --> E[활동 리스트 데이터 로드]
+    E --> F[페이지네이션 적용]
+    F --> G[UI 렌더링 완료]
 ```
 
 ## 5. 성능 최적화
@@ -466,7 +616,7 @@ pip install -r requirements.txt
 python proxy_server.py
 
 # 브라우저에서 대시보드 접속
-# http://localhost:8000/dash.html
+# http://localhost:8001/dash.html
 ```
 
 ### 7.2 코드 구조
@@ -536,12 +686,65 @@ const PerformanceMonitor = {
 export CURSOR_API_KEY="your_api_key_here"
 
 # 서버 포트 설정
-export PROXY_PORT=8000
+export PROXY_PORT=8001
 ```
 
-## 8. 최근 업데이트 (2025-08-02)
+## 8. 최근 업데이트 (2025-08-03)
 
-### 8.1 주요 변경사항 (2025-08-02)
+### 8.1 주요 변경사항 (2025-08-03)
+
+**Overview 섹션 대폭 개선**
+- **사용량 개요 카드 추가**: Overview 섹션 상단에 4개의 사용량 카드 표시
+  - Total Users: 17명
+  - Lines of Agent Edits: 290,172줄
+  - Tabs Accepted: 25개
+  - Chats: 1,294건
+- **활동 차트 데이터 개선**: 실제 사용자 활동 데이터 기반 차트
+  - 7월 22일부터 활동 시작
+  - 7월 23일과 28일에 피크(10명)
+  - 이후 점진적 감소 패턴
+- **활동 리스트 페이지네이션**: Overview 활동 리스트에 페이지네이션 기능 추가
+  - 드롭다운으로 페이지 크기 선택 (10, 20, 30, 50, 100개)
+  - 페이지 번호 클릭으로 이동
+  - 전체 활동 수와 현재 범위 표시
+
+**실시간 데이터 새로고침 기능**
+- **사이드바 새로고침 버튼**: 🔄 "사용자 정보 업데이트" 버튼 추가
+- **진행 상황 표시**: 진행 상황 표시 바로 새로고침 상태 확인
+- **수동 데이터 갱신**: 사용자가 원할 때 수동으로 최신 데이터 로드
+
+**API 설정 변경**
+- **포트 변경**: localhost:8000 → localhost:8001
+- **API_CONFIG 업데이트**: baseUrl 포트 변경
+
+**Members 섹션 개선**
+- **Fast Requests 정보 표시**: 상단에 "Fast Requests last reset on: 2025년 7월 22일" 표시
+- **오늘 날짜 표시**: 한국 시간 기준 오늘 날짜 표시
+- **실제 API 데이터 연동**: 실제 Cursor Admin API 데이터 사용
+
+**수정된 함수들**
+```javascript
+// Overview 섹션 개선
+function updateOverviewWithRealData() {
+    // 사용량 카드 업데이트 추가
+    updateUsageCards(usageData, eventsData);
+    // 활동 리스트 페이지네이션 추가
+    renderOverviewActivityTableWithPagination(activities);
+}
+
+// 실시간 새로고침
+function handleRefreshClick() {
+    // 진행 상황 표시 및 데이터 새로고침
+    refreshAllRealData();
+}
+
+// Fast Requests 정보
+function updateFastRequestsResetDate(teamMemberSpend) {
+    // 리셋 날짜 및 오늘 날짜 표시
+}
+```
+
+### 8.2 이전 업데이트 (2025-08-02)
 
 **필터링된 Raw Events 테이블 페이지네이션 개선**
 - 검색 시와 일반 상태 시 페이지네이션 구조 통일
@@ -550,28 +753,6 @@ export PROXY_PORT=8000
 - 컨테이너 선택자 일관성 확보 (`.user-cumulative-info:last-child` 통일)
 - ID 충돌 문제 해결 (중복 ID 제거)
 - 디버깅 로그 및 상태 확인 함수 추가
-
-**수정된 함수들**
-```javascript
-// 페이지네이션 구조 통일
-function renderFilteredRawEventsTable(filteredEvents, container) {
-    // 일반 테이블과 동일한 HTML 구조 사용
-    // 테이블 내부에 페이지네이션 직접 포함
-}
-
-// 컨테이너 선택자 통일
-function changeFilteredEventsPage(page) {
-    const container = document.querySelector('#usage .user-cumulative-info:last-child');
-    // 일반 테이블과 동일한 선택자 사용
-}
-
-// 디버깅 지원
-window.debugFilteredEvents = function() {
-    // 브라우저 콘솔에서 상태 확인 가능
-};
-```
-
-**이전 업데이트 (2025-08-01)**
 
 **All Raw Events 테이블 개선**
 - "전체보기" 버튼 제거 및 관련 기능 삭제
@@ -583,48 +764,7 @@ window.debugFilteredEvents = function() {
 - REQUEST 칼럼 계산 로직 수정 (COST값 누적)
 - 상단 드롭박스 + 하단 숫자 페이지네이션 구현
 
-**API 데이터 수집 개선**
-```javascript
-// 모든 페이지 데이터 수집 로직
-async function getFilteredEvents(startDate, endDate) {
-    let allEvents = [];
-    let currentPage = 1;
-    let hasMorePages = true;
-    
-    while (hasMorePages) {
-        const pageData = await callAPI('/teams/filtered-usage-events', 'POST', {
-            startDate: startDate,
-            endDate: endDate,
-            page: currentPage,
-            pageSize: 1000
-        });
-        
-        if (pageData && pageData.usageEvents) {
-            allEvents = allEvents.concat(pageData.usageEvents);
-            hasMorePages = pageData.pagination && pageData.pagination.hasNextPage;
-            currentPage++;
-        }
-    }
-    
-    return {
-        totalUsageEventsCount: allEvents.length,
-        usageEvents: allEvents,
-        period: { startDate, endDate }
-    };
-}
-```
-
-**REQUEST 칼럼 계산 수정**
-```javascript
-// 이전: 각 이벤트를 1개씩 카운트
-userPeriodStats[userEmail].periodRequests += 1;
-
-// 수정: All Raw Events의 COST값(requestsCosts) 누적
-const requestCost = event.requestsCosts || 0;
-userPeriodStats[userEmail].periodRequests += requestCost;
-```
-
-### 8.2 버그 수정
+### 8.3 버그 수정
 
 **이벤트 개수 불일치 문제 해결**
 - 원인: API 페이지네이션으로 인한 데이터 누락
@@ -636,7 +776,12 @@ userPeriodStats[userEmail].periodRequests += requestCost;
 - 해결: 올바른 컨테이너 선택자 사용
 - 결과: 사용자별 누적 사용량 정보 테이블 정상 표시
 
-### 8.3 성능 개선
+**포트 설정 문제 해결**
+- 원인: 프록시 서버와 대시보드 포트 불일치
+- 해결: 모든 포트를 8001로 통일
+- 결과: API 호출 정상 작동
+
+### 8.4 성능 개선
 
 **API 호출 최적화**
 - 페이지네이션 처리 개선
