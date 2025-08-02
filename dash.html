@@ -852,7 +852,7 @@
             padding: 15px 20px;
             border-bottom: 1px solid #3a3a3a;
             display: grid;
-            grid-template-columns: 1.5fr 2fr 1fr 1.5fr 1fr 1fr 1fr;
+            grid-template-columns: 1.5fr 2fr 1fr 1.5fr 1fr 1fr;
             gap: 20px;
             font-size: 12px;
             font-weight: 600;
@@ -903,7 +903,7 @@
             padding: 15px 20px;
             border-bottom: 1px solid #3a3a3a;
             display: grid;
-            grid-template-columns: 1.5fr 2fr 1fr 1.5fr 1fr 1fr 1fr;
+            grid-template-columns: 1.5fr 2fr 1fr 1.5fr 1fr 1fr;
             gap: 20px;
             align-items: center;
             font-size: 14px;
@@ -1311,7 +1311,6 @@
                             <div>KIND</div>
                             <div>MAX_MODEL</div>
                             <div>MODEL</div>
-                            <div>TOKENS</div>
                             <div>COST</div>
                         </div>
                         <div style="padding: 20px; text-align: center; color: #7a7a7a; background-color: #1a1a1a;">
@@ -2284,6 +2283,12 @@
                     currentActivityPage = 1; // 페이지네이션 초기화
                     updateActivityList(filteredActivities);
                     // 제목은 동적으로 생성됨
+                    
+                    // Overview 섹션의 사용량 카드 업데이트 (현재 필터 기간 사용)
+                    console.log('Overview 섹션 사용량 카드 업데이트 중...');
+                    const overviewUsageData = await getUsageData(dateRange.startDate, dateRange.endDate);
+                    updateUsageCards(overviewUsageData, eventsData);
+                    console.log('✅ Overview 섹션 사용량 카드 업데이트 완료');
                 } else {
                     console.log('활동 이벤트 데이터가 없습니다.');
                     currentActivities = [];
@@ -2291,6 +2296,12 @@
                     updateStatsCards(totalMembers, 0, totalMembers);
                     currentActivityPage = 1; // 페이지네이션 초기화
                     updateActivityList([]);
+                    
+                    // Overview 섹션의 사용량 카드 업데이트 (현재 필터 기간 사용)
+                    console.log('Overview 섹션 사용량 카드 업데이트 중...');
+                    const overviewUsageData = await getUsageData(dateRange.startDate, dateRange.endDate);
+                    updateUsageCards(overviewUsageData, eventsData);
+                    console.log('✅ Overview 섹션 사용량 카드 업데이트 완료');
                 }
                
                 console.log('=== 현재 필터로 Overview 업데이트 완료 ===');
@@ -2623,12 +2634,6 @@
                     const chartData = createChartData(usageData.data);
                     updateChart(chartData);
                     console.log(`✅ ${usageData.data.length}건의 차트 데이터를 처리했습니다.`);
-                    
-                    // 사용량 카드 업데이트 (Overview 섹션의 카드들도 포함)
-                    console.log('사용량 카드 업데이트 중...');
-                    const eventsData = await getFilteredEvents(chartDateRange.startDate, chartDateRange.endDate);
-                    updateUsageCards(usageData, eventsData);
-                    console.log('✅ 사용량 카드 업데이트 완료');
                 }
 
                 // 필터 기간 표시
@@ -4147,7 +4152,6 @@
                     <div>KIND</div>
                     <div>MAX_MODEL</div>
                     <div>MODEL</div>
-                    <div>TOKENS</div>
                     <div>COST</div>
                 </div>
                 ${pageEvents.map(event => {
@@ -4159,15 +4163,6 @@
                         minute: '2-digit' 
                     });
                     
-                    // 토큰 정보 계산
-                    let tokensText = 'N/A';
-                    if (event.tokenUsage) {
-                        const inputTokens = event.tokenUsage.inputTokens || 0;
-                        const outputTokens = event.tokenUsage.outputTokens || 0;
-                        const totalTokens = inputTokens + outputTokens;
-                        tokensText = totalTokens.toLocaleString();
-                    }
-                    
                     return `
                         <div class="user-cumulative-row">
                             <div>${dateText}</div>
@@ -4175,7 +4170,6 @@
                             <div>${(event.kindLabel || 'Unknown').substring(0, 15)}${(event.kindLabel || '').length > 15 ? '...' : ''}</div>
                             <div>${event.maxMode ? 'Yes' : 'No'}</div>
                             <div>${(event.model || 'auto').substring(0, 10)}${(event.model || '').length > 10 ? '...' : ''}</div>
-                            <div>${tokensText}</div>
                             <div>${event.requestsCosts || 0}</div>
                         </div>
                     `;
@@ -4282,7 +4276,6 @@
                     <div>KIND</div>
                     <div>MAX_MODEL</div>
                     <div>MODEL</div>
-                    <div>TOKENS</div>
                     <div>COST</div>
                 </div>
                 ${pageEvents.map(event => {
@@ -4294,15 +4287,6 @@
                         minute: '2-digit' 
                     });
                     
-                    // 토큰 정보 계산
-                    let tokensText = 'N/A';
-                    if (event.tokenUsage) {
-                        const inputTokens = event.tokenUsage.inputTokens || 0;
-                        const outputTokens = event.tokenUsage.outputTokens || 0;
-                        const totalTokens = inputTokens + outputTokens;
-                        tokensText = totalTokens.toLocaleString();
-                    }
-                    
                     return `
                         <div class="user-cumulative-row">
                             <div>${dateText}</div>
@@ -4310,7 +4294,6 @@
                             <div>${(event.kindLabel || 'Unknown').substring(0, 15)}${(event.kindLabel || '').length > 15 ? '...' : ''}</div>
                             <div>${event.maxMode ? 'Yes' : 'No'}</div>
                             <div>${(event.model || 'auto').substring(0, 10)}${(event.model || '').length > 10 ? '...' : ''}</div>
-                            <div>${tokensText}</div>
                             <div>${event.requestsCosts || 0}</div>
                         </div>
                     `;
@@ -4348,7 +4331,6 @@
                     <div>KIND</div>
                     <div>MAX_MODEL</div>
                     <div>MODEL</div>
-                    <div>TOKENS</div>
                     <div>COST</div>
                 </div>
                 <div style="padding: 40px 20px; text-align: center; color: #7a7a7a; background-color: #1a1a1a; grid-column: 1 / -1;">
