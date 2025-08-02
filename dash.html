@@ -242,6 +242,22 @@
         .chart-controls {
             display: flex;
             gap: 8px;
+            align-items: center;
+        }
+
+        .filter-period-display {
+            background-color: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            border-radius: 4px;
+            padding: 8px 16px;
+            margin-right: 8px;
+            min-width: 220px;
+        }
+
+        .filter-period-display span {
+            color: #ff9800;
+            font-size: 14px;
+            font-weight: 600;
         }
 
         .chart-btn {
@@ -718,19 +734,6 @@
             padding: 20px;
             border-radius: 8px;
             border: 1px solid #3a3a3a;
-            cursor: pointer;
-            transition: all 0.2s ease;
-        }
-
-        .usage-card:hover {
-            background-color: #3a3a3a;
-            border-color: #4a4a4a;
-        }
-
-        .usage-card.selected {
-            background-color: #3a3a3a;
-            border-color: #5a9eff;
-            box-shadow: 0 0 10px rgba(90, 158, 255, 0.3);
         }
 
         .usage-card-number {
@@ -1137,6 +1140,9 @@
                     <!-- 2.1.1 필터링 기능 -->
                     <div class="filter-controls">
                         <div class="chart-controls">
+                            <div class="filter-period-display">
+                                <span id="filter-period-text">2025-08-03 ~ 2025-08-03</span>
+                            </div>
                             <button class="chart-btn" data-days="1">1d</button>
                             <button class="chart-btn" data-days="7">7d</button>
                             <button class="chart-btn active" data-days="30">30d</button>
@@ -1152,19 +1158,19 @@
 
                     <!-- 사용량 개요 카드 (Usage에서 이동) -->
                     <div class="usage-cards">
-                        <div class="usage-card" data-chart-type="totalUsers" onclick="updateChartByType('totalUsers')">
+                        <div class="usage-card">
                             <div class="usage-card-number">-</div>
                             <div class="usage-card-label">Total Users</div>
                         </div>
-                        <div class="usage-card" data-chart-type="linesEdits" onclick="updateChartByType('linesEdits')">
+                        <div class="usage-card">
                             <div class="usage-card-number">-</div>
                             <div class="usage-card-label">Lines of Agent Edits</div>
                         </div>
-                        <div class="usage-card" data-chart-type="tabsAccepted" onclick="updateChartByType('tabsAccepted')">
+                        <div class="usage-card">
                             <div class="usage-card-number">-</div>
                             <div class="usage-card-label">Tabs Accepted</div>
                         </div>
-                        <div class="usage-card" data-chart-type="chats" onclick="updateChartByType('chats')">
+                        <div class="usage-card">
                             <div class="usage-card-number">-</div>
                             <div class="usage-card-label">Chats</div>
                         </div>
@@ -1173,7 +1179,7 @@
                     <!-- 그래프 영역 -->
                     <div class="overview-chart-container">
                         <div class="chart-header">
-                            <h3 id="chartTitle">일별 활동 추이</h3>
+                            <h3>일별 활동 추이</h3>
                         </div>
                         <canvas id="overviewChart" style="width: 100%; height: 300px;"></canvas>
                     </div>
@@ -1269,6 +1275,9 @@
                     <!-- 날짜 필터와 검색 -->
                     <div class="filter-controls">
                         <div class="chart-controls">
+                            <div class="filter-period-display">
+                                <span id="usage-filter-period-text">2025-08-03 ~ 2025-08-03</span>
+                            </div>
                             <button class="chart-btn" data-days="1">1d</button>
                             <button class="chart-btn" data-days="7">7d</button>
                             <button class="chart-btn active" data-days="30">30d</button>
@@ -1696,11 +1705,10 @@
                 switch(sectionName) {
                     case 'overview':
                         pageTitle.textContent = 'Dashboard Overview';
-                        // 필터 기본값 설정 후
+                        // Overview 메뉴 클릭 시 현재 필터 상태 유지하면서 데이터만 새로고침
                         setTimeout(async () => {
-                            createOverviewChart();
                             console.log('=== Overview 메뉴 클릭 시 자동 실제 API 데이터 새로고침 시작 ===');
-                            await refreshAllRealData(); // 자동 새로고침
+                            await refreshAllRealData(); // 자동 새로고침 (현재 필터 상태 유지)
                         }, 100);
                         break;
                     case 'members':
@@ -1717,6 +1725,9 @@
                         setTimeout(async () => {
                             if (!isUsageDataLoaded) {
                                 console.log('=== Usage 메뉴 첫 번째 클릭 - 데이터 로딩 시작 ===');
+                                // 초기 필터 기간 표시 설정 (30일)
+                                const initialDateRange = getDateRange(30);
+                                updateUsageFilterPeriodDisplay(initialDateRange.startDate, initialDateRange.endDate);
                                 await updateUsageWithCurrentFilter(30, true); // 첫 번째 로딩
                             } else {
                                 console.log('=== Usage 메뉴 재클릭 - 백그라운드 데이터 갱신 ===');
@@ -2140,28 +2151,51 @@
             return `${cleanStartDate} ~ ${cleanEndDate}`;
         }
 
-        // 차트 버튼 클릭 이벤트
+        // 차트 버튼 클릭 이벤트 (즉시 반응)
         document.addEventListener('click', function(e) {
             if (e.target.classList.contains('chart-btn')) {
+                // 즉시 시각적 피드백
+                e.target.style.transform = 'scale(0.95)';
+                setTimeout(() => {
+                    e.target.style.transform = '';
+                }, 150);
+                
                 // 현재 섹션의 차트 버튼들만 처리
                 const parentSection = e.target.closest('.content-section');
                 if (parentSection) {
+                    // 즉시 버튼 상태 변경
                     parentSection.querySelectorAll('.chart-btn').forEach(btn => {
                         btn.classList.remove('active');
                     });
                     e.target.classList.add('active');
                    
-                    // Overview 섹션의 필터 버튼인 경우 활동 리스트 업데이트
+                    // Overview 섹션의 필터 버튼인 경우
                     if (parentSection.id === 'overview') {
                         const days = e.target.getAttribute('data-days') || 1;
                         console.log(`Overview 필터 버튼 클릭: ${days}일`);
-                        updateOverviewWithCurrentFilter();
+                        
+                        // 즉시 필터 기간 표시 업데이트 (데이터 로딩 전)
+                        const dateRange = getDateRange(parseInt(days));
+                        updateFilterPeriodDisplay(dateRange.startDate, dateRange.endDate);
+                        
+                        // 비동기로 데이터 업데이트
+                        setTimeout(() => {
+                            updateOverviewWithCurrentFilter();
+                        }, 10);
                     }
-                    // Usage 섹션의 필터 버튼인 경우 사용량 데이터 업데이트
+                    // Usage 섹션의 필터 버튼인 경우
                     else if (parentSection.id === 'usage') {
                         const days = e.target.getAttribute('data-days') || 30;
                         console.log(`Usage 필터 버튼 클릭: ${days}일`);
-                        updateUsageWithCurrentFilter(days);
+                        
+                        // 즉시 필터 기간 표시 업데이트 (데이터 로딩 전)
+                        const dateRange = getDateRange(parseInt(days));
+                        updateUsageFilterPeriodDisplay(dateRange.startDate, dateRange.endDate);
+                        
+                        // 비동기로 데이터 업데이트
+                        setTimeout(() => {
+                            updateUsageWithCurrentFilter(days);
+                        }, 10);
                     }
                 }
             }
@@ -2190,13 +2224,18 @@
             // 현재 날짜 범위 저장
             currentDateRange = { startDate, endDate };
            
+            // 즉시 필터 기간 표시 업데이트
+            updateFilterPeriodDisplay(startDate, endDate);
+           
             // 버튼 active 상태 제거
             document.querySelectorAll('#overview .chart-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
            
-            // Overview 업데이트
-            await updateOverviewWithCurrentFilter();
+            // 비동기로 Overview 업데이트
+            setTimeout(async () => {
+                await updateOverviewWithCurrentFilter();
+            }, 10);
         }
 
         // Usage 날짜 필터 적용 함수
@@ -2222,19 +2261,31 @@
             // 현재 날짜 범위 저장
             currentUsageDateRange = { startDate, endDate };
            
+            // 즉시 필터 기간 표시 업데이트
+            updateUsageFilterPeriodDisplay(startDate, endDate);
+           
             // 버튼 active 상태 제거
             document.querySelectorAll('#usage .chart-btn').forEach(btn => {
                 btn.classList.remove('active');
             });
            
-            // Usage 업데이트
-            await updateUsageWithDateRange(startDate, endDate);
+            // 비동기로 Usage 업데이트
+            setTimeout(async () => {
+                await updateUsageWithDateRange(startDate, endDate);
+            }, 10);
         }
 
         // 현재 필터 설정으로 Overview 업데이트
         async function updateOverviewWithCurrentFilter() {
             try {
                 console.log('=== 현재 필터로 Overview 업데이트 시작 ===');
+               
+                // 차트가 초기화되지 않은 경우에만 기본 차트 생성
+                if (!window.overviewChartInitialized) {
+                    console.log('차트가 초기화되지 않아 기본 차트 생성');
+                    createOverviewChart();
+                    window.overviewChartInitialized = true;
+                }
                
                 // 날짜 범위 결정
                 let dateRange;
@@ -2246,6 +2297,9 @@
                     dateRange = getDateRange(filterDays);
                     console.log(`기본 필터 기간 사용: ${filterDays}일`);
                 }
+                
+                // 필터 기간 표시 업데이트
+                updateFilterPeriodDisplay(dateRange.startDate, dateRange.endDate);
                
                 // 팀원 정보 가져오기
                 const membersData = await getTeamMembers();
@@ -2301,17 +2355,16 @@
                     console.log('Overview 섹션 사용량 카드 업데이트 중...');
                     const overviewUsageData = await getUsageData(dateRange.startDate, dateRange.endDate);
                     updateUsageCards(overviewUsageData, eventsData);
-                    
-                    // 차트용 데이터 저장
-                    currentUsageData = overviewUsageData;
-                    currentEventsData = eventsData;
-                    
-                    // 현재 차트 타입에 따라 차트 업데이트
-                    if (currentChartType !== 'default') {
-                        updateChartByType(currentChartType);
-                    }
-                    
                     console.log('✅ Overview 섹션 사용량 카드 업데이트 완료');
+                    
+                    // 차트 업데이트 (선택된 필터 기간 기준)
+                    console.log('Overview 차트 업데이트 중...');
+                    if (overviewUsageData && overviewUsageData.data) {
+                        const chartData = createChartData(overviewUsageData.data);
+                        updateChart(chartData);
+                        console.log(`✅ ${overviewUsageData.data.length}건의 차트 데이터를 처리했습니다.`);
+                    }
+                    console.log('✅ Overview 차트 업데이트 완료');
                 } else {
                     console.log('활동 이벤트 데이터가 없습니다.');
                     currentActivities = [];
@@ -2324,17 +2377,16 @@
                     console.log('Overview 섹션 사용량 카드 업데이트 중...');
                     const overviewUsageData = await getUsageData(dateRange.startDate, dateRange.endDate);
                     updateUsageCards(overviewUsageData, eventsData);
-                    
-                    // 차트용 데이터 저장
-                    currentUsageData = overviewUsageData;
-                    currentEventsData = eventsData;
-                    
-                    // 현재 차트 타입에 따라 차트 업데이트
-                    if (currentChartType !== 'default') {
-                        updateChartByType(currentChartType);
-                    }
-                    
                     console.log('✅ Overview 섹션 사용량 카드 업데이트 완료');
+                    
+                    // 차트 업데이트 (선택된 필터 기간 기준)
+                    console.log('Overview 차트 업데이트 중...');
+                    if (overviewUsageData && overviewUsageData.data) {
+                        const chartData = createChartData(overviewUsageData.data);
+                        updateChart(chartData);
+                        console.log(`✅ ${overviewUsageData.data.length}건의 차트 데이터를 처리했습니다.`);
+                    }
+                    console.log('✅ Overview 차트 업데이트 완료');
                 }
                
                 console.log('=== 현재 필터로 Overview 업데이트 완료 ===');
@@ -2407,11 +2459,6 @@
         // Usage 데이터 로딩 상태 추적
         let isUsageDataLoaded = false; // Usage 데이터가 한 번이라도 로드되었는지 확인
         let isUsageLoading = false; // Usage 데이터 로딩 중인지 확인
-
-        // 차트 관련 전역 변수
-        let currentChartType = 'default';         // 현재 차트 타입 (default, totalUsers, linesEdits, tabsAccepted, chats)
-        let currentUsageData = null;              // 현재 사용량 데이터 (차트 생성용)
-        let currentEventsData = null;             // 현재 이벤트 데이터 (차트 생성용)
         
         // 활동리스트 페이지네이션 변수
         let currentActivityPage = 1; // 현재 활동리스트 페이지
@@ -2639,16 +2686,52 @@
             return days ? parseInt(days) : 30;
         }
 
-        // 날짜를 epoch milliseconds로 변환
+        // 날짜를 epoch milliseconds로 변환 (한국 시간 기준)
         function getDateRange(days = 7) {
-            const endDate = new Date();
-            const startDate = new Date();
+            // 한국 시간대 기준으로 현재 날짜 계산
+            const now = new Date();
+            const koreaTime = new Date(now.getTime() + (9 * 60 * 60 * 1000)); // UTC+9
+            
+            const endDate = new Date(koreaTime);
+            const startDate = new Date(koreaTime);
             startDate.setDate(startDate.getDate() - days);
            
             return {
                 startDate: startDate.getTime(),
                 endDate: endDate.getTime()
             };
+        }
+
+        // 필터 기간 표시 업데이트 (한국 시간 기준)
+        function updateFilterPeriodDisplay(startDate, endDate) {
+            const filterPeriodText = document.getElementById('filter-period-text');
+            if (!filterPeriodText) return;
+
+            // 한국 시간대 기준으로 날짜 변환
+            const startDateKorea = new Date(startDate + (9 * 60 * 60 * 1000));
+            const endDateKorea = new Date(endDate + (9 * 60 * 60 * 1000));
+            
+            const startDateStr = startDateKorea.toISOString().split('T')[0];
+            const endDateStr = endDateKorea.toISOString().split('T')[0];
+            
+            filterPeriodText.textContent = `${startDateStr} ~ ${endDateStr}`;
+            console.log(`✅ 필터 기간 표시 업데이트: ${startDateStr} ~ ${endDateStr}`);
+        }
+
+        // Usage 섹션 필터 기간 표시 업데이트 (한국 시간 기준)
+        function updateUsageFilterPeriodDisplay(startDate, endDate) {
+            const filterPeriodText = document.getElementById('usage-filter-period-text');
+            if (!filterPeriodText) return;
+
+            // 한국 시간대 기준으로 날짜 변환
+            const startDateKorea = new Date(startDate + (9 * 60 * 60 * 1000));
+            const endDateKorea = new Date(endDate + (9 * 60 * 60 * 1000));
+            
+            const startDateStr = startDateKorea.toISOString().split('T')[0];
+            const endDateStr = endDateKorea.toISOString().split('T')[0];
+            
+            filterPeriodText.textContent = `${startDateStr} ~ ${endDateStr}`;
+            console.log(`✅ Usage 필터 기간 표시 업데이트: ${startDateStr} ~ ${endDateStr}`);
         }
 
         // Overview 데이터 업데이트 (초기 로드용)
@@ -2663,19 +2746,8 @@
                 // 현재 필터로 업데이트
                 await updateOverviewWithCurrentFilter();
 
-                // 차트 데이터 생성 (최근 7일 사용량 데이터)
-                console.log('차트용 일별 사용량 데이터 API 호출 중...');
-                const chartDateRange = getDateRange(7);
-                const usageData = await getUsageData(chartDateRange.startDate, chartDateRange.endDate);
-               
-                if (usageData && usageData.data) {
-                    const chartData = createChartData(usageData.data);
-                    updateChart(chartData);
-                    console.log(`✅ ${usageData.data.length}건의 차트 데이터를 처리했습니다.`);
-                }
-
-                // 필터 기간 표시
-                updateFilterPeriod(chartDateRange.startDate, chartDateRange.endDate);
+                // 차트는 updateOverviewWithCurrentFilter에서 처리됨 (기본 30일 필터)
+                console.log('차트는 기본 필터 업데이트에서 처리됩니다.');
 
                 // 초기 로드 후 기본 선택된 'total' 카드에 맞는 실제 데이터 표시
                 console.log('초기 로드 후 전체 멤버 데이터 표시');
@@ -2750,8 +2822,15 @@
                     const activityScore = dayTotal.totalApplies + dayTotal.totalAccepts +
                                         dayTotal.chatRequests + dayTotal.agentRequests;
                    
+                    // 한국 시간 기준으로 날짜 표시
+                    const koreaDate = new Date(date.getTime() + (9 * 60 * 60 * 1000));
+                    const formatDate = koreaDate.toLocaleDateString('ko-KR', { 
+                        month: 'numeric', 
+                        day: 'numeric' 
+                    }).replace(/\.$/, ''); // 끝의 점 제거
+                    
                     return {
-                        date: date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' }),
+                        date: formatDate,
                         activity: activityScore,
                         applies: dayTotal.totalApplies,
                         accepts: dayTotal.totalAccepts,
@@ -2764,25 +2843,21 @@
             return chartData;
         }
 
-        // 차트 업데이트 (차트 타입별 색상 지원)
-        function updateChart(chartData, chartType = 'default') {
+        // 차트 업데이트
+        function updateChart(chartData) {
             const canvas = document.getElementById('overviewChart');
             if (!canvas || !chartData.length) return;
+
+            // 캔버스 크기가 설정되지 않은 경우 다시 설정
+            if (canvas.width === 0 || canvas.height === 0) {
+                const rect = canvas.getBoundingClientRect();
+                canvas.width = rect.width;
+                canvas.height = 300;
+            }
 
             const ctx = canvas.getContext('2d');
             const width = canvas.width;
             const height = canvas.height;
-
-            // 차트 타입별 색상 설정
-            const chartColors = {
-                'default': '#4a9eff',
-                'totalUsers': '#00d4aa',     // 청록색 (Total Users)
-                'linesEdits': '#ff6b6b',     // 빨간색 (Lines of Agent Edits)  
-                'tabsAccepted': '#4ecdc4',   // 민트색 (Tabs Accepted)
-                'chats': '#a855f7'          // 보라색 (Chats)
-            };
-            
-            const color = chartColors[chartType] || chartColors['default'];
 
             // 기존 차트 지우기
             ctx.fillStyle = '#1a1a1a';
@@ -2811,68 +2886,32 @@
             }
 
             // 데이터 포인트 계산
-            const maxActivity = Math.max(...chartData.map(d => d.activity)) || 1;
+            const maxActivity = Math.max(...chartData.map(d => d.activity));
             const dataPoints = chartData.map((data, index) => ({
                 x: (width / (chartData.length - 1)) * index,
-                y: maxActivity > 0 ? height - (height * (data.activity / maxActivity)) : height
+                y: height - (height * (data.activity / maxActivity))
             }));
 
-            // 차트 타입에 따라 다른 스타일로 그리기
-            if (chartType === 'tabsAccepted' || chartType === 'chats') {
-                // 막대 그래프 스타일
-                const barWidth = width / chartData.length * 0.6;
-                dataPoints.forEach((point, index) => {
-                    ctx.fillStyle = color;
-                    const barHeight = height - point.y;
-                    const barX = point.x - barWidth / 2;
-                    ctx.fillRect(barX, point.y, barWidth, barHeight);
-                });
-            } else {
-                // 선 그래프 스타일
-                if (dataPoints.length > 1) {
-                    ctx.strokeStyle = color;
-                    ctx.lineWidth = 3;
-                    ctx.beginPath();
-                    ctx.moveTo(dataPoints[0].x, dataPoints[0].y);
-                   
-                    for (let i = 1; i < dataPoints.length; i++) {
-                        ctx.lineTo(dataPoints[i].x, dataPoints[i].y);
-                    }
-                    ctx.stroke();
+            // 선 그래프 그리기
+            if (dataPoints.length > 1) {
+                ctx.strokeStyle = '#4a9eff';
+                ctx.lineWidth = 3;
+                ctx.beginPath();
+                ctx.moveTo(dataPoints[0].x, dataPoints[0].y);
+               
+                for (let i = 1; i < dataPoints.length; i++) {
+                    ctx.lineTo(dataPoints[i].x, dataPoints[i].y);
                 }
-
-                // 데이터 포인트 원 그리기
-                dataPoints.forEach(point => {
-                    ctx.fillStyle = color;
-                    ctx.beginPath();
-                    ctx.arc(point.x, point.y, 4, 0, Math.PI * 2);
-                    ctx.fill();
-                });
+                ctx.stroke();
             }
 
-            // Y축 라벨 (최대값과 단위 표시)
-            const yAxisLabels = {
-                'totalUsers': '명',
-                'linesEdits': 'Lines',
-                'tabsAccepted': 'Tabs',
-                'chats': 'Chats',
-                'default': ''
-            };
-            
-            const unit = yAxisLabels[chartType] || '';
-            
-            // Y축 값 표시
-            ctx.fillStyle = '#7a7a7a';
-            ctx.font = '10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
-            ctx.textAlign = 'right';
-            
-            for (let i = 0; i <= 5; i++) {
-                const y = (height / 5) * i;
-                const value = Math.round((maxActivity / 5) * (5 - i));
-                if (value > 0 || i === 5) {
-                    ctx.fillText(value + unit, width - 5, y - 5);
-                }
-            }
+            // 데이터 포인트 원 그리기
+            dataPoints.forEach(point => {
+                ctx.fillStyle = '#4a9eff';
+                ctx.beginPath();
+                ctx.arc(point.x, point.y, 4, 0, Math.PI * 2);
+                ctx.fill();
+            });
 
             // 날짜 레이블
             ctx.fillStyle = '#7a7a7a';
@@ -2880,135 +2919,9 @@
             ctx.textAlign = 'center';
            
             chartData.forEach((data, index) => {
-                const x = dataPoints[index] ? dataPoints[index].x : (width / (chartData.length - 1)) * index;
+                const x = (width / (chartData.length - 1)) * index;
                 ctx.fillText(data.date, x, height - 10);
             });
-        }
-
-        // 차트 타입별 데이터 생성 함수
-        function createChartDataByType(usageData, chartType) {
-            if (!usageData || !usageData.data) return [];
-
-            const dailyData = {};
-            
-            // 일별 데이터 초기화 및 집계
-            usageData.data.forEach(dayData => {
-                const dateKey = new Date(dayData.date).toDateString();
-                const dateLabel = new Date(dayData.date).toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
-                
-                if (!dailyData[dateKey]) {
-                    dailyData[dateKey] = {
-                        date: dateLabel,
-                        totalUsers: 0,
-                        linesEdits: 0,
-                        tabsAccepted: 0,
-                        chats: 0
-                    };
-                }
-                
-                // 차트 타입별 데이터 집계
-                switch(chartType) {
-                    case 'totalUsers':
-                        // 실제 활동한 사용자는 별도 계산 필요 (eventsData 사용)
-                        dailyData[dateKey].totalUsers = 1; // 임시값, 나중에 eventsData로 정확히 계산
-                        break;
-                    case 'linesEdits':
-                        dailyData[dateKey].linesEdits = (dayData.totalLinesAdded || 0) + (dayData.acceptedLinesAdded || 0);
-                        break;
-                    case 'tabsAccepted':
-                        dailyData[dateKey].tabsAccepted = dayData.totalTabsAccepted || 0;
-                        break;
-                    case 'chats':
-                        dailyData[dateKey].chats = dayData.chatRequests || 0;
-                        break;
-                }
-            });
-
-            // 정렬된 차트 데이터 배열 생성
-            const sortedKeys = Object.keys(dailyData).sort((a, b) => new Date(a) - new Date(b));
-            return sortedKeys.map(key => ({
-                date: dailyData[key].date,
-                activity: dailyData[key][chartType] || 0
-            }));
-        }
-
-        // Total Users용 특별 처리 (eventsData 필요)
-        function createTotalUsersChartData(usageData, eventsData) {
-            if (!usageData || !usageData.data || !eventsData || !eventsData.usageEvents) return [];
-
-            const dailyUsers = {};
-            
-            // 일별 활성 사용자 계산
-            eventsData.usageEvents.forEach(event => {
-                if (event.userEmail && event.requestsCosts > 0) {
-                    const eventDate = new Date(event.timestamp);
-                    const dateKey = eventDate.toDateString();
-                    const dateLabel = eventDate.toLocaleDateString('ko-KR', { month: 'short', day: 'numeric' });
-                    
-                    if (!dailyUsers[dateKey]) {
-                        dailyUsers[dateKey] = {
-                            date: dateLabel,
-                            users: new Set()
-                        };
-                    }
-                    
-                    dailyUsers[dateKey].users.add(event.userEmail);
-                }
-            });
-
-            // 정렬된 차트 데이터 배열 생성
-            const sortedKeys = Object.keys(dailyUsers).sort((a, b) => new Date(a) - new Date(b));
-            return sortedKeys.map(key => ({
-                date: dailyUsers[key].date,
-                activity: dailyUsers[key].users.size
-            }));
-        }
-
-        // 차트 타입별 업데이트 함수
-        function updateChartByType(chartType) {
-            console.log(`=== 차트 타입 변경: ${chartType} ===`);
-            
-            // 현재 선택된 카드 스타일 업데이트
-            document.querySelectorAll('.usage-card').forEach(card => {
-                card.classList.remove('selected');
-            });
-            document.querySelector(`.usage-card[data-chart-type="${chartType}"]`).classList.add('selected');
-            
-            // 차트 제목 업데이트
-            const chartTitles = {
-                'totalUsers': '일별 활성 사용자 수',
-                'linesEdits': '일별 에이전트 편집 라인 수',
-                'tabsAccepted': '일별 승인된 탭 수',
-                'chats': '일별 채팅 요청 수'
-            };
-            
-            const chartTitleElement = document.getElementById('chartTitle');
-            if (chartTitleElement) {
-                chartTitleElement.textContent = chartTitles[chartType] || '일별 활동 추이';
-            }
-
-            // 현재 차트 타입 저장
-            currentChartType = chartType;
-
-            // 데이터가 있으면 차트 업데이트
-            if (currentUsageData) {
-                let chartData;
-                
-                if (chartType === 'totalUsers') {
-                    chartData = createTotalUsersChartData(currentUsageData, currentEventsData);
-                } else {
-                    chartData = createChartDataByType(currentUsageData, chartType);
-                }
-                
-                if (chartData.length > 0) {
-                    updateChart(chartData, chartType);
-                    console.log(`✅ ${chartType} 차트 업데이트 완료`);
-                } else {
-                    console.log(`⚠️ ${chartType} 차트 데이터가 없습니다`);
-                }
-            } else {
-                console.log('⚠️ 사용량 데이터가 없습니다. 데이터 로드 후 차트를 업데이트하세요.');
-            }
         }
 
         // 활동 리스트 생성 (실제 활동이 있는 멤버만, 정확한 통계 반영)
@@ -3943,6 +3856,9 @@
                 // 날짜 범위 계산
                 const dateRange = getDateRange(days);
                 currentUsageDateRange = null; // 사용자 정의 범위 초기화
+                
+                // 필터 기간 표시 업데이트
+                updateUsageFilterPeriodDisplay(dateRange.startDate, dateRange.endDate);
                 
                 await updateUsageWithDateRange(dateRange.startDate, dateRange.endDate, showLoading);
                 
@@ -4928,8 +4844,13 @@
                     btn.classList.remove('active');
                 });
                 document.querySelector('#overview .chart-btn[data-days="30"]').classList.add('active');
+                
+                // 초기 필터 기간 표시 설정 (30일)
+                const initialDateRange = getDateRange(30);
+                updateFilterPeriodDisplay(initialDateRange.startDate, initialDateRange.endDate);
                
                 createOverviewChart(); // 빈 차트 먼저 표시
+                window.overviewChartInitialized = true; // 차트 초기화 플래그 설정
                
                 // 3단계: 백그라운드에서 데이터 로드 시작 (비동기)
                 console.log('📡 백그라운드 데이터 로드 시작...');
@@ -4957,6 +4878,9 @@
                 
                 // 날짜 입력 필드 변경 시 자동 새로고침 이벤트 리스너 추가
                 setupAutoRefreshEvents();
+                
+                // 날짜 입력 필드 실시간 업데이트 이벤트 리스너 추가
+                setupDateInputEvents();
                
                 const totalLoadTime = PerformanceMonitor.end('페이지 전체 로드');
                 updatePerformanceIndicator('ready', `${totalLoadTime}ms`);
@@ -5199,6 +5123,61 @@
             }
             
             console.log('자동 새로고침 이벤트 리스너 설정 완료');
+        }
+
+        // 날짜 입력 필드 실시간 업데이트 이벤트 설정
+        function setupDateInputEvents() {
+            console.log('날짜 입력 필드 실시간 업데이트 이벤트 리스너 설정 중...');
+            
+            // Overview 날짜 입력 필드 실시간 업데이트
+            const overviewStartDate = document.getElementById('start-date');
+            const overviewEndDate = document.getElementById('end-date');
+            
+            if (overviewStartDate && overviewEndDate) {
+                // 시작 날짜 변경 시 즉시 범위 표시 업데이트
+                overviewStartDate.addEventListener('input', () => {
+                    if (overviewStartDate.value && overviewEndDate.value) {
+                        const startDate = new Date(overviewStartDate.value).getTime();
+                        const endDate = new Date(overviewEndDate.value).getTime() + (24 * 60 * 60 * 1000 - 1);
+                        updateFilterPeriodDisplay(startDate, endDate);
+                    }
+                });
+                
+                // 종료 날짜 변경 시 즉시 범위 표시 업데이트
+                overviewEndDate.addEventListener('input', () => {
+                    if (overviewStartDate.value && overviewEndDate.value) {
+                        const startDate = new Date(overviewStartDate.value).getTime();
+                        const endDate = new Date(overviewEndDate.value).getTime() + (24 * 60 * 60 * 1000 - 1);
+                        updateFilterPeriodDisplay(startDate, endDate);
+                    }
+                });
+            }
+            
+            // Usage 날짜 입력 필드 실시간 업데이트
+            const usageStartDate = document.getElementById('usage-start-date');
+            const usageEndDate = document.getElementById('usage-end-date');
+            
+            if (usageStartDate && usageEndDate) {
+                // 시작 날짜 변경 시 즉시 범위 표시 업데이트
+                usageStartDate.addEventListener('input', () => {
+                    if (usageStartDate.value && usageEndDate.value) {
+                        const startDate = new Date(usageStartDate.value).getTime();
+                        const endDate = new Date(usageEndDate.value).getTime() + (24 * 60 * 60 * 1000 - 1);
+                        updateUsageFilterPeriodDisplay(startDate, endDate);
+                    }
+                });
+                
+                // 종료 날짜 변경 시 즉시 범위 표시 업데이트
+                usageEndDate.addEventListener('input', () => {
+                    if (usageStartDate.value && usageEndDate.value) {
+                        const startDate = new Date(usageStartDate.value).getTime();
+                        const endDate = new Date(usageEndDate.value).getTime() + (24 * 60 * 60 * 1000 - 1);
+                        updateUsageFilterPeriodDisplay(startDate, endDate);
+                    }
+                });
+            }
+            
+            console.log('날짜 입력 필드 실시간 업데이트 이벤트 리스너 설정 완료');
         }
 
         // 디바운스 함수 (연속 호출 방지)
