@@ -1044,7 +1044,7 @@
             <div style="height: 20px;"></div>
             <a href="javascript:void(0)" class="refresh-button" onclick="handleRefreshClick()">
                 <span class="menu-icon">🔄</span>
-                <span class="menu-text">Refresh</span>
+                <span class="menu-text">사용자 정보 업데이트</span>
                 <div class="refresh-progress">
                     <div class="refresh-progress-bar"></div>
                 </div>
@@ -1245,6 +1245,11 @@
                         </div>
                         <div style="padding: 20px; text-align: center; color: #7a7a7a; background-color: #1a1a1a;">
                             데이터를 불러오는 중...
+                        </div>
+                        
+                        <!-- 필터링된 이벤트 페이지네이션 -->
+                        <div class="filtered-events-pagination" style="display: none; padding: 15px 20px; background-color: #2a2a2a; border-top: 1px solid #3a3a3a; text-align: center;">
+                            <!-- 숫자 페이지 버튼들이 동적으로 생성됨 -->
                         </div>
                     </div>
                 </div>
@@ -1674,20 +1679,107 @@
         }
 
         // Overview 통계 카드 클릭 시 멤버 타입별 필터링
-        async function filterOverviewMembersByType(type) {
+        function filterOverviewMembersByType(type) {
             console.log(`=== Overview 통계 카드 클릭: ${type} ===`);
             
             // 선택 상태 업데이트
             updateOverviewSelection(type);
             currentFilterType = type;
-           
-            // 클릭 즉시 로딩 상태 표시
-            currentActivityPage = 1; // 페이지네이션 초기화
-            updateActivityList([]);
-            // 제목은 동적으로 생성됨
-           
-            // 실제 API 데이터 새로 가져와서 표시
-            await updateMembersByTypeWithRealData(type);
+            
+            // 멤버 데이터 필터링 및 표시
+            filterAndDisplayMembers(type);
+            
+            console.log(`통계 카드 선택 완료: ${type} - 필터링된 데이터 표시`);
+        }
+
+        // 멤버 데이터를 타입별로 필터링하고 표시
+        function filterAndDisplayMembers(type) {
+            console.log(`=== 멤버 데이터 필터링 시작: ${type} ===`);
+            
+            if (!originalMembersData || originalMembersData.length === 0) {
+                console.log('필터링할 멤버 데이터가 없습니다.');
+                return;
+            }
+            
+            let filteredMembers = [];
+            
+            if (type === 'total') {
+                // 전체 멤버 표시
+                filteredMembers = [...originalMembersData];
+                console.log(`전체 멤버 표시: ${filteredMembers.length}명`);
+            } else if (type === 'active') {
+                // 활성 멤버만 필터링 (Premium Requests가 있는 멤버)
+                filteredMembers = originalMembersData.filter(member => 
+                    member.spendData.premiumRequests > 0
+                );
+                console.log(`활성 멤버 필터링: ${filteredMembers.length}명`);
+            } else if (type === 'inactive') {
+                // 비활성 멤버만 필터링 (Premium Requests가 없는 멤버)
+                filteredMembers = originalMembersData.filter(member => 
+                    member.spendData.premiumRequests === 0
+                );
+                console.log(`비활성 멤버 필터링: ${filteredMembers.length}명`);
+            }
+            
+            // 필터링된 데이터로 테이블 업데이트
+            if (filteredMembers.length > 0) {
+                currentMembersData = filteredMembers;
+                currentMembersPage = 1; // 페이지 리셋
+                renderMembersTableWithPagination(filteredMembers);
+            } else {
+                // 데이터가 없을 경우 빈 테이블 표시
+                const container = document.getElementById('members-table-container');
+                if (container) {
+                    container.innerHTML = `
+                        <div style="padding: 20px; text-align: center; color: #7a7a7a; background-color: #1a1a1a;">
+                            ${type === 'active' ? '활성 멤버가 없습니다.' : 
+                              type === 'inactive' ? '비활성 멤버가 없습니다.' : 
+                              '멤버 데이터가 없습니다.'}
+                        </div>
+                    `;
+                }
+            }
+            
+            // 활동 리스트도 함께 업데이트
+            updateActivityListByType(type);
+            
+            console.log(`=== 멤버 데이터 필터링 완료: ${type} ===`);
+        }
+
+        // 활동 리스트를 타입별로 필터링하고 업데이트
+        function updateActivityListByType(type) {
+            console.log(`=== 활동 리스트 필터링 시작: ${type} ===`);
+            
+            if (!currentActivities || currentActivities.length === 0) {
+                console.log('필터링할 활동 데이터가 없습니다.');
+                updateActivityList([]);
+                return;
+            }
+            
+            let filteredActivities = [];
+            
+            if (type === 'total') {
+                // 전체 활동 표시
+                filteredActivities = [...currentActivities];
+                console.log(`전체 활동 표시: ${filteredActivities.length}개`);
+            } else if (type === 'active') {
+                // 활성 활동만 필터링
+                filteredActivities = currentActivities.filter(activity => 
+                    activity.type === 'active'
+                );
+                console.log(`활성 활동 필터링: ${filteredActivities.length}개`);
+            } else if (type === 'inactive') {
+                // 비활성 활동만 필터링
+                filteredActivities = currentActivities.filter(activity => 
+                    activity.type === 'inactive'
+                );
+                console.log(`비활성 활동 필터링: ${filteredActivities.length}개`);
+            }
+            
+            // 필터링된 활동 데이터로 리스트 업데이트
+            updateActivityList(filteredActivities);
+            
+            console.log(`=== 활동 리스트 필터링 완료: ${type} ===`);
         }
 
         // Overview 통계 카드 선택 상태 업데이트
@@ -2217,6 +2309,7 @@
         let currentMembersPage = 1; // 현재 Members 페이지
         let currentMembersPageSize = 20; // 현재 Members 페이지 크기
         let currentMembersData = []; // 현재 Members 데이터
+        let originalMembersData = []; // 원본 멤버 데이터 (필터링용)
 
         // ============================================================================
         // 성능 최적화 시스템 (2025.07.29 추가)
@@ -2814,6 +2907,8 @@
             const searchBox = document.querySelector('#usage .search-box');
             if (searchBox) {
                 searchBox.value = email;
+                // X 버튼 표시
+                toggleSearchClearBtn('usage-search');
                 filterUsageMembers(email);
                 console.log(`✅ 이메일 검색 완료: ${email}`);
                 
@@ -3026,6 +3121,7 @@
            
             // 전역 데이터 저장
             currentMembersData = membersWithSpending;
+            originalMembersData = [...membersWithSpending]; // 원본 데이터 보존
             currentMembersPage = 1; // 페이지 리셋
             
             // 페이지네이션과 함께 렌더링
@@ -3049,10 +3145,21 @@
             
             console.log(`📄 페이지네이션: ${startIndex + 1}-${endIndex} of ${totalMembers} (페이지 ${currentMembersPage}/${totalPages})`);
            
+            // 테이블 제목 동적 생성
+            const getTableTitle = () => {
+                if (currentFilterType === 'active') {
+                    return `👥 활성 멤버 보기 (${startIndex + 1}-${endIndex} of ${totalMembers})`;
+                } else if (currentFilterType === 'inactive') {
+                    return `👥 비활성 멤버 보기 (${startIndex + 1}-${endIndex} of ${totalMembers})`;
+                } else {
+                    return `👥 전체 멤버 보기 (${startIndex + 1}-${endIndex} of ${totalMembers})`;
+                }
+            };
+
             // 테이블 HTML 생성 (All Raw Events 스타일)
             const tableHtml = `
                 <div class="user-cumulative-header" style="display: flex; justify-content: space-between; align-items: center;">
-                    <span>👥 전체 멤버 보기 (${startIndex + 1}-${endIndex} of ${totalMembers})</span>
+                    <span>${getTableTitle()}</span>
                     <select id="membersPageSize" onchange="changeMembersPageSize(this.value)" style="background: #3a3a3a; color: #fff; border: 1px solid #4a4a4a; padding: 5px 10px; border-radius: 4px; font-size: 12px;">
                         <option value="10" ${currentMembersPageSize === 10 ? 'selected' : ''}>10개 보기</option>
                         <option value="20" ${currentMembersPageSize === 20 ? 'selected' : ''}>20개 보기</option>
@@ -3932,13 +4039,33 @@
             renderRawEventsTableWithPagination();
         }
 
-        // 필터링된 Raw Events 테이블 렌더링
+        // 필터링된 Raw Events 테이블 렌더링 (페이지네이션 포함)
         function renderFilteredRawEventsTable(filteredEvents, container) {
             if (!container || !filteredEvents) return;
             
+            // 페이지네이션 설정 - 기존 설정이 있으면 사용, 없으면 기본값
+            const pageSize = window.currentFilteredEventsPageSize || 20;
+            const currentPage = window.currentFilteredEventsPage || 1;
+            const totalPages = Math.ceil(filteredEvents.length / pageSize);
+            
+            // 현재 페이지의 이벤트만 추출
+            const startIndex = (currentPage - 1) * pageSize;
+            const endIndex = Math.min(startIndex + pageSize, filteredEvents.length);
+            const pageEvents = filteredEvents.slice(startIndex, endIndex);
+            
+            console.log(`📄 필터링된 Raw Events 페이지네이션: ${startIndex + 1}-${endIndex} of ${filteredEvents.length} (페이지 ${currentPage}/${totalPages})`);
+            
+            // 일반 테이블과 동일한 구조로 HTML 생성 (페이지네이션 포함)
             const tableHtml = `
-                <div class="user-cumulative-header">
-                    <span>📋 All Raw Events - 검색 결과 (${filteredEvents.length}개)</span>
+                <div class="user-cumulative-header" style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>📋 All Raw Events - 검색 결과 (${startIndex + 1}-${endIndex} of ${filteredEvents.length})</span>
+                    <select onchange="changeFilteredEventsPageSize(this.value)" style="background: #3a3a3a; color: #fff; border: 1px solid #4a4a4a; padding: 5px 10px; border-radius: 4px; font-size: 12px;">
+                        <option value="10" ${pageSize === 10 ? 'selected' : ''}>10개 보기</option>
+                        <option value="20" ${pageSize === 20 ? 'selected' : ''}>20개 보기</option>
+                        <option value="30" ${pageSize === 30 ? 'selected' : ''}>30개 보기</option>
+                        <option value="50" ${pageSize === 50 ? 'selected' : ''}>50개 보기</option>
+                        <option value="100" ${pageSize === 100 ? 'selected' : ''}>100개 보기</option>
+                    </select>
                 </div>
                 <div class="user-cumulative-table">
                     <div>DATE</div>
@@ -3948,7 +4075,7 @@
                     <div>MODEL</div>
                     <div>COST</div>
                 </div>
-                ${filteredEvents.map(event => {
+                ${pageEvents.map(event => {
                     const date = new Date(parseInt(event.timestamp));
                     const dateText = date.toLocaleDateString('en-US', { 
                         month: 'short', 
@@ -3968,10 +4095,21 @@
                         </div>
                     `;
                 }).join('')}
+                ${totalPages > 1 ? `
+                    <div style="padding: 15px 20px; background-color: #2a2a2a; border-top: 1px solid #3a3a3a; display: flex; justify-content: center; align-items: center; gap: 10px;">
+                        ${generateFilteredEventsPagination(totalPages, currentPage)}
+                    </div>
+                ` : ''}
             `;
             
             container.innerHTML = tableHtml;
-            console.log(`필터링된 Raw Events 테이블 렌더링 완료: ${filteredEvents.length}개 이벤트`);
+            
+            // 필터링된 이벤트 데이터 저장 (페이지네이션용)
+            window.currentFilteredEvents = filteredEvents;
+            window.currentFilteredEventsPage = currentPage;
+            window.currentFilteredEventsPageSize = pageSize;
+            
+            console.log(`필터링된 Raw Events 테이블 렌더링 완료: ${filteredEvents.length}개 이벤트 (페이지 ${currentPage}/${totalPages}, 페이지당 ${pageSize}개)`);
         }
 
         // 빈 Raw Events 테이블 렌더링
@@ -4007,6 +4145,108 @@
             console.log(`빈 Raw Events 테이블 렌더링 완료 (검색 대상: ${emailList})`);
         }
 
+        // 필터링된 이벤트 페이지네이션 생성 (일반 테이블과 동일한 구조)
+        function generateFilteredEventsPagination(totalPages, currentPage) {
+            let pagination = '';
+            
+            // 이전 페이지 버튼
+            if (currentPage > 1) {
+                pagination += `<button onclick="changeFilteredEventsPage(${currentPage - 1})" style="background: #3a3a3a; border: 1px solid #4a4a4a; color: #e1e1e1; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">‹</button>`;
+            }
+            
+            // 페이지 번호 버튼들
+            let startPage = Math.max(1, currentPage - 2);
+            let endPage = Math.min(totalPages, currentPage + 2);
+            
+            // 시작 페이지가 1이 아니면 첫 페이지 버튼 추가
+            if (startPage > 1) {
+                pagination += `<button onclick="changeFilteredEventsPage(1)" style="background: #3a3a3a; border: 1px solid #4a4a4a; color: #e1e1e1; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">1</button>`;
+                if (startPage > 2) {
+                    pagination += `<span style="color: #7a7a7a; padding: 0 5px;">...</span>`;
+                }
+            }
+            
+            // 페이지 번호들
+            for (let i = startPage; i <= endPage; i++) {
+                const isActive = i === currentPage;
+                pagination += `<button onclick="changeFilteredEventsPage(${i})" style="background: ${isActive ? '#4a9eff' : '#3a3a3a'}; border: 1px solid #4a4a4a; color: #e1e1e1; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">${i}</button>`;
+            }
+            
+            // 끝 페이지가 totalPages가 아니면 마지막 페이지 버튼 추가
+            if (endPage < totalPages) {
+                if (endPage < totalPages - 1) {
+                    pagination += `<span style="color: #7a7a7a; padding: 0 5px;">...</span>`;
+                }
+                pagination += `<button onclick="changeFilteredEventsPage(${totalPages})" style="background: #3a3a3a; border: 1px solid #4a4a4a; color: #e1e1e1; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">${totalPages}</button>`;
+            }
+            
+            // 다음 페이지 버튼
+            if (currentPage < totalPages) {
+                pagination += `<button onclick="changeFilteredEventsPage(${currentPage + 1})" style="background: #3a3a3a; border: 1px solid #4a4a4a; color: #e1e1e1; padding: 5px 10px; border-radius: 4px; cursor: pointer; font-size: 12px;">›</button>`;
+            }
+            
+            return pagination;
+        }
+
+        // 필터링된 이벤트 페이지 변경
+        function changeFilteredEventsPage(page) {
+            if (!window.currentFilteredEvents) {
+                console.log('⚠️ 필터링된 이벤트 데이터가 없습니다.');
+                return;
+            }
+            
+            window.currentFilteredEventsPage = page;
+            const filteredEvents = window.currentFilteredEvents;
+            const container = document.querySelector('#usage .user-cumulative-info:last-child');
+            
+            console.log(`📄 필터링된 Raw Events 페이지 변경: 페이지 ${page}로 이동`);
+            console.log(`📄 컨테이너 발견: ${!!container}, 필터링된 이벤트 수: ${filteredEvents.length}`);
+            
+            if (container) {
+                // renderFilteredRawEventsTable 함수를 재사용
+                renderFilteredRawEventsTable(filteredEvents, container);
+            } else {
+                console.error('❌ Raw Events 컨테이너를 찾을 수 없습니다.');
+            }
+        }
+
+        // 필터링된 이벤트 페이지 크기 변경
+        function changeFilteredEventsPageSize(newPageSize) {
+            console.log(`🔧 changeFilteredEventsPageSize 호출됨: ${newPageSize}`);
+            console.log(`📊 현재 상태: currentFilteredEvents=${!!window.currentFilteredEvents}, currentFilteredEventsPage=${window.currentFilteredEventsPage}, currentFilteredEventsPageSize=${window.currentFilteredEventsPageSize}`);
+            
+            if (!window.currentFilteredEvents) {
+                console.log('⚠️ 필터링된 이벤트 데이터가 없습니다.');
+                return;
+            }
+            
+            window.currentFilteredEventsPageSize = parseInt(newPageSize);
+            window.currentFilteredEventsPage = 1; // 페이지 크기 변경시 첫 페이지로 이동
+            
+            const filteredEvents = window.currentFilteredEvents;
+            const container = document.querySelector('#usage .user-cumulative-info:last-child');
+            
+            console.log(`📄 필터링된 Raw Events 페이지 크기 변경: ${newPageSize}개로 변경, 첫 페이지로 이동`);
+            console.log(`📄 컨테이너 발견: ${!!container}, 필터링된 이벤트 수: ${filteredEvents.length}`);
+            
+            if (container) {
+                // renderFilteredRawEventsTable 함수를 재사용
+                renderFilteredRawEventsTable(filteredEvents, container);
+            } else {
+                console.error('❌ Raw Events 컨테이너를 찾을 수 없습니다.');
+            }
+        }
+        
+        // 디버깅용 전역 함수
+        window.debugFilteredEvents = function() {
+            console.log('=== 필터링된 이벤트 상태 디버깅 ===');
+            console.log('currentFilteredEvents:', window.currentFilteredEvents ? window.currentFilteredEvents.length + '개' : 'null');
+            console.log('currentFilteredEventsPage:', window.currentFilteredEventsPage);
+            console.log('currentFilteredEventsPageSize:', window.currentFilteredEventsPageSize);
+            console.log('컨테이너:', document.querySelector('#usage .user-cumulative-info:last-child'));
+            console.log('==============================');
+        };
+
 
 
         // Usage 멤버 검색 기능 (사용자별 누적 사용량 정보와 All Raw Events 테이블 연동)
@@ -4021,7 +4261,19 @@
                 allRows.forEach(row => {
                     row.style.display = 'grid';
                 });
-                console.log('✅ 검색어 없음 - 모든 행 표시');
+                
+                // 전체 이벤트 로그 테이블도 함께 갱신
+                if (currentRawEventsData && currentRawEventsData.length > 0) {
+                    // 필터링된 이벤트 변수들 정리
+                    delete window.currentFilteredEvents;
+                    delete window.currentFilteredEventsPage;
+                    delete window.currentFilteredEventsPageSize;
+                    
+                    renderRawEventsTableWithPagination();
+                    console.log('✅ 검색어 없음 - 전체 Raw Events 페이지네이션 복원');
+                }
+                
+                console.log('✅ 검색어 없음 - 모든 행 표시 및 전체 이벤트 로그 갱신');
                 return;
             }
             
@@ -4099,6 +4351,10 @@
                 
                 // 검색어가 있으면 매칭된 이메일의 이벤트만 필터링
                 if (matchedEmails.size > 0) {
+                    // 새로운 검색 시작 시 페이지네이션 변수 초기화
+                    window.currentFilteredEventsPage = 1;
+                    window.currentFilteredEventsPageSize = window.currentFilteredEventsPageSize || 20;
+                    
                     const filteredEvents = currentRawEventsData.filter(event => {
                         const eventUserEmail = event.userEmail?.trim() || '';
                         
@@ -4116,6 +4372,7 @@
                         // 필터링된 데이터로 테이블 다시 렌더링
                         renderFilteredRawEventsTable(filteredEvents, rawEventsContainer);
                         console.log(`✅ ${filteredEvents.length}개의 매칭된 이벤트를 표시했습니다.`);
+                        console.log(`📊 전역 변수 상태: currentFilteredEvents=${!!window.currentFilteredEvents}, currentFilteredEventsPage=${window.currentFilteredEventsPage}, currentFilteredEventsPageSize=${window.currentFilteredEventsPageSize}`);
                     } else {
                         // 매칭된 이벤트가 없으면 빈 테이블 표시
                         renderEmptyRawEventsTable(rawEventsContainer, Array.from(matchedEmails));

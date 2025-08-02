@@ -539,9 +539,39 @@ export CURSOR_API_KEY="your_api_key_here"
 export PROXY_PORT=8000
 ```
 
-## 8. 최근 업데이트 (2025-08-01)
+## 8. 최근 업데이트 (2025-08-02)
 
-### 8.1 주요 변경사항
+### 8.1 주요 변경사항 (2025-08-02)
+
+**필터링된 Raw Events 테이블 페이지네이션 개선**
+- 검색 시와 일반 상태 시 페이지네이션 구조 통일
+- 드롭박스 페이지 크기 변경 기능 정상화 (10, 20, 30, 50, 100개 보기)
+- 페이지 번호 클릭 기능 수정 (1, 2, 3... 페이지 이동)
+- 컨테이너 선택자 일관성 확보 (`.user-cumulative-info:last-child` 통일)
+- ID 충돌 문제 해결 (중복 ID 제거)
+- 디버깅 로그 및 상태 확인 함수 추가
+
+**수정된 함수들**
+```javascript
+// 페이지네이션 구조 통일
+function renderFilteredRawEventsTable(filteredEvents, container) {
+    // 일반 테이블과 동일한 HTML 구조 사용
+    // 테이블 내부에 페이지네이션 직접 포함
+}
+
+// 컨테이너 선택자 통일
+function changeFilteredEventsPage(page) {
+    const container = document.querySelector('#usage .user-cumulative-info:last-child');
+    // 일반 테이블과 동일한 선택자 사용
+}
+
+// 디버깅 지원
+window.debugFilteredEvents = function() {
+    // 브라우저 콘솔에서 상태 확인 가능
+};
+```
+
+**이전 업데이트 (2025-08-01)**
 
 **All Raw Events 테이블 개선**
 - "전체보기" 버튼 제거 및 관련 기능 삭제
