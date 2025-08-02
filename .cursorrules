@@ -1,101 +1,101 @@
 # Samsung AI Experience Group Dashboard - Cursor Development Rules
 
-## 📋 프로젝트 개요
-- **프로젝트명**: Samsung AI Experience Group Dashboard
-- **기술 스택**: HTML5, CSS3, JavaScript (ES6+), Canvas API
-- **아키텍처**: Single Page Application (SPA) with Proxy Server
-- **API 통신**: Cursor Admin API via Local Proxy Server (Port 8001)
+## 📋 Project Overview
+- **Project Name**: Samsung AI Experience Group Dashboard
+- **Tech Stack**: HTML5, CSS3, JavaScript (ES6+), Canvas API
+- **Architecture**: Single Page Application (SPA) with Proxy Server
+- **API Communication**: Cursor Admin API via Local Proxy Server (Port 8001)
 
-## 🎨 디자인 시스템
+## 🎨 Design System
 
-### 색상 팔레트
+### Color Palette
 ```css
-/* 다크 테마 색상 */
---primary-bg: #1a1a1a;          /* 메인 배경 */
---secondary-bg: #2a2a2a;         /* 카드/섹션 배경 */
---border-color: #3a3a3a;         /* 테두리 */
---hover-bg: #3a3a3a;             /* 호버 상태 */
---text-primary: #e1e1e1;         /* 주요 텍스트 */
---text-secondary: #b1b1b1;       /* 보조 텍스트 */
---text-muted: #7a7a7a;           /* 비활성 텍스트 */
---accent-blue: #4a9eff;          /* 강조색 (버튼, 링크) */
---success-green: #4caf50;        /* 성공 상태 */
---warning-orange: #ff9800;       /* 경고 상태 */
---error-red: #f44336;            /* 오류 상태 */
+/* Dark Theme Colors */
+--primary-bg: #1a1a1a;          /* Main background */
+--secondary-bg: #2a2a2a;         /* Card/section background */
+--border-color: #3a3a3a;         /* Border */
+--hover-bg: #3a3a3a;             /* Hover state */
+--text-primary: #e1e1e1;         /* Primary text */
+--text-secondary: #b1b1b1;       /* Secondary text */
+--text-muted: #7a7a7a;           /* Muted text */
+--accent-blue: #4a9eff;          /* Accent color (buttons, links) */
+--success-green: #4caf50;        /* Success state */
+--warning-orange: #ff9800;       /* Warning state */
+--error-red: #f44336;            /* Error state */
 ```
 
-### 타이포그래피
+### Typography
 ```css
-/* 기본 폰트 스택 */
+/* Font Stack */
 font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
 
-/* 제목 크기 */
---h1-size: 24px;    /* 페이지 제목 */
---h2-size: 18px;    /* 섹션 제목 */
---h3-size: 16px;    /* 카드 제목 */
+/* Heading Sizes */
+--h1-size: 24px;    /* Page title */
+--h2-size: 18px;    /* Section title */
+--h3-size: 16px;    /* Card title */
 
-/* 본문 크기 */
---body-size: 14px;  /* 기본 텍스트 */
---small-size: 12px; /* 보조 텍스트 */
---large-size: 16px; /* 강조 텍스트 */
+/* Body Sizes */
+--body-size: 14px;  /* Default text */
+--small-size: 12px; /* Secondary text */
+--large-size: 16px; /* Emphasized text */
 ```
 
-### 레이아웃 규칙
+### Layout Rules
 ```css
-/* 그리드 시스템 */
---grid-gap: 20px;           /* 기본 간격 */
---border-radius: 8px;       /* 카드 모서리 */
---border-radius-small: 4px; /* 작은 요소 모서리 */
---padding-standard: 20px;   /* 표준 패딩 */
---padding-large: 30px;      /* 큰 패딩 */
+/* Grid System */
+--grid-gap: 20px;           /* Default spacing */
+--border-radius: 8px;       /* Card corners */
+--border-radius-small: 4px; /* Small element corners */
+--padding-standard: 20px;   /* Standard padding */
+--padding-large: 30px;      /* Large padding */
 ```
 
-## 🏗️ 컴포넌트 구조
+## 🏗️ Component Structure
 
-### 1. 사이드바 (Sidebar)
+### 1. Sidebar
 ```html
-<!-- 사이드바 구조 -->
+<!-- Sidebar Structure -->
 <nav class="sidebar">
     <div class="logo">
-        <div class="logo-name">사용자명</div>
-        <div class="logo-business">Business • 이메일</div>
-        <div class="logo-group">그룹명</div>
+        <div class="logo-name">Username</div>
+        <div class="logo-business">Business • Email</div>
+        <div class="logo-group">Group Name</div>
     </div>
     <a href="javascript:void(0)" class="menu-item" data-section="section-name">
-        <span class="menu-icon">이모지</span>
-        <span class="menu-text">메뉴명</span>
+        <span class="menu-icon">Emoji</span>
+        <span class="menu-text">Menu Name</span>
     </a>
 </nav>
 ```
 
-### 2. 통계 카드 (Stat Cards)
+### 2. Statistics Cards
 ```html
-<!-- 통계 카드 구조 -->
+<!-- Statistics Card Structure -->
 <div class="overview-stat-box clickable" data-type="type-name" onclick="handlerFunction()">
-    <div class="stat-number">숫자</div>
+    <div class="stat-number">Number</div>
     <div class="stat-label">
-        <span class="role-badge" style="background-color: #색상; color: white;">라벨</span>
+        <span class="role-badge" style="background-color: #color; color: white;">Label</span>
     </div>
-    <div class="stat-description">설명</div>
+    <div class="stat-description">Description</div>
 </div>
 ```
 
-### 3. 데이터 테이블 (Data Tables)
+### 3. Data Tables
 ```html
-<!-- 테이블 구조 -->
+<!-- Table Structure -->
 <div class="data-table">
     <div class="table-header">
-        <div onclick="sortFunction('field')">컬럼명 ↕</div>
+        <div onclick="sortFunction('field')">Column Name ↕</div>
     </div>
     <div class="table-row">
-        <div>데이터</div>
+        <div>Data</div>
     </div>
 </div>
 ```
 
-### 4. 필터 컨트롤 (Filter Controls)
+### 4. Filter Controls
 ```html
-<!-- 필터 구조 -->
+<!-- Filter Structure -->
 <div class="filter-controls">
     <div class="chart-controls">
         <button class="chart-btn" data-days="7">7d</button>
@@ -103,87 +103,87 @@ font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
             <input type="date" id="start-date" />
             <span>~</span>
             <input type="date" id="end-date" />
-            <button class="analytics-btn" onclick="applyFilter()">적용</button>
+            <button class="analytics-btn" onclick="applyFilter()">Apply</button>
         </div>
     </div>
     <div>
-        <input type="text" class="search-box" placeholder="검색어..." onkeyup="searchFunction(this.value)">
+        <input type="text" class="search-box" placeholder="Search..." onkeyup="searchFunction(this.value)">
     </div>
 </div>
 ```
 
-## 🔧 JavaScript 코딩 규칙
+## 🔧 JavaScript Coding Rules
 
-### 1. 함수 명명 규칙
+### 1. Function Naming Rules
 ```javascript
-// 동사 + 명사 형태
+// Verb + Noun format
 function updateStatsCards() { }
 function renderMemberList() { }
 function filterActivitiesByType() { }
 function applyDateFilter() { }
 
-// 이벤트 핸들러는 'handle' 접두사 사용
+// Event handlers use 'handle' prefix
 function handleMenuClick() { }
 function handleFilterChange() { }
 
-// 비동기 함수는 'async' 키워드 사용
+// Async functions use 'async' keyword
 async function fetchTeamMembers() { }
 async function updateWithRealData() { }
 ```
 
-### 2. 변수 명명 규칙
+### 2. Variable Naming Rules
 ```javascript
-// 전역 변수는 camelCase
+// Global variables use camelCase
 let currentFilterType = 'total';
 let currentActivities = [];
 let currentDateRange = null;
 
-// 상수는 UPPER_SNAKE_CASE
+// Constants use UPPER_SNAKE_CASE
 const API_CONFIG = {
     baseUrl: 'http://localhost:8001',
     apiKey: 'key_...',
     headers: { 'Content-Type': 'application/json' }
 };
 
-// API 응답 데이터는 명확한 이름 사용
+// API response data uses clear names
 const membersData = await getTeamMembers();
 const spendingData = await getTeamSpendingData();
 const eventsData = await getFilteredEvents();
 ```
 
-### 3. 에러 처리 패턴
+### 3. Error Handling Pattern
 ```javascript
-// try-catch 블록 사용
+// Use try-catch blocks
 async function updateWithRealData() {
     try {
-        console.log('=== 데이터 업데이트 시작 ===');
+        console.log('=== Data update started ===');
         const data = await fetchData();
         updateUI(data);
-        console.log('=== 데이터 업데이트 완료 ===');
+        console.log('=== Data update completed ===');
     } catch (error) {
-        console.error('❌ 데이터 업데이트 실패:', error);
+        console.error('❌ Data update failed:', error);
         showErrorMessage(error.message);
     }
 }
 ```
 
-### 4. 로깅 규칙
+### 4. Logging Rules
 ```javascript
-// 시작/종료 로그
-console.log('=== 함수명 시작 ===');
-console.log('=== 함수명 완료 ===');
+// Start/end logs
+console.log('=== Function name started ===');
+console.log('=== Function name completed ===');
 
-// 진행 상황 로그
-console.log(`✅ ${count}개의 데이터 처리 완료`);
-console.log(`📊 통계: 전체 ${total}명, 활성 ${active}명`);
+// Progress logs
+console.log(`✅ ${count} items processed`);
+console.log(`📊 Stats: total ${total}, active ${active}`);
 
-// 에러 로그
-console.error('❌ 에러 발생:', error);
+// Error logs
+console.error('❌ Error occurred:', error);
 ```
 
-## 📊 API 통신 규칙
+## 📊 API Communication Rules
 
-### 1. API 설정
+### 1. API Configuration
 ```javascript
 const API_CONFIG = {
     baseUrl: 'http://localhost:8001',
@@ -194,7 +194,7 @@ const API_CONFIG = {
 };
 ```
 
-### 2. API 호출 함수
+### 2. API Call Functions
 ```javascript
 async function callAPI(endpoint, method = 'GET', data = null) {
     try {
@@ -213,30 +213,30 @@ async function callAPI(endpoint, method = 'GET', data = null) {
             options.body = JSON.stringify(data);
         }
 
-        console.log(`API 호출: ${method} ${API_CONFIG.baseUrl}${endpoint}`);
+        console.log(`API call: ${method} ${API_CONFIG.baseUrl}${endpoint}`);
         
         const response = await fetch(API_CONFIG.baseUrl + endpoint, options);
         
         if (!response.ok) {
-            throw new Error(`API 호출 실패: ${response.status}`);
+            throw new Error(`API call failed: ${response.status}`);
         }
 
         return await response.json();
     } catch (error) {
-        console.error('API 호출 오류:', error);
+        console.error('API call error:', error);
         throw error;
     }
 }
 ```
 
-### 3. 데이터 가져오기 함수
+### 3. Data Fetching Functions
 ```javascript
-// 팀원 정보
+// Team members
 async function getTeamMembers() {
     return await callAPI('/teams/members');
 }
 
-// 사용량 데이터
+// Usage data
 async function getUsageData(startDate, endDate) {
     return await callAPI('/teams/daily-usage-data', 'POST', {
         startDate: startDate,
@@ -244,7 +244,7 @@ async function getUsageData(startDate, endDate) {
     });
 }
 
-// 지출 데이터
+// Spending data
 async function getTeamSpendingData() {
     return await callAPI('/teams/spend', 'POST', {
         page: 1,
@@ -253,11 +253,11 @@ async function getTeamSpendingData() {
 }
 ```
 
-## 🎯 UI/UX 규칙
+## 🎯 UI/UX Rules
 
-### 1. 로딩 상태 표시
+### 1. Loading State Display
 ```javascript
-// 로딩 상태 표시
+// Show loading state
 function showLoadingState(isLoading) {
     const elements = document.querySelectorAll('.loading-target');
     elements.forEach(el => {
@@ -266,25 +266,25 @@ function showLoadingState(isLoading) {
 }
 ```
 
-### 2. 에러 메시지 표시
+### 2. Error Message Display
 ```javascript
-// 에러 메시지 표시
+// Show error message
 function showErrorMessage(message) {
     const errorDiv = document.createElement('div');
     errorDiv.className = 'error-message';
     errorDiv.innerHTML = `
         <div style="text-align: center; padding: 20px; color: #ff6b6b;">
-            <h3>⚠️ 오류 발생</h3>
+            <h3>⚠️ Error Occurred</h3>
             <p>${message}</p>
         </div>
     `;
-    // DOM에 추가
+    // Add to DOM
 }
 ```
 
-### 3. 데이터 없음 상태
+### 3. Empty State Display
 ```javascript
-// 데이터 없음 상태 표시
+// Show empty state
 function showEmptyState(container, message) {
     container.innerHTML = `
         <div style="padding: 20px; text-align: center; color: #7a7a7a; background-color: #1a1a1a;">
@@ -294,46 +294,46 @@ function showEmptyState(container, message) {
 }
 ```
 
-## 🔄 상태 관리 규칙
+## 🔄 State Management Rules
 
-### 1. 전역 상태 변수
+### 1. Global State Variables
 ```javascript
-// 현재 필터 상태
+// Current filter state
 let currentFilterType = 'total';
 let currentDateRange = null;
 let currentUsageDateRange = null;
 
-// 현재 데이터 상태
+// Current data state
 let currentActivities = [];
 let currentMembers = [];
 let currentRawEventsData = [];
 
-// 페이지네이션 상태
+// Pagination state
 let currentRawEventsPage = 1;
 let currentRawEventsPageSize = 10;
 ```
 
-### 2. 상태 업데이트 함수
+### 2. State Update Functions
 ```javascript
-// 필터 상태 업데이트
+// Update filter state
 function updateFilterState(type, dateRange) {
     currentFilterType = type;
     currentDateRange = dateRange;
     updateUIWithCurrentState();
 }
 
-// 데이터 상태 업데이트
+// Update data state
 function updateDataState(newData) {
     currentActivities = newData;
     renderActivityList(currentActivities);
 }
 ```
 
-## 📱 반응형 디자인 규칙
+## 📱 Responsive Design Rules
 
-### 1. 미디어 쿼리
+### 1. Media Queries
 ```css
-/* 모바일 대응 */
+/* Mobile responsive */
 @media (max-width: 768px) {
     .sidebar {
         width: 70px;
@@ -354,16 +354,16 @@ function updateDataState(newData) {
 }
 ```
 
-### 2. 그리드 시스템
+### 2. Grid System
 ```css
-/* 기본 그리드 */
+/* Basic grid */
 .overview-stats {
     display: grid;
     grid-template-columns: repeat(3, 1fr);
     gap: 20px;
 }
 
-/* 테이블 그리드 */
+/* Table grid */
 .table-row {
     display: grid;
     grid-template-columns: 2fr 2fr 1fr 1fr 1fr 0.5fr;
@@ -371,11 +371,11 @@ function updateDataState(newData) {
 }
 ```
 
-## 🚀 성능 최적화 규칙
+## 🚀 Performance Optimization Rules
 
-### 1. 디바운싱
+### 1. Debouncing
 ```javascript
-// 검색 디바운싱
+// Search debouncing
 function debounce(func, wait) {
     let timeout;
     return function executedFunction(...args) {
@@ -391,9 +391,9 @@ function debounce(func, wait) {
 const debouncedSearch = debounce(filterMembers, 300);
 ```
 
-### 2. 캐싱
+### 2. Caching
 ```javascript
-// 데이터 캐싱
+// Data caching
 const DataCache = {
     members: null,
     spending: null,
@@ -416,88 +416,88 @@ const DataCache = {
 };
 ```
 
-### 3. 점진적 로딩
+### 3. Progressive Loading
 ```javascript
-// 점진적 로딩
+// Progressive loading
 async function progressiveLoad() {
-    // 1단계: 기본 UI 표시
+    // Step 1: Show basic UI
     showSkeletonUI();
     
-    // 2단계: 캐시된 데이터 표시
+    // Step 2: Show cached data
     const cachedData = DataCache.get('members');
     if (cachedData) {
         updateUIWithData(cachedData);
     }
     
-    // 3단계: 최신 데이터 로드
+    // Step 3: Load latest data
     const freshData = await fetchLatestData();
     updateUIWithData(freshData);
     DataCache.set('members', freshData);
 }
 ```
 
-## 🧪 테스트 및 디버깅 규칙
+## 🧪 Testing and Debugging Rules
 
-### 1. 콘솔 로깅
+### 1. Console Logging
 ```javascript
-// 함수 시작/종료 로깅
-console.log('=== 함수명 시작 ===');
-console.log('=== 함수명 완료 ===');
+// Function start/end logging
+console.log('=== Function name started ===');
+console.log('=== Function name completed ===');
 
-// 데이터 로깅
-console.log('📊 데이터:', data);
-console.log(`✅ ${count}개 처리 완료`);
+// Data logging
+console.log('📊 Data:', data);
+console.log(`✅ ${count} processed`);
 
-// 에러 로깅
-console.error('❌ 에러:', error);
+// Error logging
+console.error('❌ Error:', error);
 ```
 
-### 2. 성능 모니터링
+### 2. Performance Monitoring
 ```javascript
-// 성능 측정
+// Performance measurement
 const PerformanceMonitor = {
     timers: {},
     
     start(label) {
         this.timers[label] = Date.now();
-        console.log(`⏱️ ${label} 시작`);
+        console.log(`⏱️ ${label} started`);
     },
     
     end(label) {
         const duration = Date.now() - this.timers[label];
-        console.log(`⏱️ ${label} 완료: ${duration}ms`);
+        console.log(`⏱️ ${label} completed: ${duration}ms`);
         return duration;
     }
 };
 ```
 
-## 📝 코드 주석 규칙
+## 📝 Code Comment Rules
 
-### 1. 함수 주석
+### 1. Function Comments
 ```javascript
 /**
- * 팀원 목록을 실제 API 데이터로 업데이트
+ * Update team member list with real API data
  * @returns {Promise<void>}
  */
 async function updateMembersWithRealData() {
-    // 구현...
+    // Implementation...
 }
 ```
 
-### 2. 섹션 주석
+### 2. Section Comments
 ```javascript
 // ============================================================================
-// API 통신 함수들
+// API Communication Functions
 // ============================================================================
 
 // ============================================================================
-// UI 업데이트 함수들
+// UI Update Functions
 // ============================================================================
 ```
 
-### 3. 인라인 주석
+### 3. Inline Comments
 ```javascript
-// 현재 필터 기간 결정
+// Determine current filter period
 let dateRange;
 if (currentDateRange) {
     dateRange = currentDateRange;
@@ -507,11 +507,11 @@ if (currentDateRange) {
 }
 ```
 
-## 🔒 보안 규칙
+## 🔒 Security Rules
 
-### 1. API 키 관리
+### 1. API Key Management
 ```javascript
-// API 키는 환경변수나 별도 설정 파일에서 관리
+// Manage API keys in environment variables or separate config files
 const API_CONFIG = {
     baseUrl: 'http://localhost:8001',
     apiKey: process.env.CURSOR_API_KEY || 'key_...',
@@ -521,132 +521,199 @@ const API_CONFIG = {
 };
 ```
 
-### 2. 입력 검증
+### 2. Input Validation
 ```javascript
-// 사용자 입력 검증
+// User input validation
 function validateDateRange(startDate, endDate) {
     if (!startDate || !endDate) {
-        throw new Error('시작 날짜와 종료 날짜를 모두 선택해주세요.');
+        throw new Error('Please select both start and end dates.');
     }
     
     if (startDate > endDate) {
-        throw new Error('시작 날짜는 종료 날짜보다 빠를 수 없습니다.');
+        throw new Error('Start date cannot be later than end date.');
     }
 }
 ```
 
-## 📚 파일 구조 규칙
+## 📚 File Structure Rules
 
-### 1. HTML 구조
+### 1. HTML Structure
 ```html
 <!DOCTYPE html>
-<html lang="ko">
+<html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>페이지 제목</title>
+    <title>Page Title</title>
     <style>
-        /* CSS 스타일 */
+        /* CSS styles */
     </style>
 </head>
 <body>
     <div class="dashboard-container">
-        <!-- 사이드바 -->
+        <!-- Sidebar -->
         <nav class="sidebar">
-            <!-- 사이드바 내용 -->
+            <!-- Sidebar content -->
         </nav>
         
-        <!-- 메인 콘텐츠 -->
+        <!-- Main content -->
         <main class="main-content">
-            <!-- 헤더 -->
+            <!-- Header -->
             <header class="header">
-                <!-- 헤더 내용 -->
+                <!-- Header content -->
             </header>
             
-            <!-- 콘텐츠 영역 -->
+            <!-- Content area -->
             <div class="content-area">
-                <!-- 섹션들 -->
+                <!-- Sections -->
             </div>
         </main>
     </div>
     
     <script>
-        // JavaScript 코드
+        // JavaScript code
     </script>
 </body>
 </html>
 ```
 
-### 2. CSS 구조
+### 2. CSS Structure
 ```css
-/* 기본 리셋 */
+/* Basic reset */
 * { margin: 0; padding: 0; box-sizing: border-box; }
 
-/* 레이아웃 */
-.dashboard-container { /* 메인 컨테이너 */ }
-.sidebar { /* 사이드바 */ }
-.main-content { /* 메인 콘텐츠 */ }
+/* Layout */
+.dashboard-container { /* Main container */ }
+.sidebar { /* Sidebar */ }
+.main-content { /* Main content */ }
 
-/* 컴포넌트 */
-.overview-stats { /* 통계 카드 */ }
-.data-table { /* 데이터 테이블 */ }
-.filter-controls { /* 필터 컨트롤 */ }
+/* Components */
+.overview-stats { /* Statistics cards */ }
+.data-table { /* Data table */ }
+.filter-controls { /* Filter controls */ }
 
-/* 유틸리티 */
-.clickable-email { /* 클릭 가능한 이메일 */ }
-.role-badge { /* 역할 배지 */ }
+/* Utilities */
+.clickable-email { /* Clickable email */ }
+.role-badge { /* Role badge */ }
 
-/* 반응형 */
-@media (max-width: 768px) { /* 모바일 대응 */ }
+/* Responsive */
+@media (max-width: 768px) { /* Mobile responsive */ }
 ```
 
-이 규칙들을 따라 개발하면 일관성 있고 유지보수하기 쉬운 코드를 작성할 수 있습니다. 
+Following these rules will help create consistent and maintainable code.
 
-## 🌐 언어 및 통신 규칙
+## 🌐 Language and Communication Rules
 
-### 1. 한국어 응답 규칙
+### 1. Korean Response Rules
 ```
-모든 사용자와의 대화는 반드시 한국어로 진행합니다.
-- 코드 주석은 한국어로 작성
-- 에러 메시지는 한국어로 표시
-- 사용자 안내 메시지는 한국어로 제공
-- 기술 용어는 필요시 영어 병기 가능
-```
-
-### 2. 포트 일치 규칙
-```
-dash.html 실행 시 프록시 서버와 대시보드 포트가 항상 일치해야 합니다.
-
-기본 설정:
-- 프록시 서버 포트: 8001
-- 대시보드 접속 URL: http://localhost:8001/dash.html
-
-포트 변경 시 주의사항:
-1. proxy_server.py의 포트 설정 확인
-2. dash.html의 API_CONFIG.baseUrl 포트 확인
-3. 브라우저 접속 URL 포트 확인
-4. 모든 포트가 동일한 값으로 설정되어야 함
-
-실행 순서:
-1. python proxy_server.py (포트 8001에서 실행)
-2. 브라우저에서 http://localhost:8001/dash.html 접속
-3. 포트 불일치 시 API 호출 실패 발생 가능
+All user communication must be conducted in Korean.
+- Code comments should be written in Korean
+- Error messages should be displayed in Korean
+- User guidance messages should be provided in Korean
+- Technical terms can be written in English as needed
 ```
 
-### 3. 개발 환경 설정 규칙
+### 2. Port Consistency Rules
 ```
-개발 시 항상 다음 순서로 환경을 설정합니다:
+When running dash.html, proxy server and dashboard ports must always match.
 
-1. 프록시 서버 시작
+Default settings:
+- Proxy server port: 8001
+- Dashboard access URL: http://localhost:8001/dash.html
+
+When changing ports:
+1. Check proxy_server.py port settings
+2. Check dash.html API_CONFIG.baseUrl port
+3. Check browser access URL port
+4. All ports must be set to the same value
+
+Execution order:
+1. python proxy_server.py (run on port 8001)
+2. Access http://localhost:8001/dash.html in browser
+3. API calls may fail if ports don't match
+```
+
+### 3. Development Environment Rules
+```
+Always set up the development environment in the following order:
+
+1. Start proxy server
    python proxy_server.py
 
-2. 브라우저에서 대시보드 접속
+2. Access dashboard in browser
    http://localhost:8001/dash.html
 
-3. 포트 확인
-   - 프록시 서버: 8001
-   - 대시보드 URL: 8001
-   - API 호출: 8001
+3. Verify ports
+   - Proxy server: 8001
+   - Dashboard URL: 8001
+   - API calls: 8001
 
-4. 문제 발생 시 포트 일치 여부 확인
+4. Check port consistency if issues occur
+```
+
+### 4. UI/UX Change Restriction Rules
+```
+Do not arbitrarily change UI/UX until explicitly requested by the user.
+
+Allowed changes:
+- Bug fixes (when functionality is broken)
+- Security vulnerability fixes
+- Performance optimization (not affecting user experience)
+- Code refactoring (no visual changes)
+
+Prohibited changes:
+- Color, font, layout changes
+- Adding new UI components
+- Modifying existing component styles
+- Changing user interface structure
+- Adding/modifying animations or transitions
+
+Pre-change checklist:
+1. Confirm user explicitly requested the change
+2. Verify changes align with existing design system
+3. Consider impact on overall user experience
+4. Explain changes to user before applying
+
+Exception cases:
+- Critical security issue fixes
+- Accessibility improvements (can be applied without user request)
+- Browser compatibility issue fixes
+```
+
+### 5. Documentation Synchronization Rules
+```
+Always update related documentation when code changes are made.
+
+Automatic documentation update targets:
+- technical_documentation.md: Reflect technical changes
+- user_manual_doc.md: Reflect user experience changes
+- README.md: Update when major features are added/changed
+
+Update timing:
+1. Immediately after code changes are accepted
+2. When new features are added
+3. When existing feature behavior changes
+4. When user interface is modified
+5. When API endpoints or data structures change
+
+Documentation update content:
+- Detailed description of changes
+- New usage instructions
+- Updated code examples
+- Screenshots or diagram updates (if needed)
+- Version history additions
+
+Update procedure:
+1. Identify related documents immediately after code changes
+2. Write clear descriptions of changes
+3. Write documentation from user perspective
+4. Update both technical and user documentation
+5. Include date and version information
+
+Documentation writing principles:
+- Clear and specific descriptions
+- Provide step-by-step guides
+- Include code examples and real use cases
+- Write in Korean with English technical terms as needed
+- Maintain consistent format and style
 ```
