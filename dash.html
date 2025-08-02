@@ -1674,10 +1674,33 @@
             });
         }
 
+        // 스크롤 위치 관리 객체
+        const scrollPositions = {
+            overview: 0,
+            members: 0,
+            usage: 0,
+            settings: 0
+        };
+        
+        // 섹션별 최초 방문 여부 추적
+        const sectionVisited = {
+            overview: false,
+            members: false,
+            usage: false,
+            settings: false
+        };
+
         // 메뉴 클릭 이벤트 처리
         document.querySelectorAll('.menu-item').forEach(item => {
             item.addEventListener('click', function(e) {
                 e.preventDefault();
+               
+                // 현재 활성 섹션의 스크롤 위치 저장
+                const currentActiveSection = document.querySelector('.content-section.active');
+                if (currentActiveSection) {
+                    const currentSectionName = currentActiveSection.id;
+                    scrollPositions[currentSectionName] = currentActiveSection.scrollTop;
+                }
                
                 // 모든 메뉴 아이템에서 active 클래스 제거
                 document.querySelectorAll('.menu-item').forEach(menu => {
@@ -1697,6 +1720,20 @@
                 const targetSection = document.getElementById(sectionName);
                 if (targetSection) {
                     targetSection.classList.add('active');
+                    
+                    // 스크롤 위치 설정
+                    setTimeout(() => {
+                        if (!sectionVisited[sectionName]) {
+                            // 최초 방문 시 상단으로 스크롤
+                            targetSection.scrollTop = 0;
+                            sectionVisited[sectionName] = true;
+                            console.log(`${sectionName} 섹션 최초 방문 - 상단으로 스크롤`);
+                        } else {
+                            // 이후 방문 시 이전 스크롤 위치로 복원
+                            targetSection.scrollTop = scrollPositions[sectionName];
+                            console.log(`${sectionName} 섹션 재방문 - 이전 위치로 스크롤: ${scrollPositions[sectionName]}px`);
+                        }
+                    }, 50);
                 }
                
                 // 헤더 제목 업데이트
@@ -4881,6 +4918,9 @@
                 
                 // 날짜 입력 필드 실시간 업데이트 이벤트 리스너 추가
                 setupDateInputEvents();
+                
+                // Overview 섹션을 최초 방문한 것으로 표시
+                sectionVisited.overview = true;
                
                 const totalLoadTime = PerformanceMonitor.end('페이지 전체 로드');
                 updatePerformanceIndicator('ready', `${totalLoadTime}ms`);
