@@ -498,6 +498,50 @@
         .user-cumulative-page-size-selector {
             display: flex;
             align-items: center;
+        }
+
+        /* 차트 선택기 스타일 */
+        .chart-selector {
+            margin-bottom: 20px;
+        }
+
+        .chart-selector select {
+            padding: 10px 16px;
+            background-color: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            border-radius: 6px;
+            color: #e1e1e1;
+            font-size: 14px;
+            cursor: pointer;
+            min-width: 250px;
+            transition: all 0.3s ease;
+        }
+
+        .chart-selector select:hover {
+            border-color: #4a9eff;
+        }
+
+        .chart-selector select:focus {
+            outline: none;
+            border-color: #4a9eff;
+            box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.2);
+        }
+
+        .chart-content {
+            display: none;
+            background-color: #1a1a1a;
+            border: 1px solid #3a3a3a;
+            border-radius: 0 6px 6px 6px;
+            padding: 20px;
+        }
+
+        .chart-content.active {
+            display: block;
+        }
+
+        .user-cumulative-page-size-selector {
+            display: flex;
+            align-items: center;
             gap: 8px;
         }
         
@@ -1090,6 +1134,38 @@
                 gap: 8px;
             }
         }
+
+        /* 차트 검색창 스타일 개선 */
+        #chart-search-input {
+            transition: border-color 0.2s ease, box-shadow 0.2s ease;
+        }
+
+        #chart-search-input:focus {
+            border-color: #4a9eff !important;
+            box-shadow: 0 0 0 2px rgba(74, 158, 255, 0.1) !important;
+            outline: none;
+        }
+
+        /* 검색 clear 버튼 스타일 */
+        .search-clear-btn:hover {
+            background-color: #3a3a3a !important;
+            color: #e1e1e1 !important;
+        }
+
+        /* 데이터리스트 드롭다운 스타일 */
+        #heatmap-emails-datalist {
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background-color: #2a2a2a;
+            border: 1px solid #3a3a3a;
+            border-radius: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+            z-index: 1000;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
     </style>
 </head>
 <body>
@@ -1160,28 +1236,76 @@
                     <div class="usage-cards">
                         <div class="usage-card">
                             <div class="usage-card-number">-</div>
-                            <div class="usage-card-label">Total Users</div>
+                            <div class="usage-card-label">선택된 기간 내 실제 활동한 사용자 수</div>
                         </div>
                         <div class="usage-card">
                             <div class="usage-card-number">-</div>
-                            <div class="usage-card-label">Lines of Agent Edits</div>
+                            <div class="usage-card-label">선택된 기간 내 에이전트 편집 라인 수</div>
                         </div>
                         <div class="usage-card">
                             <div class="usage-card-number">-</div>
-                            <div class="usage-card-label">Tabs Accepted</div>
+                            <div class="usage-card-label">선택된 기간 내 수락된 탭 수</div>
                         </div>
                         <div class="usage-card">
                             <div class="usage-card-number">-</div>
-                            <div class="usage-card-label">Chats</div>
+                            <div class="usage-card-label">선택된 기간 내 채팅 수</div>
                         </div>
                     </div>
 
                     <!-- 그래프 영역 -->
                     <div class="overview-chart-container">
                         <div class="chart-header">
-                            <h3>일별 활동 추이</h3>
+                            <div class="chart-selector">
+                                <select id="chartSelect" onchange="handleChartChange(this.value)">
+                                    <option value="activity-trend">📈 일별 활동 추이</option>
+                                    <option value="model-distribution">📊 모델 사용 분포</option>
+                                    <option value="cost-trend">💰 비용 추이</option>
+                                    <option value="activity-type">📊 활동 유형 분포</option>
+                                    <option value="user-heatmap">🔥 사용자 활동 히트맵</option>
+                                    <option value="cost-efficiency">📊 비용 효율성 분석</option>
+                                    <option value="model-preference">🎯 모델 선호도</option>
+                                    <option value="user-performance">🏆 사용자별 성과</option>
+                                    <option value="activity-type-detailed">📈 활동 유형 상세</option>
+                                </select>
+                            </div>
+                            <!-- 차트별 검색창 (기본적으로 숨김) -->
+                            <div id="chart-search-container" class="chart-search" style="display: none; margin-top: 10px;">
+                                <div class="search-container">
+                                    <div style="position: relative; display: flex; align-items: center; max-width: 300px;">
+                                        <span style="position: absolute; left: 12px; color: #7a7a7a; font-size: 14px;">🔍</span>
+                                        <input type="text" class="search-box" id="chart-search-input" placeholder="Search..." onkeyup="handleChartSearch(this.value)" oninput="toggleSearchClearBtn('chart-search-input')" autocomplete="off" style="padding-left: 35px; border-radius: 8px; border: 1px solid #3a3a3a; background-color: #2a2a2a; color: #e1e1e1; padding-right: 35px;">
+                                        <button class="search-clear-btn" id="chart-search-input-clear" onclick="clearChartSearch('chart-search-input')" style="display: none; position: absolute; right: 8px; background: none; border: none; color: #7a7a7a; font-size: 18px; cursor: pointer; padding: 4px; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">×</button>
+                                    </div>
+                                </div>
+                            </div>
                         </div>
-                        <canvas id="overviewChart" style="width: 100%; height: 300px;"></canvas>
+                        <div id="activity-trend-chart" class="chart-content active">
+                            <canvas id="overviewChart" style="width: 100%; height: 300px;"></canvas>
+                        </div>
+                        <div id="model-distribution-chart" class="chart-content">
+                            <canvas id="modelDistributionChart" style="width: 100%; height: 300px;"></canvas>
+                        </div>
+                        <div id="cost-trend-chart" class="chart-content">
+                            <canvas id="costTrendChart" style="width: 100%; height: 300px;"></canvas>
+                        </div>
+                        <div id="activity-type-chart" class="chart-content">
+                            <canvas id="activityTypeChart" style="width: 100%; height: 300px;"></canvas>
+                        </div>
+                        <div id="user-heatmap-chart" class="chart-content">
+                            <canvas id="userHeatmapChart" style="width: 100%; height: 300px;"></canvas>
+                        </div>
+                        <div id="cost-efficiency-chart" class="chart-content">
+                            <canvas id="costEfficiencyChart" style="width: 100%; height: 300px;"></canvas>
+                        </div>
+                        <div id="model-preference-chart" class="chart-content">
+                            <canvas id="modelPreferenceChart" style="width: 100%; height: 300px;"></canvas>
+                        </div>
+                        <div id="user-performance-chart" class="chart-content">
+                            <canvas id="userPerformanceChart" style="width: 100%; height: 300px;"></canvas>
+                        </div>
+                        <div id="activity-type-detailed-chart" class="chart-content">
+                            <canvas id="activityTypeDetailedChart" style="width: 100%; height: 300px;"></canvas>
+                        </div>
                     </div>
 
                     <!-- 2.1.2 통계 카드 -->
@@ -1593,6 +1717,2234 @@
             renderMemberList('total');
         }
 
+        // 현재 필터 상태를 가져오는 함수
+        function getCurrentFilterState() {
+            let dateRange;
+            if (currentDateRange) {
+                dateRange = currentDateRange;
+            } else {
+                const filterDays = getCurrentFilterDays();
+                dateRange = getDateRange(filterDays);
+            }
+            
+            return {
+                dateRange: dateRange,
+                filterType: currentFilterType,
+                members: currentMembers,
+                rawEventsData: currentRawEventsData
+            };
+        }
+        
+        // 필터 상태가 동일한지 비교하는 함수
+        function isFilterStateEqual(filter1, filter2) {
+            if (!filter1 || !filter2) return false;
+            
+            return filter1.dateRange.startDate.getTime() === filter2.dateRange.startDate.getTime() &&
+                   filter1.dateRange.endDate.getTime() === filter2.dateRange.endDate.getTime() &&
+                   filter1.filterType === filter2.filterType &&
+                   filter1.members.length === filter2.members.length &&
+                   filter1.rawEventsData.length === filter2.rawEventsData.length;
+        }
+        
+        // 캐시된 차트를 캔버스에 복원하는 함수
+        function restoreCachedChart(chartType) {
+            const cachedChart = chartCache[chartType];
+            if (!cachedChart.data) return false;
+            
+            const canvas = getCanvasForChartType(chartType);
+            if (!canvas) return false;
+            
+            const ctx = canvas.getContext('2d');
+            
+            // 캔버스 크기 설정
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = 300;
+            
+            // 캐시된 이미지 데이터 복원
+            ctx.putImageData(cachedChart.data, 0, 0);
+            
+            console.log(`📊 캐시된 차트 복원 완료: ${chartType}`);
+            return true;
+        }
+        
+        // 차트 타입에 따른 캔버스 요소 반환
+        function getCanvasForChartType(chartType) {
+            const canvasIds = {
+                'activity-trend': 'overviewChart',
+                'model-distribution': 'modelDistributionChart',
+                'cost-trend': 'costTrendChart',
+                'activity-type': 'activityTypeChart',
+                'user-heatmap': 'userHeatmapChart',
+                'cost-efficiency': 'costEfficiencyChart',
+                'model-preference': 'modelPreferenceChart',
+                'user-performance': 'userPerformanceChart',
+                'activity-type-detailed': 'activityTypeDetailedChart'
+            };
+            
+            return document.getElementById(canvasIds[chartType]);
+        }
+        
+        // 차트 데이터를 캐시에 저장하는 함수
+        function cacheChartData(chartType) {
+            const canvas = getCanvasForChartType(chartType);
+            if (!canvas) return;
+            
+            const ctx = canvas.getContext('2d');
+            const imageData = ctx.getImageData(0, 0, canvas.width, canvas.height);
+            
+            chartCache[chartType].data = imageData;
+            console.log(`📊 차트 데이터 캐시 저장: ${chartType}`);
+        }
+        
+        // 차트에 필요한 데이터가 있는지 확인하는 함수
+        async function checkAndLoadDataForChart(chartType) {
+            console.log(`🔍 ${chartType} 차트 데이터 상태 확인 중...`);
+            
+            // 통합 데이터 저장소 우선 확인
+            const currentFilter = getCurrentFilterState();
+            if (chartDataStore.isDataValid(currentFilter)) {
+                console.log(`✅ 통합 데이터 저장소에서 ${chartType} 차트에 필요한 데이터를 찾았습니다.`);
+                return true;
+            }
+            
+            // 통합 데이터 저장소에 데이터가 없으면 현재 전역 변수 확인
+            const members = currentMembersData || [];
+            const rawEvents = currentRawEventsData || [];
+            
+            console.log(`📊 전역 변수 데이터 상태 - 멤버: ${members.length}명, 이벤트: ${rawEvents.length}개`);
+            
+            // 모델 분포 차트는 이벤트 데이터만 있으면 됨
+            if (chartType === 'model-distribution') {
+                if (rawEvents.length === 0) {
+                    console.log('❌ 모델 분포 차트: 사용 가능한 이벤트 데이터가 없습니다. 데이터 로딩을 시도합니다.');
+                    // 데이터가 없으면 Overview 데이터를 다시 로드
+                    return false;
+                }
+                console.log('✅ 모델 분포 차트: 이벤트 데이터 확인 완료');
+                return true;
+            }
+            
+            if (members.length === 0) {
+                console.log('❌ 사용 가능한 멤버 데이터가 없습니다.');
+                return false;
+            }
+            
+            if (rawEvents.length === 0) {
+                console.log('❌ 사용 가능한 이벤트 데이터가 없습니다.');
+                return false;
+            }
+            
+            // 특정 차트별 추가 데이터 확인
+            if (chartType === 'cost-trend' || chartType === 'cost-efficiency') {
+                // 비용 관련 차트는 cost 데이터가 필요
+                const hasCostData = rawEvents.some(event => 
+                    event.requestsCosts !== undefined && event.requestsCosts !== null
+                );
+                if (!hasCostData) {
+                    console.log('❌ 비용 데이터가 없습니다.');
+                    return false;
+                }
+            }
+            
+            console.log(`✅ ${chartType} 차트에 필요한 데이터가 모두 있습니다.`);
+            return true;
+        }
+        
+        // 차트를 위한 데이터 새로고침 함수
+        async function refreshDataForChart(chartType) {
+            console.log(`🔄 ${chartType} 차트를 위한 데이터 새로고침 시작...`);
+            
+            try {
+                // 로딩 상태 표시
+                showLoadingStatus(true);
+                
+                // 기본 데이터 새로고침
+                await Promise.all([
+                    updateMembersWithRealData(),
+                    updateOverviewWithRealData()
+                ]);
+                
+                console.log(`✅ ${chartType} 차트 데이터 새로고침 완료`);
+                return true;
+            } catch (error) {
+                console.error(`❌ ${chartType} 차트 데이터 새로고침 실패:`, error);
+                showErrorMessage(`차트 데이터를 불러오는 중 오류가 발생했습니다: ${error.message}`);
+                return false;
+            } finally {
+                // 로딩 상태 해제
+                showLoadingStatus(false);
+            }
+        }
+        
+        // 차트 변경 이벤트 핸들러
+        function handleChartChange(chartType) {
+            console.log(`🔄 차트 변경 요청: ${chartType}`);
+            
+            // 모든 차트에서 검색창 숨김
+            const searchContainer = document.getElementById('chart-search-container');
+            if (searchContainer) {
+                searchContainer.style.display = 'none';
+                // 검색창 초기화
+                const searchInput = document.getElementById('chart-search-input');
+                if (searchInput) {
+                    searchInput.value = '';
+                    clearChartSearch('chart-search-input');
+                }
+            }
+            
+            // 특별 처리가 필요한 차트들 (activity-trend 제외)
+            if (chartType !== 'activity-trend') {
+                // 사용자 활동 히트맵과 모델 선호도에 검색창 표시
+                if (chartType === 'user-heatmap' || chartType === 'model-preference') {
+                    const searchContainer = document.getElementById('chart-search-container');
+                    if (searchContainer) {
+                        searchContainer.style.display = 'block';
+                        const searchInput = document.getElementById('chart-search-input');
+                        if (searchInput) {
+                            if (chartType === 'user-heatmap') {
+                                searchInput.placeholder = '사용자 ID 검색...';
+                                // 히트맵용 이메일 드롭다운 생성
+                                populateHeatmapEmailDropdown();
+                            } else if (chartType === 'model-preference') {
+                                searchInput.placeholder = '사용자 ID 검색...';
+                                // 모델 선호도용 이메일 드롭다운 생성
+                                populateModelPreferenceDropdown();
+                            }
+                        }
+                    }
+                } else {
+                    const searchContainer = document.getElementById('chart-search-container');
+                    if (searchContainer) {
+                        searchContainer.style.display = 'none';
+                        const searchInput = document.getElementById('chart-search-input');
+                        if (searchInput) {
+                            searchInput.value = '';
+                            clearChartSearch('chart-search-input');
+                        }
+                    }
+                }
+                console.log(`🎯 특별 처리 차트: ${chartType}`);
+                
+                // 먼저 차트 컨테이너 표시
+                document.querySelectorAll('.chart-content').forEach(content => {
+                    content.classList.remove('active');
+                });
+                
+                const chartId = `${chartType}-chart`;
+                const selectedChart = document.getElementById(chartId);
+                if (selectedChart) {
+                    selectedChart.classList.add('active');
+                    console.log(`✅ ${chartType} 차트 컨테이너 활성화 완료`);
+                } else {
+                    console.error(`❌ ${chartId} 요소를 찾을 수 없습니다!`);
+                    return;
+                }
+                
+                // 데이터 확인 및 로딩
+                const hasMembersData = currentMembersData && currentMembersData.length > 0;
+                const hasEventsData = currentRawEventsData && currentRawEventsData.length > 0;
+                
+                console.log(`📊 데이터 상태 확인: 멤버데이터=${hasMembersData}, 이벤트데이터=${hasEventsData}`);
+                
+                // 데이터 요구사항별 확인
+                let needsData = false;
+                if (chartType === 'model-distribution') {
+                    needsData = !hasEventsData;
+                } else if (chartType === 'user-performance') {
+                    needsData = !hasMembersData || !hasEventsData;
+                } else if (chartType === 'cost-trend' || chartType === 'cost-efficiency') {
+                    needsData = !hasEventsData; // 비용 관련 차트는 이벤트 데이터만 필요
+                } else {
+                    needsData = !hasMembersData || !hasEventsData; // 기타 차트는 둘 다 필요
+                }
+                
+                if (needsData) {
+                    console.log(`🔄 ${chartType} 차트를 위한 데이터 로딩 시작...`);
+                    
+                    // 로딩 메시지 표시 - 차트별 캔버스 ID 매핑
+                    const canvasIdMap = {
+                        'user-performance': 'userPerformanceChart',
+                        'model-distribution': 'modelDistributionChart',
+                        'cost-trend': 'costTrendChart',
+                        'activity-type': 'activityTypeChart',
+                        'user-heatmap': 'userHeatmapChart',
+                        'cost-efficiency': 'costEfficiencyChart',
+                        'model-preference': 'modelPreferenceChart',
+                        'activity-type-detailed': 'activityTypeDetailedChart'
+                    };
+                    const canvasId = canvasIdMap[chartType] || 'overviewChart';
+                    const canvas = document.getElementById(canvasId);
+                    if (canvas) {
+                        const rect = canvas.getBoundingClientRect();
+                        canvas.width = rect.width;
+                        canvas.height = 300;
+                        const ctx = canvas.getContext('2d');
+                        ctx.fillStyle = '#1a1a1a';
+                        ctx.fillRect(0, 0, canvas.width, canvas.height);
+                        ctx.fillStyle = '#7a7a7a';
+                        ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('데이터를 불러오는 중...', canvas.width / 2, canvas.height / 2);
+                    }
+                    
+                    updateOverviewWithCurrentFilter(30).then(() => {
+                        console.log('✅ 데이터 로딩 완료, 차트 생성 시작');
+                        // 차트별 생성 함수 호출
+                        if (chartType === 'user-performance') {
+                            createUserPerformanceChart();
+                        } else if (chartType === 'model-distribution') {
+                            createModelDistributionChart();
+                        } else if (chartType === 'cost-trend') {
+                            createCostTrendChart();
+                        } else if (chartType === 'activity-type') {
+                            createActivityTypeChart();
+                        } else if (chartType === 'user-heatmap') {
+                            createUserHeatmapChart();
+                        } else if (chartType === 'cost-efficiency') {
+                            createCostEfficiencyChart();
+                        } else if (chartType === 'model-preference') {
+                            createModelPreferenceChart();
+                        } else if (chartType === 'activity-type-detailed') {
+                            createActivityTypeDetailedChart();
+                        }
+                    }).catch(error => {
+                        console.error('데이터 로딩 실패:', error);
+                        const canvas = document.getElementById(canvasId);
+                        if (canvas) {
+                            const ctx = canvas.getContext('2d');
+                            ctx.fillStyle = '#1a1a1a';
+                            ctx.fillRect(0, 0, canvas.width, canvas.height);
+                            ctx.fillStyle = '#f44336';
+                            ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                            ctx.textAlign = 'center';
+                            ctx.fillText('데이터 로딩 실패', canvas.width / 2, canvas.height / 2);
+                        }
+                    });
+                    return;
+                } else {
+                    // 데이터가 이미 있으면 바로 차트 생성
+                    console.log('✅ 데이터가 이미 존재함, 바로 차트 생성');
+                    if (chartType === 'user-performance') {
+                        createUserPerformanceChart();
+                    } else if (chartType === 'model-distribution') {
+                        createModelDistributionChart();
+                    } else if (chartType === 'cost-trend') {
+                        createCostTrendChart();
+                    } else if (chartType === 'activity-type') {
+                        createActivityTypeChart();
+                    } else if (chartType === 'user-heatmap') {
+                        createUserHeatmapChart();
+                    } else if (chartType === 'cost-efficiency') {
+                        createCostEfficiencyChart();
+                    } else if (chartType === 'model-preference') {
+                        createModelPreferenceChart();
+                    } else if (chartType === 'activity-type-detailed') {
+                        createActivityTypeDetailedChart();
+                    }
+                    return;
+                }
+            }
+            
+            // 다른 차트들은 switchChart 함수 사용
+            console.log(`🔄 다른 차트 처리: ${chartType}`);
+            switchChart(chartType).catch(error => {
+                console.error('차트 전환 중 오류가 발생했습니다:', error);
+                showErrorMessage('차트를 불러오는 중 오류가 발생했습니다.');
+            });
+        }
+        
+        // 차트 전환 함수 (데이터 로딩 포함)
+        async function switchChart(chartType) {
+            console.log(`📊 switchChart 호출: ${chartType}`);
+            
+            // 모든 차트 내용 숨기기
+            document.querySelectorAll('.chart-content').forEach(content => {
+                content.classList.remove('active');
+            });
+            
+            // 선택된 차트 내용 표시
+            const selectedChart = document.getElementById(`${chartType}-chart`);
+            if (selectedChart) {
+                selectedChart.classList.add('active');
+                console.log(`✅ ${chartType} 차트 컨테이너 활성화 완료`);
+            } else {
+                console.error(`❌ ${chartType}-chart 요소를 찾을 수 없습니다!`);
+                return;
+            }
+            
+            // 현재 필터 상태 가져오기
+            const currentFilter = getCurrentFilterState();
+            
+            // 캐시된 차트가 있고 필터가 동일한지 확인
+            const cachedChart = chartCache[chartType];
+            const shouldUseCache = cachedChart.rendered && cachedChart.data && isFilterStateEqual(cachedChart.filter, currentFilter);
+            
+            if (shouldUseCache) {
+                console.log(`📊 캐시된 차트 사용: ${chartType}`);
+                if (restoreCachedChart(chartType)) {
+                    return;
+                }
+            }
+            
+            // 데이터가 있는지 확인 (통합 데이터 저장소 우선 사용)
+            const hasRequiredData = await checkAndLoadDataForChart(chartType);
+            if (!hasRequiredData) {
+                console.log(`⚠️ ${chartType} 차트에 필요한 데이터가 없습니다. Overview 초기 로딩을 먼저 완료해주세요.`);
+                // 데이터가 없으면 차트에 메시지를 표시하고 리턴
+                const canvas = getCanvasForChartType(chartType);
+                if (canvas) {
+                    const ctx = canvas.getContext('2d');
+                    const rect = canvas.getBoundingClientRect();
+                    canvas.width = rect.width;
+                    canvas.height = 300;
+                    
+                    ctx.fillStyle = '#1a1a1a';
+                    ctx.fillRect(0, 0, canvas.width, canvas.height);
+                    
+                    ctx.fillStyle = '#7a7a7a';
+                    ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText('데이터를 불러오는 중...', canvas.width / 2, canvas.height / 2);
+                }
+                return;
+            }
+            
+            // 새로운 차트 생성 또는 업데이트
+            console.log(`📊 차트 새로 생성/업데이트: ${chartType}`);
+            
+            // 차트 타입에 따라 적절한 차트 렌더링
+            console.log(`📊 차트 타입 "${chartType}" 렌더링 시작...`);
+            
+            if (chartType === 'activity-trend') {
+                console.log('📈 일별 활동 추이 차트 생성');
+                createOverviewChart();
+            } else if (chartType === 'model-distribution') {
+                console.log('📊 모델 사용 분포 차트 생성');
+                createModelDistributionChart();
+            } else if (chartType === 'cost-trend') {
+                console.log('💰 비용 추이 차트 생성');
+                createCostTrendChart();
+            } else if (chartType === 'activity-type') {
+                console.log('📊 활동 유형 분포 차트 생성');
+                createActivityTypeChart();
+            } else if (chartType === 'user-heatmap') {
+                console.log('🔥 사용자 활동 히트맵 차트 생성');
+                createUserHeatmapChart();
+            } else if (chartType === 'cost-efficiency') {
+                console.log('📊 비용 효율성 분석 차트 생성');
+                createCostEfficiencyChart();
+            } else if (chartType === 'model-preference') {
+                console.log('🎯 모델 선호도 차트 생성');
+                createModelPreferenceChart();
+            } else if (chartType === 'user-performance') {
+                console.log('🏆 사용자별 성과 차트 생성');
+                
+                // 사용자별 성과 차트를 위한 데이터 확인 및 로딩
+                const hasMembersData = currentMembersData && currentMembersData.length > 0;
+                const hasEventsData = currentRawEventsData && currentRawEventsData.length > 0;
+                
+                console.log(`📊 사용자별 성과 차트 데이터 상태: 멤버 ${hasMembersData ? currentMembersData.length : 0}명, 이벤트 ${hasEventsData ? currentRawEventsData.length : 0}개`);
+                
+                if (!hasMembersData || !hasEventsData) {
+                    console.log('⚠️ 사용자별 성과 차트에 필요한 데이터가 없습니다. 데이터를 먼저 로드해주세요.');
+                    // 데이터가 없으면 메시지 표시
+                    const canvas = document.getElementById('userPerformanceChart');
+                    if (canvas) {
+                        const ctx = canvas.getContext('2d');
+                        const width = canvas.width;
+                        const height = canvas.height;
+                        
+                        ctx.fillStyle = '#1a1a1a';
+                        ctx.fillRect(0, 0, width, height);
+                        
+                        ctx.fillStyle = '#7a7a7a';
+                        ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText('데이터를 불러오는 중...', width / 2, height / 2);
+                    }
+                    return;
+                }
+                
+                createUserPerformanceChart();
+            } else if (chartType === 'activity-type-detailed') {
+                console.log('📈 활동 유형 상세 차트 생성');
+                createActivityTypeDetailedChart();
+            } else {
+                console.log('❌ 알 수 없는 차트 타입:', chartType);
+            }
+            
+            // 차트 렌더링 완료 후 캐시에 저장
+            setTimeout(() => {
+                cacheChartData(chartType);
+                chartCache[chartType].filter = currentFilter;
+                chartCache[chartType].rendered = true;
+            }, 100);
+            
+            console.log(`📊 차트 전환 완료: ${chartType}`);
+        }
+
+        // 모델 사용 분포 막대 차트 생성
+        function createModelDistributionChart() {
+            console.log('🔍 createModelDistributionChart 시작...');
+            console.log('🔍 전역 변수 상태 확인:');
+            console.log('- currentRawEventsData:', currentRawEventsData);
+            console.log('- currentRawEventsData 길이:', currentRawEventsData ? currentRawEventsData.length : 'undefined');
+            console.log('- chartDataStore.rawEvents 길이:', chartDataStore.rawEvents ? chartDataStore.rawEvents.length : 'undefined');
+            
+            const canvas = document.getElementById('modelDistributionChart');
+            if (!canvas) {
+                console.error('❌ modelDistributionChart 캔버스를 찾을 수 없습니다.');
+                return;
+            }
+            
+            console.log('✅ 캔버스 찾음:', canvas);
+            
+            // Canvas 크기 설정
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = 300;
+            
+            console.log('📏 캔버스 크기 설정:', canvas.width, 'x', canvas.height);
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // 배경 설정
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, width, height);
+            console.log('✅ 배경 설정 완료');
+            
+            // 모델 사용 데이터 생성
+            console.log('📊 모델 데이터 생성 시작...');
+            const modelData = generateModelDistributionData();
+            console.log('📊 생성된 모델 데이터:', modelData);
+            
+            if (modelData.length === 0) {
+                console.log('⚠️ 모델 데이터가 비어있어 빈 차트를 표시합니다.');
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('데이터를 불러오는 중...', width / 2, height / 2);
+                return;
+            }
+            
+            // 막대 차트 그리기
+            console.log('📊 막대 차트 그리기 시작...');
+            drawModelDistributionBarChart(ctx, width, height, modelData);
+            console.log('✅ 모델 분포 차트 생성 완료');
+        }
+
+        // 모델 사용 분포 데이터 생성
+        function generateModelDistributionData() {
+            console.log('🔍 generateModelDistributionData 시작...');
+            
+            const modelUsage = new Map();
+            
+            // 전역 변수에서 데이터 가져오기 (chartDataStore 우선, 없으면 전역 변수 사용)
+            const rawEvents = (chartDataStore.rawEvents && chartDataStore.rawEvents.length > 0) ? 
+                chartDataStore.rawEvents : (currentRawEventsData || []);
+            
+            console.log('📊 데이터 소스 확인:');
+            console.log('- chartDataStore.rawEvents:', chartDataStore.rawEvents ? chartDataStore.rawEvents.length : 0);
+            console.log('- currentRawEventsData:', currentRawEventsData ? currentRawEventsData.length : 0);
+            console.log('- 사용할 rawEvents.length:', rawEvents ? rawEvents.length : 0);
+            
+            if (rawEvents && rawEvents.length > 0) {
+                console.log('🎯 이벤트 데이터 샘플 (처음 3개):');
+                rawEvents.slice(0, 3).forEach((event, index) => {
+                    console.log(`이벤트 ${index}:`, {
+                        model: event.model,
+                        timestamp: event.timestamp,
+                        userEmail: event.userEmail || event.email,
+                        kind: event.kind,
+                        전체: event
+                    });
+                });
+                
+                // 모델별 사용 횟수 집계
+                rawEvents.forEach((event, index) => {
+                    const model = event.model || 'unknown';
+                    modelUsage.set(model, (modelUsage.get(model) || 0) + 1);
+                    
+                    // 처음 5개 이벤트의 모델 정보 로그
+                    if (index < 5) {
+                        console.log(`- 이벤트 ${index}: model="${model}", 전체 이벤트:`, event);
+                    }
+                });
+                
+                console.log('📊 모델별 사용 횟수 집계 결과:');
+                modelUsage.forEach((count, model) => {
+                    console.log(`- ${model}: ${count}회`);
+                });
+                console.log('📊 modelUsage Map 크기:', modelUsage.size);
+            } else {
+                console.log('⚠️ generateModelDistributionData: 사용 가능한 이벤트 데이터가 없습니다.');
+                console.log('⚠️ rawEvents 값:', rawEvents);
+                return [];
+            }
+            
+            // 데이터를 배열로 변환하고 색상 추가
+            const colors = ['#4a9eff', '#4caf50', '#ff9800', '#f44336', '#9c27b0', '#00bcd4'];
+            const data = [];
+            let colorIndex = 0;
+            
+            modelUsage.forEach((count, model) => {
+                data.push({
+                    label: model,
+                    value: count,
+                    color: colors[colorIndex % colors.length]
+                });
+                colorIndex++;
+            });
+            
+            console.log(`📊 모델 분포 데이터 생성 완료: ${data.length}개 모델 (데이터 소스: ${rawEvents.length}개 이벤트)`);
+            console.log('📊 최종 데이터:', data);
+            return data;
+        }
+
+        // 파이 차트 그리기
+        function drawPieChart(ctx, width, height, data) {
+            const centerX = width / 2;
+            const centerY = height / 2;
+            const radius = Math.min(width, height) / 3;
+            
+            let total = data.reduce((sum, item) => sum + item.value, 0);
+            let currentAngle = 0;
+            
+            data.forEach(item => {
+                const sliceAngle = (item.value / total) * 2 * Math.PI;
+                
+                // 파이 슬라이스 그리기
+                ctx.beginPath();
+                ctx.moveTo(centerX, centerY);
+                ctx.arc(centerX, centerY, radius, currentAngle, currentAngle + sliceAngle);
+                ctx.closePath();
+                ctx.fillStyle = item.color;
+                ctx.fill();
+                
+                // 테두리 그리기
+                ctx.strokeStyle = '#1a1a1a';
+                ctx.lineWidth = 2;
+                ctx.stroke();
+                
+                // 레이블 그리기
+                const labelAngle = currentAngle + sliceAngle / 2;
+                const labelX = centerX + (radius * 0.7) * Math.cos(labelAngle);
+                const labelY = centerY + (radius * 0.7) * Math.sin(labelAngle);
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.textBaseline = 'middle';
+                ctx.fillText(`${item.label} (${item.value})`, labelX, labelY);
+                
+                currentAngle += sliceAngle;
+            });
+            
+            // 범례 그리기
+            drawPieChartLegend(ctx, width, height, data);
+        }
+
+        // 모델 사용 분포 막대 차트 그리기
+        function drawModelDistributionBarChart(ctx, width, height, data) {
+            console.log('🔍 drawModelDistributionBarChart 시작...');
+            console.log('📊 입력 데이터:', data);
+            console.log('📏 캔버스 크기:', width, 'x', height);
+            
+            if (data.length === 0) {
+                console.log('⚠️ 데이터가 비어있어 로딩 메시지를 표시합니다.');
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('데이터를 불러오는 중...', width / 2, height / 2);
+                return;
+            }
+            
+            const padding = 60;
+            const chartWidth = width - (padding * 2);
+            const chartHeight = height - (padding * 2);
+            const barWidth = chartWidth / data.length * 0.8;
+            const barSpacing = chartWidth / data.length * 0.2;
+            
+            // 최대값 계산
+            const maxValue = Math.max(...data.map(d => d.value));
+            
+            // Y축 그리기
+            ctx.strokeStyle = '#3a3a3a';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, height - padding);
+            ctx.stroke();
+            
+            // X축 그리기
+            ctx.beginPath();
+            ctx.moveTo(padding, height - padding);
+            ctx.lineTo(width - padding, height - padding);
+            ctx.stroke();
+            
+            // Y축 레이블
+            ctx.fillStyle = '#7a7a7a';
+            ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            
+            const ySteps = 5;
+            for (let i = 0; i <= ySteps; i++) {
+                const y = padding + (chartHeight / ySteps) * i;
+                const value = Math.round((maxValue / ySteps) * (ySteps - i));
+                ctx.fillText(value.toString(), padding - 10, y);
+            }
+            
+            // 막대 그리기
+            const colors = ['#4a9eff', '#4caf50', '#ff9800', '#f44336', '#9c27b0', '#00bcd4'];
+            
+            data.forEach((item, index) => {
+                const x = padding + (chartWidth / data.length) * index + barSpacing / 2;
+                const barHeight = (item.value / maxValue) * chartHeight;
+                const y = height - padding - barHeight;
+                
+                // 막대 그리기
+                ctx.fillStyle = colors[index % colors.length];
+                ctx.fillRect(x, y, barWidth, barHeight);
+                
+                // 막대 위에 값 표시
+                ctx.fillStyle = '#e1e1e1';
+                ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(item.value.toString(), x + barWidth / 2, y - 10);
+                
+                // X축 레이블 (모델명)
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(item.label, x + barWidth / 2, height - padding + 20);
+            });
+            
+            // 제목
+            ctx.fillStyle = '#e1e1e1';
+            ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('AI 모델별 사용 분포', width / 2, 25);
+        }
+        
+        // 파이 차트 범례 그리기
+        function drawPieChartLegend(ctx, width, height, data) {
+            const legendX = 20;
+            const legendY = height - 100;
+            const itemHeight = 20;
+            
+            data.forEach((item, index) => {
+                const y = legendY + index * itemHeight;
+                
+                // 색상 박스
+                ctx.fillStyle = item.color;
+                ctx.fillRect(legendX, y, 15, 15);
+                
+                // 텍스트
+                ctx.fillStyle = '#fff';
+                ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText(`${item.label}: ${item.value}회`, legendX + 20, y + 10);
+            });
+        }
+
+        // 비용 추이 라인 차트 생성
+        function createCostTrendChart() {
+            console.log('💰 createCostTrendChart 시작...');
+            console.log('💰 전역 변수 상태 확인:');
+            console.log('- currentRawEventsData:', currentRawEventsData ? currentRawEventsData.length : 'undefined');
+            console.log('- chartDataStore.rawEvents:', chartDataStore.rawEvents ? chartDataStore.rawEvents.length : 'undefined');
+            
+            const canvas = document.getElementById('costTrendChart');
+            if (!canvas) {
+                console.error('❌ costTrendChart 캔버스를 찾을 수 없습니다.');
+                return;
+            }
+            console.log('✅ 캔버스 찾음:', canvas);
+            
+            // Canvas 크기 설정
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = 300;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // 배경 설정
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, width, height);
+            
+            // 비용 데이터 생성
+            const costData = generateCostTrendData();
+            console.log('💰 생성된 비용 데이터:', costData);
+            
+            if (costData.length === 0) {
+                console.log('⚠️ 비용 데이터가 없습니다. 빈 차트를 표시합니다.');
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('비용 데이터를 불러오는 중...', width / 2, height / 2);
+                return;
+            }
+            
+            // 라인 차트 그리기
+            drawLineChart(ctx, width, height, costData);
+            console.log('✅ 비용 추이 차트 생성 완료');
+        }
+
+        // 비용 추이 데이터 생성
+        function generateCostTrendData() {
+            console.log('💰 generateCostTrendData 시작...');
+            const dailyCosts = new Map();
+            
+            // 통합 데이터 저장소에서 데이터 가져오기
+            const rawEvents = (chartDataStore.rawEvents && chartDataStore.rawEvents.length > 0) ? 
+                chartDataStore.rawEvents : (currentRawEventsData || []);
+            
+            console.log('💰 데이터 소스 확인:');
+            console.log('- chartDataStore.rawEvents:', chartDataStore.rawEvents ? chartDataStore.rawEvents.length : 0);
+            console.log('- currentRawEventsData:', currentRawEventsData ? currentRawEventsData.length : 0);
+            console.log('- 사용할 rawEvents.length:', rawEvents ? rawEvents.length : 0);
+            
+            if (rawEvents && rawEvents.length > 0) {
+                rawEvents.forEach(event => {
+                    const eventDate = new Date(parseInt(event.timestamp));
+                    const dateKey = eventDate.toISOString().split('T')[0];
+                    const cost = (event.requestsCosts || 0) / 100; // cents to dollars
+                    
+                    if (dailyCosts.has(dateKey)) {
+                        dailyCosts.set(dateKey, dailyCosts.get(dateKey) + cost);
+                    } else {
+                        dailyCosts.set(dateKey, cost);
+                    }
+                });
+            } else {
+                console.log('⚠️ generateCostTrendData: 사용 가능한 이벤트 데이터가 없습니다.');
+                return [];
+            }
+            
+            // 날짜순으로 정렬
+            const sortedDates = Array.from(dailyCosts.keys()).sort();
+            const data = sortedDates.map(date => ({
+                date: date,
+                cost: dailyCosts.get(date)
+            }));
+            
+            console.log(`📊 비용 추이 데이터 생성 완료: ${data.length}일간의 데이터 (데이터 소스: ${rawEvents.length}개 이벤트)`);
+            return data;
+        }
+
+        // 라인 차트 그리기
+        function drawLineChart(ctx, width, height, data) {
+            if (data.length === 0) {
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('데이터를 불러오는 중...', width / 2, height / 2);
+                return;
+            }
+            
+            const padding = 40;
+            const chartWidth = width - 2 * padding;
+            const chartHeight = height - 2 * padding;
+            
+            // Y축 최대값 계산
+            const maxCost = Math.max(...data.map(d => d.cost));
+            const minCost = Math.min(...data.map(d => d.cost));
+            const costRange = maxCost - minCost;
+            
+            // 그리드 그리기
+            ctx.strokeStyle = '#3a3a3a';
+            ctx.lineWidth = 1;
+            
+            // 가로 그리드
+            for (let i = 0; i <= 5; i++) {
+                const y = padding + (chartHeight / 5) * i;
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(width - padding, y);
+                ctx.stroke();
+            }
+            
+            // 세로 그리드
+            for (let i = 0; i <= data.length - 1; i++) {
+                const x = padding + (chartWidth / (data.length - 1)) * i;
+                ctx.beginPath();
+                ctx.moveTo(x, padding);
+                ctx.lineTo(x, height - padding);
+                ctx.stroke();
+            }
+            
+            // 라인 그리기
+            ctx.strokeStyle = '#4a9eff';
+            ctx.lineWidth = 3;
+            ctx.beginPath();
+            
+            data.forEach((point, index) => {
+                const x = padding + (chartWidth / (data.length - 1)) * index;
+                const y = height - padding - ((point.cost - minCost) / costRange) * chartHeight;
+                
+                if (index === 0) {
+                    ctx.moveTo(x, y);
+                } else {
+                    ctx.lineTo(x, y);
+                }
+            });
+            
+            ctx.stroke();
+            
+            // 데이터 포인트 그리기
+            data.forEach((point, index) => {
+                const x = padding + (chartWidth / (data.length - 1)) * index;
+                const y = height - padding - ((point.cost - minCost) / costRange) * chartHeight;
+                
+                ctx.fillStyle = '#4a9eff';
+                ctx.beginPath();
+                ctx.arc(x, y, 4, 0, Math.PI * 2);
+                ctx.fill();
+            });
+            
+            // 축 레이블 그리기
+            ctx.fillStyle = '#7a7a7a';
+            ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.textAlign = 'center';
+            
+            // X축 레이블 (날짜)
+            data.forEach((point, index) => {
+                const x = padding + (chartWidth / (data.length - 1)) * index;
+                const date = new Date(point.date);
+                const dateStr = `${date.getMonth() + 1}/${date.getDate()}`;
+                ctx.fillText(dateStr, x, height - 10);
+            });
+            
+            // Y축 레이블 (비용)
+            for (let i = 0; i <= 5; i++) {
+                const y = padding + (chartHeight / 5) * i;
+                const cost = maxCost - (costRange / 5) * i;
+                ctx.fillText(`$${cost.toFixed(2)}`, 10, y + 4);
+            }
+        }
+
+        // 활동 유형 분포 바 차트 생성
+        function createActivityTypeChart() {
+            console.log('📊 createActivityTypeChart 시작...');
+            const canvas = document.getElementById('activityTypeChart');
+            if (!canvas) {
+                console.error('❌ activityTypeChart 캔버스를 찾을 수 없습니다.');
+                return;
+            }
+            console.log('✅ 캔버스 찾음:', canvas);
+            
+            // Canvas 크기 설정
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = 300;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // 배경 설정
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, width, height);
+            
+            // 활동 유형 데이터 생성
+            const activityData = generateActivityTypeData();
+            console.log('📊 생성된 활동 유형 데이터:', activityData);
+            
+            if (activityData.length === 0) {
+                console.log('⚠️ 활동 유형 데이터가 없습니다. 빈 차트를 표시합니다.');
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('활동 데이터를 불러오는 중...', width / 2, height / 2);
+                return;
+            }
+            
+            // 바 차트 그리기
+            drawBarChart(ctx, width, height, activityData);
+            console.log('✅ 활동 유형 분포 차트 생성 완료');
+        }
+
+        // 활동 유형 데이터 생성
+        function generateActivityTypeData() {
+            console.log('📊 generateActivityTypeData 시작...');
+            const activityTypes = new Map();
+            
+            // 통합 데이터 저장소에서 데이터 가져오기
+            const rawEvents = (chartDataStore.rawEvents && chartDataStore.rawEvents.length > 0) ? 
+                chartDataStore.rawEvents : (currentRawEventsData || []);
+            
+            console.log('📊 데이터 소스 확인:');
+            console.log('- chartDataStore.rawEvents:', chartDataStore.rawEvents ? chartDataStore.rawEvents.length : 0);
+            console.log('- currentRawEventsData:', currentRawEventsData ? currentRawEventsData.length : 0);
+            console.log('- 사용할 rawEvents.length:', rawEvents ? rawEvents.length : 0);
+            
+            if (rawEvents && rawEvents.length > 0) {
+                rawEvents.forEach(event => {
+                    const type = event.kind || 'unknown';
+                    activityTypes.set(type, (activityTypes.get(type) || 0) + 1);
+                });
+            } else {
+                console.log('⚠️ generateActivityTypeData: 사용 가능한 이벤트 데이터가 없습니다.');
+                return [];
+            }
+            
+            // 데이터를 배열로 변환하고 색상 추가
+            const colors = ['#4a9eff', '#4caf50', '#ff9800', '#f44336', '#9c27b0'];
+            const data = [];
+            let colorIndex = 0;
+            
+            activityTypes.forEach((count, type) => {
+                data.push({
+                    label: type,
+                    value: count,
+                    color: colors[colorIndex % colors.length]
+                });
+                colorIndex++;
+            });
+            
+            console.log(`📊 활동 유형 데이터 생성 완룉: ${data.length}개 유형 (데이터 소스: ${rawEvents.length}개 이벤트)`);
+            return data;
+        }
+
+        // 바 차트 그리기
+        function drawBarChart(ctx, width, height, data) {
+            if (data.length === 0) {
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('데이터를 불러오는 중...', width / 2, height / 2);
+                return;
+            }
+            
+            const padding = 60;
+            const chartWidth = width - 2 * padding;
+            const chartHeight = height - 2 * padding;
+            const barWidth = chartWidth / data.length;
+            const maxValue = Math.max(...data.map(d => d.value));
+            
+            // 그리드 그리기
+            ctx.strokeStyle = '#3a3a3a';
+            ctx.lineWidth = 1;
+            
+            // 가로 그리드
+            for (let i = 0; i <= 5; i++) {
+                const y = padding + (chartHeight / 5) * i;
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(width - padding, y);
+                ctx.stroke();
+            }
+            
+            // 바 그리기
+            data.forEach((item, index) => {
+                const x = padding + barWidth * index + barWidth * 0.1;
+                const barHeight = (item.value / maxValue) * chartHeight;
+                const y = height - padding - barHeight;
+                
+                // 바 그리기
+                ctx.fillStyle = item.color;
+                ctx.fillRect(x, y, barWidth * 0.8, barHeight);
+                
+                // 값 텍스트
+                ctx.fillStyle = '#fff';
+                ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(item.value.toString(), x + barWidth * 0.4, y - 10);
+                
+                // 레이블
+                ctx.fillStyle = '#7a7a7a';
+                ctx.fillText(item.label, x + barWidth * 0.4, height - 10);
+            });
+            
+            // Y축 레이블
+            ctx.fillStyle = '#7a7a7a';
+            ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.textAlign = 'right';
+            
+            for (let i = 0; i <= 5; i++) {
+                const y = padding + (chartHeight / 5) * i;
+                const value = maxValue - (maxValue / 5) * i;
+                ctx.fillText(value.toString(), padding - 10, y + 4);
+            }
+        }
+
+        // 사용자 활동 히트맵 차트 생성 (막대 그래프)
+        function createUserHeatmapChart() {
+            console.log('🔥 createUserHeatmapChart 시작...');
+            const canvas = document.getElementById('userHeatmapChart');
+            if (!canvas) {
+                console.error('❌ userHeatmapChart 캔버스를 찾을 수 없습니다.');
+                return;
+            }
+            console.log('✅ 캔버스 찾음:', canvas);
+            
+            // Canvas 크기 설정
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = 300;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            // 배경 설정
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, width, height);
+            
+            // 히트맵 데이터 생성 (막대 그래프용)
+            const heatmapData = generateHeatmapBarData();
+            console.log('🔥 생성된 히트맵 데이터:', heatmapData);
+            
+            if (heatmapData.length === 0) {
+                console.log('⚠️ 히트맵 데이터가 없습니다. 빈 차트를 표시합니다.');
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('활동 데이터를 불러오는 중...', width / 2, height / 2);
+                return;
+            }
+            
+            // 막대 그래프 그리기
+            drawHeatmapBarChart(ctx, width, height, heatmapData);
+            console.log('✅ 사용자 활동 히트맵 차트 생성 완료');
+        }
+
+        // 히트맵 막대 그래프용 데이터 생성
+        function generateHeatmapBarData() {
+            console.log('🔥 generateHeatmapBarData 시작...');
+            const userActivityMap = new Map();
+            
+            // 통합 데이터 저장소에서 데이터 가져오기
+            const members = (chartDataStore.members && chartDataStore.members.length > 0) ? 
+                chartDataStore.members : (currentMembers || []);
+            const rawEvents = (chartDataStore.rawEvents && chartDataStore.rawEvents.length > 0) ? 
+                chartDataStore.rawEvents : (currentRawEventsData || []);
+            
+            console.log('🔥 데이터 소스 확인:');
+            console.log('- chartDataStore.members:', chartDataStore.members ? chartDataStore.members.length : 0);
+            console.log('- currentMembers:', currentMembers ? currentMembers.length : 0);
+            console.log('- chartDataStore.rawEvents:', chartDataStore.rawEvents ? chartDataStore.rawEvents.length : 0);
+            console.log('- currentRawEventsData:', currentRawEventsData ? currentRawEventsData.length : 0);
+            
+            if (!members || members.length === 0) {
+                console.log('⚠️ generateHeatmapBarData: 사용 가능한 멤버 데이터가 없습니다.');
+                return [];
+            }
+            
+            if (!rawEvents || rawEvents.length === 0) {
+                console.log('⚠️ generateHeatmapBarData: 사용 가능한 이벤트 데이터가 없습니다.');
+                return [];
+            }
+            
+            // 사용자별 활동 수 계산
+            members.forEach((member, userIndex) => {
+                const userEmail = member.email;
+                const userName = member.name;
+                const userId = userEmail.split('@')[0]; // ID 추출
+                
+                const userEvents = rawEvents.filter(event => 
+                    event.userEmail === userEmail || event.email === userEmail
+                );
+                
+                const totalActivity = userEvents.length;
+                
+                userActivityMap.set(userIndex, {
+                    name: userName,
+                    email: userEmail,
+                    id: userId,
+                    totalActivity: totalActivity
+                });
+            });
+            
+            // 활동 수로 정렬하여 상위 20명 선택
+            const sortedUsers = Array.from(userActivityMap.entries())
+                .sort((a, b) => b[1].totalActivity - a[1].totalActivity)
+                .slice(0, 20);
+            
+            const data = sortedUsers.map(([userIndex, userData]) => ({
+                userId: userData.id,
+                userName: userData.name,
+                email: userData.email,
+                activity: userData.totalActivity
+            }));
+            
+            console.log(`🔥 히트맵 막대 데이터 생성 완료: ${data.length}명의 사용자 (데이터 소스: ${members.length}명, ${rawEvents.length}개 이벤트)`);
+            console.log('🔥 최종 데이터:', data);
+            return data;
+        }
+
+        // 기존 히트맵 데이터 생성 (참고용)
+        function generateHeatmapData() {
+            const userActivityMap = new Map();
+            
+            // 통합 데이터 저장소에서 데이터 가져오기
+            const members = chartDataStore.members.length > 0 ? chartDataStore.members : currentMembers;
+            const rawEvents = chartDataStore.rawEvents.length > 0 ? chartDataStore.rawEvents : currentRawEventsData;
+            
+            if (!members || members.length === 0) {
+                console.log('⚠️ generateHeatmapData: 사용 가능한 멤버 데이터가 없습니다.');
+                return [];
+            }
+            
+            if (!rawEvents || rawEvents.length === 0) {
+                console.log('⚠️ generateHeatmapData: 사용 가능한 이벤트 데이터가 없습니다.');
+                return [];
+            }
+            
+            members.forEach((member, userIndex) => {
+                const userEmail = member.email;
+                const userName = member.name;
+                
+                const userEvents = rawEvents.filter(event => 
+                    event.userEmail === userEmail
+                );
+                
+                const dailyActivity = new Map();
+                
+                userEvents.forEach(event => {
+                    const eventDate = new Date(parseInt(event.timestamp));
+                    const dateKey = eventDate.toISOString().split('T')[0];
+                    
+                    if (dailyActivity.has(dateKey)) {
+                        dailyActivity.set(dateKey, dailyActivity.get(dateKey) + 1);
+                    } else {
+                        dailyActivity.set(dateKey, 1);
+                    }
+                });
+                
+                userActivityMap.set(userIndex, {
+                    name: userName,
+                    email: userEmail,
+                    dailyActivity: dailyActivity
+                });
+            });
+            
+            const data = [];
+            const days = 7;
+            
+            for (let userIndex = 0; userIndex < Math.min(userActivityMap.size, 5); userIndex++) {
+                const userData = userActivityMap.get(userIndex);
+                if (!userData) continue;
+                
+                for (let dayIndex = 0; dayIndex < days; dayIndex++) {
+                    const targetDate = new Date();
+                    targetDate.setDate(targetDate.getDate() - (days - 1 - dayIndex));
+                    const dateKey = targetDate.toISOString().split('T')[0];
+                    
+                    const activity = userData.dailyActivity.get(dateKey) || 0;
+                    
+                    data.push({
+                        user: userIndex,
+                        day: dayIndex,
+                        activity: activity,
+                        userName: userData.name
+                    });
+                }
+            }
+            
+            console.log(`📊 히트맵 데이터 생성 완료: ${data.length}개 셀 (데이터 소스: ${members.length}명, ${rawEvents.length}개 이벤트)`);
+            return data;
+        }
+
+        // 히트맵 그리기
+        function drawHeatmap(ctx, width, height, data) {
+            if (data.length === 0) {
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('데이터를 불러오는 중...', width / 2, height / 2);
+                return;
+            }
+            
+            const cellWidth = (width - 100) / 7;
+            const cellHeight = (height - 80) / 5;
+            const startX = 80;
+            const startY = 20;
+            const cellSpacing = 8; // 셀 간격 추가
+            
+            const maxActivity = Math.max(...data.map(d => d.activity));
+            
+            data.forEach(item => {
+                const x = startX + item.day * cellWidth;
+                const y = startY + item.user * cellHeight;
+                
+                const intensity = item.activity / maxActivity;
+                const color = getHeatmapColor(intensity);
+                
+                ctx.fillStyle = color;
+                // 셀 간격을 고려하여 크기 조정
+                ctx.fillRect(x + cellSpacing/2, y + cellSpacing/2, cellWidth - cellSpacing, cellHeight - cellSpacing);
+                
+                if (item.activity > 0) {
+                    ctx.fillStyle = intensity > 0.5 ? '#000' : '#fff';
+                    ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.textBaseline = 'middle';
+                    ctx.fillText(item.activity.toString(), x + cellWidth/2, y + cellHeight/2);
+                }
+            });
+        }
+
+        // 히트맵 막대 그래프 그리기
+        function drawHeatmapBarChart(ctx, width, height, data) {
+            if (data.length === 0) {
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('데이터를 불러오는 중...', width / 2, height / 2);
+                return;
+            }
+            
+            const padding = 80;
+            const chartWidth = width - 2 * padding;
+            const chartHeight = height - 2 * padding;
+            const barWidth = chartWidth / data.length;
+            const colors = ['#4a9eff', '#4caf50', '#ff9800', '#f44336', '#9c27b0'];
+            
+            // 최대 활동 수 찾기
+            const maxActivity = Math.max(...data.map(item => item.activity));
+            
+            // Y축 레이블 그리기
+            ctx.fillStyle = '#7a7a7a';
+            ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            
+            const ySteps = 5;
+            for (let i = 0; i <= ySteps; i++) {
+                const y = padding + (chartHeight / ySteps) * i;
+                const value = Math.round((maxActivity / ySteps) * (ySteps - i));
+                ctx.fillText(value.toString(), padding - 10, y);
+            }
+            
+            // 막대 그리기
+            data.forEach((item, index) => {
+                const x = padding + (chartWidth / data.length) * index + barWidth * 0.1;
+                const barHeight = (item.activity / maxActivity) * chartHeight;
+                const y = height - padding - barHeight;
+                
+                // 막대 그리기
+                ctx.fillStyle = colors[index % colors.length];
+                ctx.fillRect(x, y, barWidth * 0.8, barHeight);
+                
+                // 막대 위에 값 표시
+                ctx.fillStyle = '#e1e1e1';
+                ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(item.activity.toString(), x + barWidth * 0.4, y - 10);
+                
+                // X축 레이블 (사용자 ID)
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(item.userId.substring(0, 15), x + barWidth * 0.4, height - padding + 20);
+            });
+            
+            // 제목
+            ctx.fillStyle = '#e1e1e1';
+            ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('사용자별 활동 히트맵 (상위 20명)', width / 2, 25);
+        }
+
+        // 히트맵 색상 계산
+        function getHeatmapColor(intensity) {
+            const r = Math.floor(255 * intensity);
+            const g = Math.floor(100 * (1 - intensity));
+            const b = Math.floor(255 * (1 - intensity));
+            return `rgb(${r}, ${g}, ${b})`;
+        }
+
+        // 히트맵 레이블 그리기
+        function drawHeatmapLabels(ctx, width, height) {
+            const users = [];
+            if (currentMembers && currentMembers.length > 0) {
+                currentMembers.slice(0, 5).forEach(member => {
+                    users.push(member.name);
+                });
+            }
+            
+            const days = [];
+            for (let i = 6; i >= 0; i--) {
+                const date = new Date();
+                date.setDate(date.getDate() - i);
+                const dayName = date.toLocaleDateString('ko-KR', { weekday: 'short' });
+                days.push(dayName);
+            }
+            
+            ctx.fillStyle = '#7a7a7a';
+            ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.textAlign = 'center';
+            
+            const cellHeight = (height - 80) / 5;
+            users.forEach((user, index) => {
+                const y = 20 + index * cellHeight + cellHeight/2;
+                const displayName = user.length > 8 ? user.substring(0, 8) + '...' : user;
+                ctx.fillText(displayName, 40, y);
+            });
+            
+            const cellWidth = (width - 100) / 7;
+            days.forEach((day, index) => {
+                const x = 80 + index * cellWidth + cellWidth/2;
+                ctx.fillText(day, x, 10);
+            });
+        }
+
+        // 비용 효율성 분석 차트 생성
+        function createCostEfficiencyChart() {
+            const canvas = document.getElementById('costEfficiencyChart');
+            if (!canvas) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = 300;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, width, height);
+            
+            const efficiencyData = generateCostEfficiencyData();
+            drawScatterPlot(ctx, width, height, efficiencyData);
+        }
+
+        // 비용 효율성 데이터 생성
+        function generateCostEfficiencyData() {
+            const userEfficiency = new Map();
+            
+            // 통합 데이터 저장소에서 데이터 가져오기
+            const members = chartDataStore.members.length > 0 ? chartDataStore.members : currentMembers;
+            const rawEvents = chartDataStore.rawEvents.length > 0 ? chartDataStore.rawEvents : currentRawEventsData;
+            
+            if (!members || members.length === 0) {
+                console.log('⚠️ generateCostEfficiencyData: 사용 가능한 멤버 데이터가 없습니다.');
+                return [];
+            }
+            
+            if (!rawEvents || rawEvents.length === 0) {
+                console.log('⚠️ generateCostEfficiencyData: 사용 가능한 이벤트 데이터가 없습니다.');
+                return [];
+            }
+            
+            members.forEach(member => {
+                const userEmail = member.email;
+                const userName = member.name;
+                
+                const userEvents = rawEvents.filter(event => 
+                    event.userEmail === userEmail
+                );
+                
+                const totalRequests = userEvents.length;
+                const totalCost = userEvents.reduce((sum, event) => 
+                    sum + (event.requestsCosts || 0), 0) / 100;
+                
+                if (totalRequests > 0) {
+                    userEfficiency.set(userName, {
+                        requests: totalRequests,
+                        cost: totalCost,
+                        efficiency: totalCost / totalRequests
+                    });
+                }
+            });
+            
+            const result = Array.from(userEfficiency.values());
+            console.log(`📊 비용 효율성 데이터 생성 완룉: ${result.length}명의 사용자 (데이터 소스: ${members.length}명, ${rawEvents.length}개 이벤트)`);
+            return result;
+        }
+
+        // 스캐터 플롯 그리기
+        function drawScatterPlot(ctx, width, height, data) {
+            if (data.length === 0) {
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('데이터를 불러오는 중...', width / 2, height / 2);
+                return;
+            }
+            
+            const padding = 60;
+            const chartWidth = width - 2 * padding;
+            const chartHeight = height - 2 * padding;
+            
+            const maxRequests = Math.max(...data.map(d => d.requests));
+            const maxCost = Math.max(...data.map(d => d.cost));
+            
+            // 그리드 그리기
+            ctx.strokeStyle = '#3a3a3a';
+            ctx.lineWidth = 1;
+            
+            for (let i = 0; i <= 5; i++) {
+                const x = padding + (chartWidth / 5) * i;
+                const y = padding + (chartHeight / 5) * i;
+                
+                ctx.beginPath();
+                ctx.moveTo(x, padding);
+                ctx.lineTo(x, height - padding);
+                ctx.stroke();
+                
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(width - padding, y);
+                ctx.stroke();
+            }
+            
+            // 데이터 포인트 그리기
+            data.forEach(item => {
+                const x = padding + (item.requests / maxRequests) * chartWidth;
+                const y = height - padding - (item.cost / maxCost) * chartHeight;
+                
+                ctx.fillStyle = '#4a9eff';
+                ctx.beginPath();
+                ctx.arc(x, y, 6, 0, Math.PI * 2);
+                ctx.fill();
+                
+                ctx.fillStyle = '#fff';
+                ctx.font = '10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${item.requests}`, x, y - 10);
+            });
+            
+            // 축 레이블
+            ctx.fillStyle = '#7a7a7a';
+            ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText('요청 수', width / 2, height - 10);
+            
+            ctx.save();
+            ctx.translate(10, height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('비용 ($)', 0, 0);
+            ctx.restore();
+        }
+
+        // 모델 선호도 차트 생성
+        function createModelPreferenceChart() {
+            const canvas = document.getElementById('modelPreferenceChart');
+            if (!canvas) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = 300;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, width, height);
+            
+            const preferenceData = generateModelPreferenceData();
+            drawStackedBarChart(ctx, width, height, preferenceData);
+        }
+
+        // 모델 선호도 데이터 생성 (활동 기준 상위 20명, 활동 없는 사용자 제외)
+        function generateModelPreferenceData() {
+            // 통합 데이터 저장소에서 데이터 가져오기
+            const members = chartDataStore.members.length > 0 ? chartDataStore.members : currentMembers;
+            const rawEvents = chartDataStore.rawEvents.length > 0 ? chartDataStore.rawEvents : currentRawEventsData;
+            
+            if (!members || members.length === 0) {
+                console.log('⚠️ generateModelPreferenceData: 사용 가능한 멤버 데이터가 없습니다.');
+                return new Map();
+            }
+            
+            if (!rawEvents || rawEvents.length === 0) {
+                console.log('⚠️ generateModelPreferenceData: 사용 가능한 이벤트 데이터가 없습니다.');
+                return new Map();
+            }
+            
+            // 사용자별 활동 및 모델 사용량 계산
+            const userActivityData = [];
+            members.forEach(member => {
+                const userEmail = member.email;
+                const userName = member.name;
+                const userId = userEmail.split('@')[0];
+                
+                const userEvents = rawEvents.filter(event => 
+                    event.userEmail === userEmail || event.email === userEmail
+                );
+                
+                // 활동이 없는 사용자는 제외
+                if (userEvents.length === 0) {
+                    return;
+                }
+                
+                const modelUsage = new Map();
+                userEvents.forEach(event => {
+                    const model = event.model || 'unknown';
+                    modelUsage.set(model, (modelUsage.get(model) || 0) + 1);
+                });
+                
+                userActivityData.push({
+                    userName: userName,
+                    userId: userId,
+                    email: userEmail,
+                    totalActivity: userEvents.length,
+                    modelUsage: modelUsage
+                });
+            });
+            
+            // 활동 수로 정렬하여 상위 20명 선택
+            const sortedUsers = userActivityData
+                .sort((a, b) => b.totalActivity - a.totalActivity)
+                .slice(0, 20);
+            
+            // Map 형태로 변환 (기존 코드와의 호환성을 위해)
+            const userModelPreference = new Map();
+            sortedUsers.forEach(user => {
+                userModelPreference.set(user.userId, user.modelUsage); // userId로 키 변경
+            });
+            
+            console.log(`📊 모델 선호도 데이터 생성 완료: ${userModelPreference.size}명의 활성 사용자 (전체 ${members.length}명 중 상위 20명, ${rawEvents.length}개 이벤트)`);
+            return userModelPreference;
+        }
+
+        // 스택 바 차트 그리기
+        function drawStackedBarChart(ctx, width, height, data) {
+            if (data.size === 0) {
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('데이터를 불러오는 중...', width / 2, height / 2);
+                return;
+            }
+            
+            const padding = 80;
+            const chartWidth = width - 2 * padding;
+            const chartHeight = height - 2 * padding;
+            const barWidth = chartWidth / data.size;
+            const colors = ['#4a9eff', '#4caf50', '#ff9800', '#f44336', '#9c27b0'];
+            
+            let userIndex = 0;
+            data.forEach((modelUsage, userName) => {
+                const x = padding + barWidth * userIndex + barWidth * 0.1;
+                const totalUsage = Array.from(modelUsage.values()).reduce((sum, count) => sum + count, 0);
+                
+                // 사용자 ID (userName이 이미 userId로 설정됨)
+                const userId = userName;
+                
+                let currentY = height - padding;
+                let colorIndex = 0;
+                
+                modelUsage.forEach((count, model) => {
+                    const barHeight = (count / totalUsage) * chartHeight;
+                    currentY -= barHeight;
+                    
+                    ctx.fillStyle = colors[colorIndex % colors.length];
+                    ctx.fillRect(x, currentY, barWidth * 0.8, barHeight);
+                    
+                    if (barHeight > 20) {
+                        ctx.fillStyle = '#fff';
+                        ctx.font = '10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                        ctx.textAlign = 'center';
+                        ctx.fillText(model, x + barWidth * 0.4, currentY + barHeight / 2);
+                    }
+                    
+                    colorIndex++;
+                });
+                
+                // 사용자 ID (X축) - 최대 15자로 제한
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(userId.substring(0, 15), x + barWidth * 0.4, height - 10);
+                
+                userIndex++;
+            });
+        }
+
+        // 사용자별 성과 차트 생성
+        function createUserPerformanceChart() {
+            console.log('🏆 createUserPerformanceChart 시작');
+            
+            const canvas = document.getElementById('userPerformanceChart');
+            if (!canvas) {
+                console.error('❌ userPerformanceChart 캔버스를 찾을 수 없습니다.');
+                return;
+            }
+            
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = 300;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            console.log(`📏 캔버스 크기: ${width}x${height}`);
+            
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, width, height);
+            
+            const performanceData = generateUserPerformanceData();
+            console.log(`📊 성과 데이터 생성 완료: ${performanceData.length}명의 사용자`);
+            
+            if (performanceData.length === 0) {
+                console.log('⚠️ 성과 데이터가 없습니다. 로딩 메시지를 표시합니다.');
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('데이터를 불러오는 중...', width / 2, height / 2);
+                return;
+            }
+            
+            console.log('🔄 차트 그리기 시작...', performanceData);
+            drawPerformanceChart(ctx, width, height, performanceData);
+            console.log('✅ 사용자별 성과 차트 생성 완료');
+        }
+
+        // 필터링된 사용자 활동 히트맵 차트 생성 (요일별 막대 그래프)
+        function createFilteredUserHeatmapChart(searchTerm) {
+            console.log('🔥 createFilteredUserHeatmapChart 시작:', searchTerm);
+            const canvas = document.getElementById('userHeatmapChart');
+            if (!canvas) {
+                console.error('❌ userHeatmapChart 캔버스를 찾을 수 없습니다.');
+                return;
+            }
+            
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = 300;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, width, height);
+            
+            // 검색된 사용자의 요일별 활동 데이터 생성
+            const weeklyData = generateWeeklyActivityData(searchTerm);
+            console.log('🔥 생성된 요일별 데이터:', weeklyData);
+            
+            if (!weeklyData || !weeklyData.data || weeklyData.data.length === 0) {
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(`검색 결과가 없습니다: "${searchTerm}"`, width / 2, height / 2);
+                return;
+            }
+            
+            // 요일별 막대 그래프 그리기
+            drawWeeklyBarChart(ctx, width, height, weeklyData.data, weeklyData.userName);
+            console.log('✅ 필터링된 사용자 활동 히트맵 차트 생성 완료');
+        }
+
+        // 요일별 활동 데이터 생성
+        function generateWeeklyActivityData(searchTerm) {
+            console.log('🔥 generateWeeklyActivityData 시작:', searchTerm);
+            
+            const members = (chartDataStore.members && chartDataStore.members.length > 0) ? 
+                chartDataStore.members : (currentMembers || []);
+            const rawEvents = (chartDataStore.rawEvents && chartDataStore.rawEvents.length > 0) ? 
+                chartDataStore.rawEvents : (currentRawEventsData || []);
+            
+            if (!members || members.length === 0 || !rawEvents || rawEvents.length === 0) {
+                console.log('⚠️ 데이터가 부족합니다.');
+                return [];
+            }
+            
+            // 검색어와 일치하는 사용자 찾기 (ID 기반)
+            const matchedUser = members.find(member => {
+                const emailId = member.email.split('@')[0];
+                return emailId.toLowerCase() === searchTerm.toLowerCase();
+            });
+            
+            if (!matchedUser) {
+                console.log('⚠️ 검색된 사용자를 찾을 수 없습니다.');
+                return null;
+            }
+            
+            // 해당 사용자의 이벤트 필터링
+            const userEvents = rawEvents.filter(event => 
+                event.userEmail === matchedUser.email || event.email === matchedUser.email
+            );
+            
+            // 요일별 활동 수 계산
+            const weeklyActivity = new Map();
+            const dayNames = ['일', '월', '화', '수', '목', '금', '토'];
+            
+            userEvents.forEach(event => {
+                const eventDate = new Date(parseInt(event.timestamp));
+                const dayOfWeek = eventDate.getDay();
+                const dayName = dayNames[dayOfWeek];
+                
+                weeklyActivity.set(dayName, (weeklyActivity.get(dayName) || 0) + 1);
+            });
+            
+            // 모든 요일에 대해 데이터 생성 (활동이 없는 요일은 0)
+            const data = dayNames.map(dayName => ({
+                day: dayName,
+                activity: weeklyActivity.get(dayName) || 0
+            }));
+            
+            console.log(`🔥 요일별 활동 데이터 생성 완료: ${matchedUser.name} (${data.length}일)`);
+            console.log('🔥 최종 데이터:', data);
+            return {
+                data: data,
+                userName: matchedUser.name,
+                userEmail: matchedUser.email
+            };
+        }
+
+        // 요일별 막대 그래프 그리기
+        function drawWeeklyBarChart(ctx, width, height, data, userName) {
+            const padding = 80;
+            const chartWidth = width - 2 * padding;
+            const chartHeight = height - 2 * padding;
+            const barWidth = chartWidth / data.length;
+            const colors = ['#4a9eff', '#4caf50', '#ff9800', '#f44336', '#9c27b0', '#00bcd4', '#ff5722'];
+            
+            // 최대 활동 수 찾기
+            const maxActivity = Math.max(...data.map(item => item.activity));
+            
+            // Y축 레이블 그리기 (히트수)
+            ctx.fillStyle = '#7a7a7a';
+            ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            
+            const ySteps = 5;
+            for (let i = 0; i <= ySteps; i++) {
+                const y = padding + (chartHeight / ySteps) * i;
+                const value = Math.round((maxActivity / ySteps) * (ySteps - i));
+                ctx.fillText(value.toString(), padding - 10, y);
+            }
+            
+            // Y축 제목 (히트수)
+            ctx.fillStyle = '#7a7a7a';
+            ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.save();
+            ctx.translate(20, height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('히트수', 0, 0);
+            ctx.restore();
+            
+            // 막대 그리기
+            data.forEach((item, index) => {
+                const x = padding + (chartWidth / data.length) * index + barWidth * 0.1;
+                const barHeight = maxActivity > 0 ? (item.activity / maxActivity) * chartHeight : 0;
+                const y = height - padding - barHeight;
+                
+                // 막대 그리기
+                ctx.fillStyle = colors[index % colors.length];
+                ctx.fillRect(x, y, barWidth * 0.8, barHeight);
+                
+                // 막대 위에 값 표시
+                ctx.fillStyle = '#e1e1e1';
+                ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(item.activity.toString(), x + barWidth * 0.4, y - 10);
+                
+                // X축 레이블 (요일)
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(item.day, x + barWidth * 0.4, height - padding + 20);
+            });
+            
+            // 제목
+            ctx.fillStyle = '#e1e1e1';
+            ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${userName}의 요일별 히트수`, width / 2, 25);
+        }
+
+        // 필터링된 사용자별 성과 차트 생성
+        function createFilteredUserPerformanceChart(searchTerm) {
+            const canvas = document.getElementById('userPerformanceChart');
+            if (!canvas) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = 300;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, width, height);
+            
+            // 전체 성과 데이터에서 검색어와 일치하는 사용자만 필터링
+            const allPerformanceData = generateUserPerformanceData();
+            const filteredData = allPerformanceData.filter(user => 
+                user.name.toLowerCase().includes(searchTerm.toLowerCase()) ||
+                user.email.toLowerCase().includes(searchTerm.toLowerCase())
+            );
+            
+            if (filteredData.length === 0) {
+                // 검색 결과가 없을 때 메시지 표시
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(`검색 결과가 없습니다: "${searchTerm}"`, width / 2, height / 2);
+                return;
+            }
+            
+            // 필터링된 데이터로 차트 그리기
+            drawPerformanceChart(ctx, width, height, filteredData);
+            
+            console.log(`✅ 필터링된 사용자별 성과 차트 생성 완료: "${searchTerm}" - ${filteredData.length}명의 사용자`);
+        }
+
+        // 필터링된 사용자 활동 히트맵 차트 생성 (요일별 히트수)
+        function createFilteredUserHeatmapChart(searchTerm) {
+            console.log('🔥 createFilteredUserHeatmapChart 시작:', searchTerm);
+            const canvas = document.getElementById('userHeatmapChart');
+            if (!canvas) {
+                console.error('❌ userHeatmapChart 캔버스를 찾을 수 없습니다.');
+                return;
+            }
+            
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = 300;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, width, height);
+            
+            // 검색된 사용자의 요일별 활동 데이터 생성
+            const weeklyData = generateWeeklyActivityData(searchTerm);
+            console.log('🔥 생성된 요일별 데이터:', weeklyData);
+            
+            if (!weeklyData || !weeklyData.data || weeklyData.data.length === 0) {
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(`검색 결과가 없습니다: "${searchTerm}"`, width / 2, height / 2);
+                return;
+            }
+            
+            // 요일별 막대 그래프 그리기
+            drawWeeklyBarChart(ctx, width, height, weeklyData.data, weeklyData.userName);
+            console.log('✅ 필터링된 사용자 활동 히트맵 차트 생성 완료');
+        }
+
+        // 필터링된 모델 선호도 차트 생성
+        function createFilteredModelPreferenceChart(searchTerm) {
+            const canvas = document.getElementById('modelPreferenceChart');
+            if (!canvas) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = 300;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, width, height);
+            
+            // 검색 결과가 없을 때 메시지 표시
+            ctx.fillStyle = '#7a7a7a';
+            ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(`모델 선호도 검색 기능 준비 중...`, width / 2, height / 2);
+            
+            console.log(`✅ 필터링된 모델 선호도 차트 생성 완료: "${searchTerm}"`);
+        }
+
+        // 사용자별 성과 데이터 생성
+        function generateUserPerformanceData() {
+            const userPerformance = [];
+            
+            // 현재 데이터에서 가져오기 (chartDataStore 우선, 없으면 전역 변수 사용)
+            const members = (chartDataStore.members && chartDataStore.members.length > 0) ? 
+                chartDataStore.members : (currentMembersData || []);
+            const rawEvents = (chartDataStore.rawEvents && chartDataStore.rawEvents.length > 0) ? 
+                chartDataStore.rawEvents : (currentRawEventsData || []);
+            
+            console.log(`🔍 사용자별 성과 데이터 생성 시작: 멤버 ${members.length}명, 이벤트 ${rawEvents.length}개`);
+            
+            if (!members || members.length === 0) {
+                console.log('⚠️ generateUserPerformanceData: 사용 가능한 멤버 데이터가 없습니다.');
+                return [];
+            }
+            
+            if (!rawEvents || rawEvents.length === 0) {
+                console.log('⚠️ generateUserPerformanceData: 사용 가능한 이벤트 데이터가 없습니다.');
+                return [];
+            }
+            
+            members.forEach(member => {
+                const userEmail = member.email;
+                const userName = member.name;
+                
+                // 이메일 필드명 확인 (userEmail 또는 email)
+                const userEvents = rawEvents.filter(event => {
+                    const eventEmail = event.userEmail || event.email;
+                    return eventEmail === userEmail;
+                });
+                
+                const totalRequests = userEvents.length;
+                const totalCost = userEvents.reduce((sum, event) => 
+                    sum + (event.requestsCosts || 0), 0) / 100;
+                const uniqueDays = new Set(userEvents.map(event => 
+                    new Date(parseInt(event.timestamp)).toDateString())).size;
+                
+                if (totalRequests > 0) {
+                    userPerformance.push({
+                        name: userName,
+                        email: userEmail,
+                        requests: totalRequests,
+                        cost: totalCost,
+                        activeDays: uniqueDays,
+                        efficiency: totalRequests / uniqueDays || 0
+                    });
+                }
+            });
+            
+            const result = userPerformance.sort((a, b) => b.requests - a.requests).slice(0, 50);
+            console.log(`📊 사용자별 성과 데이터 생성 완료: ${result.length}명의 사용자 (상위 50명, 전체: ${userPerformance.length}명)`);
+            return result;
+        }
+
+        // 성과 차트 그리기
+        function drawPerformanceChart(ctx, width, height, data) {
+            console.log(`🎨 차트 그리기 시작: 데이터 ${data.length}개, 캔버스 크기 ${width}x${height}`);
+            
+            if (data.length === 0) {
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('데이터를 불러오는 중...', width / 2, height / 2);
+                return;
+            }
+            
+            const padding = 80;
+            const chartWidth = width - 2 * padding;
+            const chartHeight = height - 2 * padding;
+            const barWidth = Math.max(4, chartWidth / data.length); // 최소 4px 너비 보장
+            const maxRequests = Math.max(...data.map(d => d.requests));
+            
+            console.log(`📊 차트 설정: 패딩=${padding}, 차트크기=${chartWidth}x${chartHeight}, 바너비=${barWidth}, 최대요청=${maxRequests}`);
+            
+            // 배경 지우기
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, width, height);
+            
+            // 그리드
+            ctx.strokeStyle = '#3a3a3a';
+            ctx.lineWidth = 1;
+            
+            for (let i = 0; i <= 5; i++) {
+                const y = padding + (chartHeight / 5) * i;
+                ctx.beginPath();
+                ctx.moveTo(padding, y);
+                ctx.lineTo(width - padding, y);
+                ctx.stroke();
+                
+                // Y축 라벨
+                const value = Math.round((maxRequests * (5 - i)) / 5);
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'right';
+                ctx.fillText(value.toString(), padding - 10, y + 4);
+            }
+            
+            // 바 차트
+            data.forEach((user, index) => {
+                const x = padding + barWidth * index + barWidth * 0.1;
+                const barHeight = Math.max(1, (user.requests / maxRequests) * chartHeight);
+                const y = height - padding - barHeight;
+                
+                // 바 그리기
+                ctx.fillStyle = '#4a9eff';
+                ctx.fillRect(x, y, barWidth * 0.8, barHeight);
+                
+                // 요청 수 (바 위에)
+                if (barHeight > 20) {
+                    ctx.fillStyle = '#fff';
+                    ctx.font = '10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.fillText(user.requests.toString(), x + barWidth * 0.4, y - 5);
+                }
+                
+                // 이메일 ID (X축 아래) - @samsung.com 제외
+                if (barWidth > 20) {
+                    ctx.fillStyle = '#7a7a7a';
+                    ctx.font = '10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                    ctx.textAlign = 'center';
+                    ctx.save();
+                    ctx.translate(x + barWidth * 0.4, height - 15);
+                    ctx.rotate(-Math.PI / 4);
+                    const emailId = user.email.split('@')[0]; // @samsung.com 제외하고 ID만 추출
+                    ctx.fillText(emailId.substring(0, 8), 0, 0); // 최대 8글자까지 표시
+                    ctx.restore();
+                }
+            });
+            
+            // 범례 그리기 (오른쪽 상단)
+            drawPerformanceLegend(ctx, width, height);
+            
+            console.log('✅ 차트 그리기 완료');
+        }
+
+        // 성과 차트 범례 그리기
+        function drawPerformanceLegend(ctx, width, height) {
+            const legendX = width - 200;
+            const legendY = 30;
+            const itemHeight = 18;
+            const itemSpacing = 5;
+            
+            // 범례 배경
+            ctx.fillStyle = 'rgba(26, 26, 26, 0.9)';
+            ctx.fillRect(legendX - 10, legendY - 10, 190, 120);
+            
+            // 범례 테두리
+            ctx.strokeStyle = '#3a3a3a';
+            ctx.lineWidth = 1;
+            ctx.strokeRect(legendX - 10, legendY - 10, 190, 120);
+            
+            // 범례 제목
+            ctx.fillStyle = '#e1e1e1';
+            ctx.font = 'bold 12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.textAlign = 'left';
+            ctx.fillText('📊 계산 지표', legendX, legendY);
+            
+            // 범례 항목들
+            const legendItems = [
+                { label: '총 요청 수', description: '사용자별 이벤트 개수' },
+                { label: '총 비용', description: 'requestsCosts 합계 ÷ 100' },
+                { label: '활동 일수', description: '고유한 활동 날짜 수' },
+                { label: '효율성', description: '총 요청 수 ÷ 활동 일수' },
+                { label: '정렬 기준', description: '요청 수 내림차순' }
+            ];
+            
+            legendItems.forEach((item, index) => {
+                const y = legendY + 20 + (itemHeight + itemSpacing) * index;
+                
+                // 라벨
+                ctx.fillStyle = '#4a9eff';
+                ctx.font = '11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'left';
+                ctx.fillText(item.label, legendX, y);
+                
+                // 설명
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '10px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.fillText(item.description, legendX, y + 12);
+            });
+        }
+
+        // 활동 유형 상세 차트 생성
+        function createActivityTypeDetailedChart() {
+            const canvas = document.getElementById('activityTypeDetailedChart');
+            if (!canvas) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = 300;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, width, height);
+            
+            const detailedData = generateActivityTypeDetailedData();
+            drawDetailedBarChart(ctx, width, height, detailedData);
+        }
+
+        // 활동 유형 상세 데이터 생성
+        function generateActivityTypeDetailedData() {
+            const activityDetails = new Map();
+            
+            // 통합 데이터 저장소에서 데이터 가져오기
+            const rawEvents = chartDataStore.rawEvents.length > 0 ? chartDataStore.rawEvents : currentRawEventsData;
+            
+            if (!rawEvents || rawEvents.length === 0) {
+                console.log('⚠️ generateActivityTypeDetailedData: 사용 가능한 이벤트 데이터가 없습니다.');
+                return new Map();
+            }
+            
+            rawEvents.forEach(event => {
+                const type = event.kind || 'unknown';
+                const model = event.model || 'unknown';
+                const cost = (event.requestsCosts || 0) / 100;
+                
+                if (!activityDetails.has(type)) {
+                    activityDetails.set(type, {
+                        count: 0,
+                        totalCost: 0,
+                        models: new Map(),
+                        users: new Set()
+                    });
+                }
+                
+                const details = activityDetails.get(type);
+                details.count++;
+                details.totalCost += cost;
+                details.models.set(model, (details.models.get(model) || 0) + 1);
+                details.users.add(event.userEmail);
+            });
+            
+            console.log(`📊 활동 유형 상세 데이터 생성 완룉: ${activityDetails.size}개 유형 (데이터 소스: ${rawEvents.length}개 이벤트)`);
+            return activityDetails;
+        }
+
+        // 상세 바 차트 그리기
+        function drawDetailedBarChart(ctx, width, height, data) {
+            if (data.size === 0) {
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('데이터를 불러오는 중...', width / 2, height / 2);
+                return;
+            }
+            
+            const padding = 80;
+            const chartWidth = width - 2 * padding;
+            const chartHeight = height - 2 * padding;
+            const barWidth = chartWidth / data.size;
+            const maxCount = Math.max(...Array.from(data.values()).map(d => d.count));
+            
+            let index = 0;
+            data.forEach((details, type) => {
+                const x = padding + barWidth * index + barWidth * 0.1;
+                const barHeight = (details.count / maxCount) * chartHeight;
+                const y = height - padding - barHeight;
+                
+                // 메인 바
+                ctx.fillStyle = '#4a9eff';
+                ctx.fillRect(x, y, barWidth * 0.8, barHeight);
+                
+                // 정보 텍스트
+                ctx.fillStyle = '#fff';
+                ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(details.count.toString(), x + barWidth * 0.4, y - 10);
+                
+                // 활동 유형
+                ctx.fillStyle = '#7a7a7a';
+                ctx.fillText(type, x + barWidth * 0.4, height - 10);
+                
+                // 추가 정보
+                ctx.fillStyle = '#ff9800';
+                ctx.fillText(`$${details.totalCost.toFixed(2)}`, x + barWidth * 0.4, height - 25);
+                ctx.fillStyle = '#4caf50';
+                ctx.fillText(`${details.users.size}명`, x + barWidth * 0.4, height - 40);
+                
+                index++;
+            });
+        }
+
         // 차트 생성 (Overview용)
         function createOverviewChart() {
             const canvas = document.getElementById('overviewChart');
@@ -1610,14 +3962,35 @@
             // 배경 설정
             ctx.fillStyle = '#1a1a1a';
             ctx.fillRect(0, 0, width, height);
+            
+            // 현재 필터 상태 확인
+            let dateRange;
+            if (currentDateRange) {
+                dateRange = currentDateRange;
+            } else {
+                const filterDays = getCurrentFilterDays();
+                dateRange = getDateRange(filterDays);
+            }
+            
+            // 일별 활동 데이터 생성
+            const dailyData = generateDailyActivityData(dateRange);
+            
+            if (dailyData.length === 0) {
+                // 데이터가 없을 때 메시지 표시
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('데이터를 불러오는 중...', width / 2, height / 2);
+                return;
+            }
            
             // 그리드 그리기
             ctx.strokeStyle = '#3a3a3a';
             ctx.lineWidth = 1;
            
             // 세로 그리드
-            for (let i = 0; i <= 6; i++) {
-                const x = (width / 6) * i;
+            for (let i = 0; i <= dailyData.length; i++) {
+                const x = (width / dailyData.length) * i;
                 ctx.beginPath();
                 ctx.moveTo(x, 0);
                 ctx.lineTo(x, height);
@@ -1632,16 +4005,15 @@
                 ctx.lineTo(width, y);
                 ctx.stroke();
             }
-           
-            // 데이터 포인트 (예시)
-            const dataPoints = [
-                {x: width * 0.1, y: height * 0.8},
-                {x: width * 0.25, y: height * 0.7},
-                {x: width * 0.4, y: height * 0.6},
-                {x: width * 0.55, y: height * 0.3},
-                {x: width * 0.7, y: height * 0.4},
-                {x: width * 0.85, y: height * 0.5}
-            ];
+            
+            // 최대값 계산
+            const maxValue = Math.max(...dailyData.map(d => d.value));
+            
+            // 데이터 포인트 생성
+            const dataPoints = dailyData.map((data, index) => ({
+                x: (width / dailyData.length) * index + (width / dailyData.length / 2),
+                y: height - (height * (data.value / maxValue)) - 20
+            }));
            
             // 선 그래프 그리기
             ctx.strokeStyle = '#4a9eff';
@@ -1663,15 +4035,55 @@
             });
            
             // 날짜 레이블
-            const dates = ['Jul 18', 'Jul 19', 'Jul 20', 'Jul 21', 'Jul 22', 'Jul 23', 'Jul 24'];
             ctx.fillStyle = '#7a7a7a';
             ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
             ctx.textAlign = 'center';
            
-            dates.forEach((date, index) => {
-                const x = (width / 6) * index;
-                ctx.fillText(date, x, height - 10);
+            dailyData.forEach((data, index) => {
+                const x = (width / dailyData.length) * index + (width / dailyData.length / 2);
+                ctx.fillText(data.date, x, height - 10);
             });
+        }
+        
+        // 일별 활동 데이터 생성 함수
+        function generateDailyActivityData(dateRange) {
+            const dailyData = [];
+            
+            // 통합 데이터 저장소에서 데이터 가져오기
+            const rawEvents = chartDataStore.rawEvents.length > 0 ? chartDataStore.rawEvents : currentRawEventsData;
+            
+            if (!rawEvents || rawEvents.length === 0) {
+                console.log('⚠️ generateDailyActivityData: 사용 가능한 이벤트 데이터가 없습니다.');
+                return dailyData;
+            }
+            
+            // 날짜별 활동 수 집계
+            const dailyActivity = new Map();
+            
+            rawEvents.forEach(event => {
+                const eventDate = new Date(parseInt(event.timestamp));
+                const dateKey = eventDate.toISOString().split('T')[0];
+                
+                if (eventDate >= dateRange.startDate && eventDate <= dateRange.endDate) {
+                    dailyActivity.set(dateKey, (dailyActivity.get(dateKey) || 0) + 1);
+                }
+            });
+            
+            // 날짜 범위 내 모든 날짜에 대해 데이터 생성
+            const startDate = new Date(dateRange.startDate);
+            const endDate = new Date(dateRange.endDate);
+            
+            for (let d = new Date(startDate); d <= endDate; d.setDate(d.getDate() + 1)) {
+                const dateKey = d.toISOString().split('T')[0];
+                const dateStr = `${d.getMonth() + 1}/${d.getDate()}`;
+                
+                dailyData.push({
+                    date: dateStr,
+                    value: dailyActivity.get(dateKey) || 0
+                });
+            }
+            
+            return dailyData;
         }
 
         // 스크롤 위치 관리 객체
@@ -2211,6 +4623,9 @@
                         const days = e.target.getAttribute('data-days') || 1;
                         console.log(`Overview 필터 버튼 클릭: ${days}일`);
                         
+                        // 차트 캐시 초기화 (필터가 변경되었으므로)
+                        clearChartCache();
+                        
                         // 즉시 필터 기간 표시 업데이트 (데이터 로딩 전)
                         const dateRange = getDateRange(parseInt(days));
                         updateFilterPeriodDisplay(dateRange.startDate, dateRange.endDate);
@@ -2260,6 +4675,9 @@
            
             // 현재 날짜 범위 저장
             currentDateRange = { startDate, endDate };
+           
+            // 차트 캐시 초기화 (필터가 변경되었으므로)
+            clearChartCache();
            
             // 즉시 필터 기간 표시 업데이트
             updateFilterPeriodDisplay(startDate, endDate);
@@ -2370,6 +4788,20 @@
                 if (eventsData && eventsData.usageEvents) {
                     console.log(`✅ ${eventsData.usageEvents.length}건의 활동 이벤트를 가져왔습니다.`);
                     currentActivities = createActivityListWithLastActivity(eventsData.usageEvents, membersData.teamMembers, memberSpendMap);
+                    
+                    // 현재 Raw Events 데이터 업데이트
+                    currentRawEventsData = eventsData.usageEvents;
+                    console.log('🔄 currentRawEventsData 업데이트 완료:', currentRawEventsData.length, '개 이벤트');
+                    
+                    // 통합 차트 데이터 저장소 업데이트
+                    const currentFilter = getCurrentFilterState();
+                    chartDataStore.updateData(
+                        membersData.teamMembers,
+                        eventsData.usageEvents,
+                        spendingData,
+                        null, // usageData는 별도 호출됨
+                        currentFilter
+                    );
                    
                     // 선택된 기간 내 실제 활성 멤버 계산
                     const periodActiveMembers = calculatePeriodActiveMembers(eventsData.usageEvents);
@@ -2416,14 +4848,50 @@
                     updateUsageCards(overviewUsageData, eventsData);
                     console.log('✅ Overview 섹션 사용량 카드 업데이트 완료');
                     
-                    // 차트 업데이트 (선택된 필터 기간 기준)
-                    console.log('Overview 차트 업데이트 중...');
-                    if (overviewUsageData && overviewUsageData.data) {
-                        const chartData = createChartData(overviewUsageData.data);
-                        updateChart(chartData);
-                        console.log(`✅ ${overviewUsageData.data.length}건의 차트 데이터를 처리했습니다.`);
+                    // 현재 활성화된 차트 업데이트
+                    console.log('현재 활성화된 차트 업데이트 중...');
+                    const activeChart = document.querySelector('.chart-content.active');
+                    if (activeChart) {
+                        const chartSelect = document.getElementById('chartSelect');
+                        const currentChartType = chartSelect ? chartSelect.value : 'activity-trend';
+                        
+                        console.log(`현재 활성화된 차트: ${currentChartType}`);
+                        
+                        // 캐시를 무시하고 차트를 새로 생성
+                        chartCache[currentChartType] = { data: null, filter: null, rendered: false };
+                        
+                        // 차트 타입에 따라 적절한 차트 렌더링
+                        if (currentChartType === 'activity-trend') {
+                            createOverviewChart();
+                        } else if (currentChartType === 'model-distribution') {
+                            createModelDistributionChart();
+                        } else if (currentChartType === 'cost-trend') {
+                            createCostTrendChart();
+                        } else if (currentChartType === 'activity-type') {
+                            createActivityTypeChart();
+                        } else if (currentChartType === 'user-heatmap') {
+                            createUserHeatmapChart();
+                        } else if (currentChartType === 'cost-efficiency') {
+                            createCostEfficiencyChart();
+                        } else if (currentChartType === 'model-preference') {
+                            createModelPreferenceChart();
+                        } else if (currentChartType === 'user-performance') {
+                            createUserPerformanceChart();
+                        } else if (currentChartType === 'activity-type-detailed') {
+                            createActivityTypeDetailedChart();
+                        }
+                        
+                        // 차트 렌더링 완료 후 캐시에 저장
+                        setTimeout(() => {
+                            cacheChartData(currentChartType);
+                            chartCache[currentChartType].filter = getCurrentFilterState();
+                            chartCache[currentChartType].rendered = true;
+                        }, 100);
+                        
+                        console.log(`✅ ${currentChartType} 차트 업데이트 완료`);
+                    } else {
+                        console.log('활성화된 차트가 없음');
                     }
-                    console.log('✅ Overview 차트 업데이트 완료');
                 }
                
                 console.log('=== 현재 필터로 Overview 업데이트 완료 ===');
@@ -2454,6 +4922,9 @@
         async function refreshAllRealData() {
             // 로딩 상태 표시
             showLoadingStatus(true);
+            
+            // 데이터가 새로 로드되므로 차트 캐시 초기화
+            clearChartCache();
            
             // Overview와 Members를 동시에 로드하여 시간 단축
             await Promise.all([
@@ -2493,6 +4964,52 @@
         let currentRawEventsPage = 1; // 현재 Raw Events 페이지
         let currentRawEventsPageSize = 10; // 현재 Raw Events 페이지 크기
         
+        // 통합 차트 데이터 저장소
+        let chartDataStore = {
+            members: [], // 팀 멤버 데이터
+            rawEvents: [], // 원시 이벤트 데이터
+            spendingData: null, // 지출 데이터
+            usageData: null, // 사용량 데이터
+            lastUpdated: null, // 마지막 업데이트 시간
+            currentFilter: null, // 현재 적용된 필터 상태
+            
+            // 데이터 업데이트 함수
+            updateData: function(members, rawEvents, spendingData, usageData, filterState) {
+                this.members = members || [];
+                this.rawEvents = rawEvents || [];
+                this.spendingData = spendingData;
+                this.usageData = usageData;
+                this.currentFilter = filterState;
+                this.lastUpdated = new Date();
+                console.log(`📊 통합 차트 데이터 저장소 업데이트 완료: ${this.members.length}명, ${this.rawEvents.length}개 이벤트`);
+            },
+            
+            // 데이터 유효성 확인
+            isDataValid: function(filterState) {
+                if (!this.members.length || !this.rawEvents.length || !this.lastUpdated) {
+                    return false;
+                }
+                
+                // 필터 상태가 동일한지 확인
+                if (filterState && this.currentFilter) {
+                    return isFilterStateEqual(this.currentFilter, filterState);
+                }
+                
+                return true;
+            },
+            
+            // 데이터 초기화
+            clearData: function() {
+                this.members = [];
+                this.rawEvents = [];
+                this.spendingData = null;
+                this.usageData = null;
+                this.lastUpdated = null;
+                this.currentFilter = null;
+                console.log('📊 통합 차트 데이터 저장소 초기화');
+            }
+        };
+        
         // Usage 데이터 로딩 상태 추적
         let isUsageDataLoaded = false; // Usage 데이터가 한 번이라도 로드되었는지 확인
         let isUsageLoading = false; // Usage 데이터 로딩 중인지 확인
@@ -2500,6 +5017,27 @@
         // 활동리스트 페이지네이션 변수
         let currentActivityPage = 1; // 현재 활동리스트 페이지
         let currentActivityPageSize = 20; // 현재 활동리스트 페이지 크기
+        
+        // 차트 캐싱 시스템
+        let chartCache = {
+            'activity-trend': { data: null, filter: null, rendered: false },
+            'model-distribution': { data: null, filter: null, rendered: false },
+            'cost-trend': { data: null, filter: null, rendered: false },
+            'activity-type': { data: null, filter: null, rendered: false },
+            'user-heatmap': { data: null, filter: null, rendered: false },
+            'cost-efficiency': { data: null, filter: null, rendered: false },
+            'model-preference': { data: null, filter: null, rendered: false },
+            'user-performance': { data: null, filter: null, rendered: false },
+            'activity-type-detailed': { data: null, filter: null, rendered: false }
+        };
+        
+        // 차트 캐시 초기화 함수
+        function clearChartCache() {
+            Object.keys(chartCache).forEach(key => {
+                chartCache[key] = { data: null, filter: null, rendered: false };
+            });
+            console.log('📊 모든 차트 캐시 초기화');
+        }
         let currentActivityData = []; // 현재 활동리스트 데이터
         
         // 사용자별 누적 사용량 정보 페이지네이션 변수
@@ -3762,7 +6300,29 @@
                     filterMembers('');
                 } else if (searchId === 'usage-search') {
                     filterUsageMembers('');
+                } else if (searchId === 'user-performance-search') {
+                    filterUserPerformance('');
                 }
+            }
+        }
+
+        // 사용자별 성과 차트 검색창 비우기
+        function clearUserPerformanceSearch(searchId) {
+            const searchInput = document.getElementById(searchId);
+            const clearBtn = document.getElementById(searchId + '-clear');
+            const autocomplete = document.getElementById(searchId.replace('-search', '-autocomplete'));
+            
+            if (searchInput) {
+                searchInput.value = '';
+                clearBtn.style.display = 'none';
+                
+                // 자동완성 드롭다운 숨기기
+                if (autocomplete) {
+                    autocomplete.style.display = 'none';
+                }
+                
+                // 사용자별 성과 차트 재생성 (전체 사용자)
+                filterUserPerformance('');
             }
         }
 
@@ -3811,6 +6371,46 @@
             autocomplete.style.display = 'block';
         }
 
+        // 사용자별 성과 차트 자동완성 드롭다운 표시
+        function showUserPerformanceAutocomplete(searchId) {
+            const searchInput = document.getElementById(searchId);
+            const autocomplete = document.getElementById(searchId.replace('-search', '-autocomplete'));
+            
+            if (!searchInput || !autocomplete) return;
+            
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            
+            if (searchTerm.length === 0) {
+                autocomplete.style.display = 'none';
+                return;
+            }
+            
+            // 사용자별 성과 데이터에서 사용자 정보 가져오기
+            const users = getUserPerformanceUsers();
+            
+            // 검색어와 매칭되는 사용자 필터링
+            const filteredUsers = users.filter(user => 
+                user.name.toLowerCase().includes(searchTerm) || 
+                user.email.toLowerCase().includes(searchTerm)
+            );
+            
+            if (filteredUsers.length === 0) {
+                autocomplete.style.display = 'none';
+                return;
+            }
+            
+            // 드롭다운 HTML 생성
+            const dropdownHTML = filteredUsers.map(user => `
+                <div class="autocomplete-item" onclick="selectUserPerformanceUser('${searchId}', '${user.email}')">
+                    <div class="user-name">${user.name}</div>
+                    <div class="user-email">${user.email}</div>
+                </div>
+            `).join('');
+            
+            autocomplete.innerHTML = dropdownHTML;
+            autocomplete.style.display = 'block';
+        }
+
         // 사용자 선택
         function selectUser(searchId, userEmail) {
             const searchInput = document.getElementById(searchId);
@@ -3825,6 +6425,27 @@
                 } else if (searchId === 'usage-search') {
                     filterUsageMembers(userEmail);
                 }
+                
+                // X 버튼 표시
+                toggleSearchClearBtn(searchId);
+            }
+            
+            // 드롭다운 숨기기
+            if (autocomplete) {
+                autocomplete.style.display = 'none';
+            }
+        }
+
+        // 사용자별 성과 차트 사용자 선택
+        function selectUserPerformanceUser(searchId, userEmail) {
+            const searchInput = document.getElementById(searchId);
+            const autocomplete = document.getElementById(searchId.replace('-search', '-autocomplete'));
+            
+            if (searchInput) {
+                searchInput.value = userEmail;
+                
+                // 사용자별 성과 차트 필터링
+                filterUserPerformance(userEmail);
                 
                 // X 버튼 표시
                 toggleSearchClearBtn(searchId);
@@ -3860,6 +6481,58 @@
             }));
         }
 
+        // 사용자별 성과 차트 사용자 데이터 가져오기
+        function getUserPerformanceUsers() {
+            const members = currentMembersData || [];
+            const rawEvents = currentRawEventsData || [];
+            
+            if (members.length === 0 || rawEvents.length === 0) {
+                return [];
+            }
+            
+            // 사용자별 성과 데이터 생성
+            const userPerformance = [];
+            const userMap = new Map();
+            
+            // 멤버 정보로 초기화
+            members.forEach(member => {
+                userMap.set(member.email, {
+                    name: member.name || 'Unnamed',
+                    email: member.email,
+                    requests: 0,
+                    costs: 0,
+                    activeDays: 0
+                });
+            });
+            
+            // 이벤트 데이터로 성과 계산
+            rawEvents.forEach(event => {
+                const userEmail = event.email;
+                const user = userMap.get(userEmail);
+                
+                if (user) {
+                    user.requests += event.requests || 0;
+                    user.costs += event.requestsCosts || 0;
+                    
+                    // 활동 일수 계산 (날짜별로 한 번만 카운트)
+                    const eventDate = new Date(parseInt(event.timestamp)).toDateString();
+                    if (!user.activeDaysSet) {
+                        user.activeDaysSet = new Set();
+                    }
+                    user.activeDaysSet.add(eventDate);
+                }
+            });
+            
+            // Set을 개수로 변환
+            userMap.forEach(user => {
+                user.activeDays = user.activeDaysSet ? user.activeDaysSet.size : 0;
+                delete user.activeDaysSet;
+                userPerformance.push(user);
+            });
+            
+            return userPerformance;
+        }
+
         // 멤버 검색 기능
         function filterMembers(searchTerm) {
             const rows = document.querySelectorAll('#members .table-row');
@@ -3875,6 +6548,886 @@
                     row.style.display = 'none';
                 }
             });
+        }
+
+        // 사용자별 성과 차트 필터링
+        function filterUserPerformance(searchTerm) {
+            console.log(`🔍 사용자별 성과 차트 필터링: "${searchTerm}"`);
+            
+            const searchLower = searchTerm.toLowerCase().trim();
+            
+            // 검색어가 비어있으면 전체 사용자 성과 차트 표시
+            if (searchLower === '') {
+                createUserPerformanceChart();
+                return;
+            }
+            
+            // 특정 사용자에 대한 성과 차트 생성
+            createFilteredUserPerformanceChart(searchLower);
+        }
+
+        // 차트 데이터 필터링 (일반적인 차트 검색)
+        function filterChartData(searchTerm) {
+            console.log(`🔍 차트 데이터 필터링: "${searchTerm}"`);
+            
+            const searchLower = searchTerm.toLowerCase().trim();
+            const chartSelect = document.getElementById('chartSelect');
+            const currentChartType = chartSelect ? chartSelect.value : 'activity-trend';
+            
+            // 검색어가 비어있으면 현재 차트 재생성
+            if (searchLower === '') {
+                switchChart(currentChartType).catch(error => {
+                    console.error('차트 재생성 중 오류가 발생했습니다:', error);
+                });
+                return;
+            }
+            
+            // 차트 타입에 따라 적절한 필터링 적용
+            switch (currentChartType) {
+                case 'user-performance':
+                    filterUserPerformance(searchTerm);
+                    break;
+                case 'user-heatmap':
+                    // 사용자 활동 히트맵 필터링
+                    createFilteredUserHeatmapChart(searchTerm);
+                    break;
+                case 'model-preference':
+                    // 모델 선호도 필터링
+                    createFilteredModelPreferenceChart(searchTerm);
+                    break;
+                default:
+                    // 기본적으로는 차트 재생성
+                    switchChart(currentChartType).catch(error => {
+                        console.error('차트 재생성 중 오류가 발생했습니다:', error);
+                    });
+                    break;
+            }
+        }
+
+        // 차트 검색창 비우기
+        function clearChartSearch(searchId) {
+            const searchInput = document.getElementById(searchId);
+            const clearBtn = document.getElementById(searchId + '-clear');
+            
+            if (searchInput) {
+                searchInput.value = '';
+                clearBtn.style.display = 'none';
+                
+                // 현재 차트 타입 확인
+                const chartSelect = document.getElementById('chartSelect');
+                const currentChartType = chartSelect ? chartSelect.value : 'activity-trend';
+                
+                // 검색창이 있는 차트들의 경우 즉시 기본 차트로 전환
+                if (currentChartType === 'user-heatmap') {
+                    console.log('🔥 검색창 클리어 - 상위 20명 히트맵으로 전환');
+                    createUserHeatmapChart();
+                } else if (currentChartType === 'model-preference') {
+                    console.log('🔥 검색창 클리어 - 상위 20명 모델 선호도로 전환');
+                    createModelPreferenceChart();
+                } else {
+                    // 다른 차트는 기존 방식으로 재생성
+                    switchChart(currentChartType).catch(error => {
+                        console.error('차트 재생성 중 오류가 발생했습니다:', error);
+                    });
+                }
+            }
+        }
+
+        // 차트 검색 처리 (히트맵 및 모델 선호도)
+        function handleChartSearch(searchTerm) {
+            console.log('🔍 차트 검색 처리:', searchTerm);
+            
+            const chartSelect = document.getElementById('chartSelect');
+            if (!chartSelect) return;
+            
+            const selectedChart = chartSelect.value;
+            
+            // 히트맵 차트 검색 처리
+            if (selectedChart === 'user-heatmap') {
+                if (searchTerm.trim() === '') {
+                    // 검색어가 없으면 즉시 기본 히트맵 표시 (상위 20명)
+                    createUserHeatmapChart();
+                } else {
+                    // 검색어로 사용자 필터링
+                    const filteredUsers = getFilteredUsers(searchTerm);
+                    
+                    if (filteredUsers.length === 1) {
+                        // 정확히 1명이면 요일별 차트 표시
+                        createFilteredUserHeatmapChart(filteredUsers[0].email.split('@')[0]);
+                    } else if (filteredUsers.length > 1) {
+                        // 여러 명이면 상위 20명까지 막대 차트 표시
+                        createMultiUserHeatmapChart(filteredUsers.slice(0, 20));
+                    } else {
+                        // 검색 결과 없음
+                        showNoSearchResults(searchTerm);
+                    }
+                }
+            }
+            // 모델 선호도 차트 검색 처리
+            else if (selectedChart === 'model-preference') {
+                if (searchTerm.trim() === '') {
+                    // 검색어가 없으면 기본 모델 선호도 표시 (상위 20명)
+                    createModelPreferenceChart();
+                } else {
+                    // 검색어로 사용자 필터링
+                    const filteredUsers = getFilteredUsers(searchTerm);
+                    
+                    if (filteredUsers.length === 1) {
+                        // 정확히 1명이면 해당 사용자의 모델 사용량 차트 표시
+                        createFilteredModelPreferenceChart(filteredUsers[0].email.split('@')[0]);
+                    } else if (filteredUsers.length > 1) {
+                        // 여러 명이면 상위 20명까지 모델 선호도 차트 표시
+                        createMultiUserModelPreferenceChart(filteredUsers.slice(0, 20));
+                    } else {
+                        // 검색 결과 없음
+                        showNoSearchResults(searchTerm);
+                    }
+                }
+            }
+        }
+
+        // 검색어로 사용자 필터링 (ID 기반)
+        function getFilteredUsers(searchTerm) {
+            const members = (chartDataStore.members && chartDataStore.members.length > 0) ? 
+                chartDataStore.members : (currentMembers || []);
+            
+            if (!members || members.length === 0) return [];
+            
+            // ID로만 검색 (정확히 일치하는 경우)
+            const exactMatch = members.find(member => {
+                const emailId = member.email.split('@')[0];
+                return emailId.toLowerCase() === searchTerm.toLowerCase();
+            });
+            
+            if (exactMatch) {
+                return [exactMatch]; // 정확히 1명만 반환
+            }
+            
+            // 부분 검색 (ID에 포함되는 경우)
+            return members.filter(member => {
+                const emailId = member.email.split('@')[0];
+                return emailId.toLowerCase().includes(searchTerm.toLowerCase());
+            });
+        }
+
+        // 여러 사용자 히트맵 차트 생성 (부분 검색 결과)
+        function createMultiUserHeatmapChart(filteredUsers) {
+            console.log('🔥 createMultiUserHeatmapChart 시작:', filteredUsers.length, '명');
+            const canvas = document.getElementById('userHeatmapChart');
+            if (!canvas) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = 300;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, width, height);
+            
+            // 필터된 사용자들의 활동 데이터 생성
+            const heatmapData = generateFilteredHeatmapBarData(filteredUsers);
+            
+            if (heatmapData.length === 0) {
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('활동 데이터가 없습니다.', width / 2, height / 2);
+                return;
+            }
+            
+            // 막대 그래프 그리기
+            drawHeatmapBarChart(ctx, width, height, heatmapData);
+        }
+
+        // 필터된 사용자들의 히트맵 데이터 생성
+        function generateFilteredHeatmapBarData(filteredUsers) {
+            console.log('🔥 generateFilteredHeatmapBarData 시작:', filteredUsers.length, '명');
+            
+            const rawEvents = (chartDataStore.rawEvents && chartDataStore.rawEvents.length > 0) ? 
+                chartDataStore.rawEvents : (currentRawEventsData || []);
+            
+            if (!rawEvents || rawEvents.length === 0) {
+                console.log('⚠️ 이벤트 데이터가 없습니다.');
+                return [];
+            }
+            
+            // 사용자별 활동 수 계산
+            const userActivityMap = new Map();
+            filteredUsers.forEach((member, userIndex) => {
+                const userEmail = member.email;
+                const userName = member.name;
+                const userId = userEmail.split('@')[0];
+                
+                const userEvents = rawEvents.filter(event => 
+                    event.userEmail === userEmail || event.email === userEmail
+                );
+                
+                const totalActivity = userEvents.length;
+                
+                userActivityMap.set(userIndex, {
+                    name: userName,
+                    email: userEmail,
+                    id: userId,
+                    totalActivity: totalActivity
+                });
+            });
+            
+            // 활동 수로 정렬
+            const sortedUsers = Array.from(userActivityMap.entries())
+                .sort((a, b) => b[1].totalActivity - a[1].totalActivity);
+            
+            const data = sortedUsers.map(([userIndex, userData]) => ({
+                userId: userData.id,
+                userName: userData.name,
+                email: userData.email,
+                activity: userData.totalActivity
+            }));
+            
+            console.log(`🔥 필터된 히트맵 데이터 생성 완료: ${data.length}명`);
+            return data;
+        }
+
+        // 검색 결과 없음 표시
+        function showNoSearchResults(searchTerm) {
+            const canvas = document.getElementById('userHeatmapChart');
+            if (!canvas) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = 300;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, width, height);
+            
+            ctx.fillStyle = '#7a7a7a';
+            ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(`검색 결과가 없습니다: "${searchTerm}"`, width / 2, height / 2);
+        }
+
+        // 히트맵용 커스텀 드롭다운 생성
+        function populateHeatmapEmailDropdown() {
+            console.log('📧 히트맵용 커스텀 드롭다운 생성 중...');
+            
+            const searchInput = document.getElementById('chart-search-input');
+            if (!searchInput) {
+                console.error('❌ chart-search-input 요소를 찾을 수 없습니다.');
+                return;
+            }
+            
+            // 기존 커스텀 드롭다운 제거
+            const existingDropdown = document.getElementById('custom-heatmap-dropdown');
+            if (existingDropdown) {
+                existingDropdown.remove();
+            }
+            
+            // 새 커스텀 드롭다운 생성
+            const dropdown = document.createElement('div');
+            dropdown.id = 'custom-heatmap-dropdown';
+            dropdown.style.cssText = `
+                position: absolute;
+                top: calc(100% + 4px);
+                left: 0;
+                right: 0;
+                background-color: #2a2a2a;
+                border: 1px solid #3a3a3a;
+                border-radius: 8px;
+                max-height: 200px;
+                overflow-y: auto;
+                z-index: 1000;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                display: none;
+            `;
+            
+            // 멤버 데이터 가져오기
+            const members = (chartDataStore.members && chartDataStore.members.length > 0) ? 
+                chartDataStore.members : (currentMembers || []);
+            
+            if (!members || members.length === 0) {
+                console.log('⚠️ 사용 가능한 멤버 데이터가 없습니다.');
+                return;
+            }
+            
+            // 전체 멤버를 대상으로 하는 드롭다운 목록 생성
+            const allMembers = [];
+            members.forEach(member => {
+                const emailId = member.email.split('@')[0];
+                allMembers.push({
+                    id: emailId,
+                    name: member.name,
+                    email: member.email
+                });
+            });
+            
+            console.log(`📋 전체 멤버 목록 생성: ${allMembers.length}명`);
+            
+            // 드롭다운 업데이트 함수 (실시간 필터링)
+            function updateDropdownOptions(searchTerm = '') {
+                dropdown.innerHTML = '';
+                
+                // 검색어가 없으면 전체 멤버 표시 (최대 50개)
+                if (searchTerm.trim() === '') {
+                    const displayMembers = allMembers.slice(0, 50);
+                    displayMembers.forEach(member => {
+                        const option = createDropdownOption(member, '');
+                        dropdown.appendChild(option);
+                    });
+                    return;
+                }
+                
+                // 검색어가 있으면 필터링된 멤버만 표시
+                const filteredMembers = allMembers.filter(member => 
+                    member.id.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+                
+                if (filteredMembers.length === 0) {
+                    const noResult = document.createElement('div');
+                    noResult.style.cssText = `
+                        padding: 12px;
+                        color: #7a7a7a;
+                        text-align: center;
+                        font-size: 14px;
+                    `;
+                    noResult.textContent = '검색 결과가 없습니다';
+                    dropdown.appendChild(noResult);
+                    return;
+                }
+                
+                // 필터링된 결과는 최대 30개까지 표시
+                const displayMembers = filteredMembers.slice(0, 30);
+                
+                displayMembers.forEach(member => {
+                    const option = createDropdownOption(member, searchTerm);
+                    dropdown.appendChild(option);
+                });
+            }
+            
+            // 드롭다운 옵션 생성 함수
+            function createDropdownOption(member, searchTerm) {
+                const option = document.createElement('div');
+                option.style.cssText = `
+                    padding: 8px 12px;
+                    cursor: pointer;
+                    color: #e1e1e1;
+                    border-bottom: 1px solid #3a3a3a;
+                    transition: background-color 0.2s ease;
+                `;
+                
+                // 검색어가 있으면 하이라이트, 없으면 일반 표시
+                let displayId = member.id;
+                if (searchTerm && searchTerm.trim() !== '') {
+                    displayId = member.id.replace(
+                        new RegExp(searchTerm, 'gi'),
+                        match => `<span style="background-color: #4a9eff; color: white; padding: 1px 2px; border-radius: 2px;">${match}</span>`
+                    );
+                }
+                
+                option.innerHTML = `
+                    <div style="font-weight: 500; font-size: 14px;">${displayId}</div>
+                    <div style="font-size: 12px; color: #7a7a7a;">${member.name} • ${member.email}</div>
+                `;
+                
+                // 호버 효과
+                option.addEventListener('mouseenter', () => {
+                    option.style.backgroundColor = '#3a3a3a';
+                });
+                option.addEventListener('mouseleave', () => {
+                    option.style.backgroundColor = 'transparent';
+                });
+                
+                // 클릭 이벤트
+                option.addEventListener('click', () => {
+                    searchInput.value = member.id;
+                    dropdown.style.display = 'none';
+                    handleChartSearch(member.id);
+                });
+                
+                return option;
+            }
+            
+            // 검색 입력 컨테이너에 드롭다운 추가
+            const inputContainer = searchInput.parentElement;
+            inputContainer.style.position = 'relative';
+            inputContainer.appendChild(dropdown);
+            
+            // 입력 이벤트로 실시간 필터링
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value;
+                if (dropdown.style.display !== 'none') {
+                    updateDropdownOptions(searchTerm);
+                }
+            });
+            
+            // 포커스 이벤트로 드롭다운 표시
+            searchInput.addEventListener('focus', () => {
+                updateDropdownOptions(searchInput.value);
+                dropdown.style.display = 'block';
+            });
+            
+            // 키보드 이벤트 처리
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    dropdown.style.display = 'none';
+                }
+            });
+            
+            // 블러 이벤트로 드롭다운 숨김
+            searchInput.addEventListener('blur', (e) => {
+                setTimeout(() => {
+                    if (!dropdown.contains(document.activeElement)) {
+                        dropdown.style.display = 'none';
+                    }
+                }, 200);
+            });
+            
+            console.log(`✅ 전체 멤버 대상 실시간 필터링 드롭다운 생성 완료: ${allMembers.length}명의 사용자`);
+        }
+
+        // 모델 선호도용 커스텀 드롭다운 생성
+        function populateModelPreferenceDropdown() {
+            console.log('📧 모델 선호도용 커스텀 드롭다운 생성 중...');
+            
+            const searchInput = document.getElementById('chart-search-input');
+            if (!searchInput) {
+                console.error('❌ chart-search-input 요소를 찾을 수 없습니다.');
+                return;
+            }
+            
+            // 기존 커스텀 드롭다운 제거
+            const existingDropdown = document.getElementById('custom-model-preference-dropdown');
+            if (existingDropdown) {
+                existingDropdown.remove();
+            }
+            
+            // 새 커스텀 드롭다운 생성
+            const dropdown = document.createElement('div');
+            dropdown.id = 'custom-model-preference-dropdown';
+            dropdown.style.cssText = `
+                position: absolute;
+                top: calc(100% + 4px);
+                left: 0;
+                right: 0;
+                background-color: #2a2a2a;
+                border: 1px solid #3a3a3a;
+                border-radius: 8px;
+                max-height: 200px;
+                overflow-y: auto;
+                z-index: 1000;
+                box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+                display: none;
+            `;
+            
+            // 멤버 데이터 가져오기
+            const members = (chartDataStore.members && chartDataStore.members.length > 0) ? 
+                chartDataStore.members : (currentMembers || []);
+            
+            if (!members || members.length === 0) {
+                console.log('⚠️ 사용 가능한 멤버 데이터가 없습니다.');
+                return;
+            }
+            
+            // 전체 멤버를 대상으로 하는 드롭다운 목록 생성
+            const allMembers = [];
+            members.forEach(member => {
+                const emailId = member.email.split('@')[0];
+                allMembers.push({
+                    id: emailId,
+                    name: member.name,
+                    email: member.email
+                });
+            });
+            
+            console.log(`📋 전체 멤버 목록 생성: ${allMembers.length}명`);
+            
+            // 드롭다운 업데이트 함수 (실시간 필터링)
+            function updateDropdownOptions(searchTerm = '') {
+                dropdown.innerHTML = '';
+                
+                // 검색어가 없으면 전체 멤버 표시 (최대 50개)
+                if (searchTerm.trim() === '') {
+                    const displayMembers = allMembers.slice(0, 50);
+                    displayMembers.forEach(member => {
+                        const option = createModelPreferenceDropdownOption(member, '');
+                        dropdown.appendChild(option);
+                    });
+                    return;
+                }
+                
+                // 검색어가 있으면 필터링된 멤버만 표시
+                const filteredMembers = allMembers.filter(member => 
+                    member.id.toLowerCase().includes(searchTerm.toLowerCase())
+                );
+                
+                if (filteredMembers.length === 0) {
+                    const noResult = document.createElement('div');
+                    noResult.style.cssText = `
+                        padding: 12px;
+                        color: #7a7a7a;
+                        text-align: center;
+                        font-size: 14px;
+                    `;
+                    noResult.textContent = '검색 결과가 없습니다';
+                    dropdown.appendChild(noResult);
+                    return;
+                }
+                
+                // 필터링된 결과는 최대 30개까지 표시
+                const displayMembers = filteredMembers.slice(0, 30);
+                
+                displayMembers.forEach(member => {
+                    const option = createModelPreferenceDropdownOption(member, searchTerm);
+                    dropdown.appendChild(option);
+                });
+            }
+            
+            // 드롭다운 옵션 생성 함수
+            function createModelPreferenceDropdownOption(member, searchTerm) {
+                const option = document.createElement('div');
+                option.style.cssText = `
+                    padding: 8px 12px;
+                    cursor: pointer;
+                    color: #e1e1e1;
+                    border-bottom: 1px solid #3a3a3a;
+                    transition: background-color 0.2s ease;
+                `;
+                
+                // 검색어가 있으면 하이라이트, 없으면 일반 표시
+                let displayId = member.id;
+                if (searchTerm && searchTerm.trim() !== '') {
+                    displayId = member.id.replace(
+                        new RegExp(searchTerm, 'gi'),
+                        match => `<span style="background-color: #4a9eff; color: white; padding: 1px 2px; border-radius: 2px;">${match}</span>`
+                    );
+                }
+                
+                option.innerHTML = `
+                    <div style="font-weight: 500; font-size: 14px;">${displayId}</div>
+                    <div style="font-size: 12px; color: #7a7a7a;">${member.name} • ${member.email}</div>
+                `;
+                
+                // 호버 효과
+                option.addEventListener('mouseenter', () => {
+                    option.style.backgroundColor = '#3a3a3a';
+                });
+                option.addEventListener('mouseleave', () => {
+                    option.style.backgroundColor = 'transparent';
+                });
+                
+                // 클릭 이벤트
+                option.addEventListener('click', () => {
+                    searchInput.value = member.id;
+                    dropdown.style.display = 'none';
+                    handleChartSearch(member.id);
+                });
+                
+                return option;
+            }
+            
+            // 검색 입력 컨테이너에 드롭다운 추가
+            const inputContainer = searchInput.parentElement;
+            inputContainer.style.position = 'relative';
+            inputContainer.appendChild(dropdown);
+            
+            // 입력 이벤트로 실시간 필터링
+            searchInput.addEventListener('input', (e) => {
+                const searchTerm = e.target.value;
+                if (dropdown.style.display !== 'none') {
+                    updateDropdownOptions(searchTerm);
+                }
+            });
+            
+            // 포커스 이벤트로 드롭다운 표시
+            searchInput.addEventListener('focus', () => {
+                updateDropdownOptions(searchInput.value);
+                dropdown.style.display = 'block';
+            });
+            
+            // 키보드 이벤트 처리
+            searchInput.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') {
+                    dropdown.style.display = 'none';
+                }
+            });
+            
+            // 블러 이벤트로 드롭다운 숨김
+            searchInput.addEventListener('blur', (e) => {
+                setTimeout(() => {
+                    if (!dropdown.contains(document.activeElement)) {
+                        dropdown.style.display = 'none';
+                    }
+                }, 200);
+            });
+            
+            console.log(`✅ 모델 선호도용 실시간 필터링 드롭다운 생성 완료: ${allMembers.length}명의 사용자`);
+        }
+
+        // 특정 사용자의 모델 사용량 차트 생성 (막대 그래프)
+        function createFilteredModelPreferenceChart(userId) {
+            console.log('🔥 createFilteredModelPreferenceChart 시작:', userId);
+            
+            const canvas = document.getElementById('modelPreferenceChart');
+            if (!canvas) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = 300;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, width, height);
+            
+            // 특정 사용자의 모델 사용량 데이터 생성
+            const userModelData = generateUserModelUsageData(userId);
+            
+            if (!userModelData || userModelData.length === 0) {
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(`${userId}의 모델 사용 데이터가 없습니다.`, width / 2, height / 2);
+                return;
+            }
+            
+            // 막대 그래프 그리기
+            drawUserModelBarChart(ctx, width, height, userModelData, userId);
+        }
+
+        // 특정 사용자의 모델 사용량 데이터 생성
+        function generateUserModelUsageData(userId) {
+            console.log('🔥 generateUserModelUsageData 시작:', userId);
+            
+            const members = (chartDataStore.members && chartDataStore.members.length > 0) ? 
+                chartDataStore.members : (currentMembers || []);
+            const rawEvents = (chartDataStore.rawEvents && chartDataStore.rawEvents.length > 0) ? 
+                chartDataStore.rawEvents : (currentRawEventsData || []);
+            
+            if (!members || members.length === 0 || !rawEvents || rawEvents.length === 0) {
+                console.log('⚠️ 데이터가 부족합니다.');
+                return [];
+            }
+            
+            // 사용자 찾기
+            const user = members.find(member => {
+                const emailId = member.email.split('@')[0];
+                return emailId.toLowerCase() === userId.toLowerCase();
+            });
+            
+            if (!user) {
+                console.log('⚠️ 사용자를 찾을 수 없습니다.');
+                return [];
+            }
+            
+            // 해당 사용자의 이벤트 필터링
+            const userEvents = rawEvents.filter(event => 
+                event.userEmail === user.email || event.email === user.email
+            );
+            
+            // 모델별 사용 횟수 계산
+            const modelUsage = new Map();
+            userEvents.forEach(event => {
+                const model = event.model || 'unknown';
+                modelUsage.set(model, (modelUsage.get(model) || 0) + 1);
+            });
+            
+            // 배열로 변환 및 사용 횟수 순으로 정렬
+            const data = Array.from(modelUsage.entries())
+                .map(([model, count]) => ({ model, count }))
+                .sort((a, b) => b.count - a.count);
+            
+            console.log(`🔥 ${userId}의 모델 사용량 데이터:`, data);
+            return data;
+        }
+
+        // 사용자별 모델 사용량 막대 그래프 그리기 (모델 사용 분포 스타일)
+        function drawUserModelBarChart(ctx, width, height, data, userId) {
+            console.log('🔍 drawUserModelBarChart 시작...');
+            console.log('📊 입력 데이터:', data);
+            console.log('📏 캔버스 크기:', width, 'x', height);
+            
+            if (data.length === 0) {
+                console.log('⚠️ 데이터가 비어있어 로딩 메시지를 표시합니다.');
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('데이터를 불러오는 중...', width / 2, height / 2);
+                return;
+            }
+            
+            const padding = 60;
+            const chartWidth = width - (padding * 2);
+            const chartHeight = height - (padding * 2);
+            const barWidth = chartWidth / data.length * 0.8;
+            const barSpacing = chartWidth / data.length * 0.2;
+            
+            // 최대값 계산
+            const maxValue = Math.max(...data.map(d => d.count));
+            
+            // Y축 그리기
+            ctx.strokeStyle = '#3a3a3a';
+            ctx.lineWidth = 1;
+            ctx.beginPath();
+            ctx.moveTo(padding, padding);
+            ctx.lineTo(padding, height - padding);
+            ctx.stroke();
+            
+            // X축 그리기
+            ctx.beginPath();
+            ctx.moveTo(padding, height - padding);
+            ctx.lineTo(width - padding, height - padding);
+            ctx.stroke();
+            
+            // Y축 레이블
+            ctx.fillStyle = '#7a7a7a';
+            ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.textAlign = 'right';
+            ctx.textBaseline = 'middle';
+            
+            const ySteps = 5;
+            for (let i = 0; i <= ySteps; i++) {
+                const y = padding + (chartHeight / ySteps) * i;
+                const value = Math.round((maxValue / ySteps) * (ySteps - i));
+                ctx.fillText(value.toString(), padding - 10, y);
+            }
+            
+            // 막대 그리기 (다양한 색상)
+            const colors = ['#4a9eff', '#4caf50', '#ff9800', '#f44336', '#9c27b0', '#00bcd4', '#ff5722', '#795548', '#607d8b', '#e91e63'];
+            
+            data.forEach((item, index) => {
+                const x = padding + (chartWidth / data.length) * index + barSpacing / 2;
+                const barHeight = (item.count / maxValue) * chartHeight;
+                const y = height - padding - barHeight;
+                
+                // 막대 그리기 (다양한 색상)
+                ctx.fillStyle = colors[index % colors.length];
+                ctx.fillRect(x, y, barWidth, barHeight);
+                
+                // 막대 위에 값 표시
+                ctx.fillStyle = '#e1e1e1';
+                ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText(item.count.toString(), x + barWidth / 2, y - 10);
+                
+                // X축 레이블 (모델명)
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '11px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                const modelName = item.model.length > 12 ? item.model.substring(0, 12) + '...' : item.model;
+                ctx.fillText(modelName, x + barWidth / 2, height - padding + 20);
+            });
+            
+            // 제목
+            ctx.fillStyle = '#e1e1e1';
+            ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.fillText(`${userId}의 모델 사용량`, width / 2, 25);
+            
+            // Y축 제목
+            ctx.fillStyle = '#7a7a7a';
+            ctx.font = '12px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+            ctx.textAlign = 'center';
+            ctx.save();
+            ctx.translate(20, height / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText('사용 횟수', 0, 0);
+            ctx.restore();
+        }
+
+        // 여러 사용자 모델 선호도 차트 생성 (부분 검색 결과)
+        function createMultiUserModelPreferenceChart(filteredUsers) {
+            console.log('🔥 createMultiUserModelPreferenceChart 시작:', filteredUsers.length, '명');
+            
+            const canvas = document.getElementById('modelPreferenceChart');
+            if (!canvas) return;
+            
+            const rect = canvas.getBoundingClientRect();
+            canvas.width = rect.width;
+            canvas.height = 300;
+            
+            const ctx = canvas.getContext('2d');
+            const width = canvas.width;
+            const height = canvas.height;
+            
+            ctx.fillStyle = '#1a1a1a';
+            ctx.fillRect(0, 0, width, height);
+            
+            // 필터된 사용자들의 모델 선호도 데이터 생성
+            const preferenceData = generateFilteredModelPreferenceData(filteredUsers);
+            
+            if (preferenceData.size === 0) {
+                ctx.fillStyle = '#7a7a7a';
+                ctx.font = '16px -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif';
+                ctx.textAlign = 'center';
+                ctx.fillText('모델 선호도 데이터가 없습니다.', width / 2, height / 2);
+                return;
+            }
+            
+            // 스택 바 차트 그리기
+            drawStackedBarChart(ctx, width, height, preferenceData);
+        }
+
+        // 필터된 사용자들의 모델 선호도 데이터 생성
+        function generateFilteredModelPreferenceData(filteredUsers) {
+            console.log('🔥 generateFilteredModelPreferenceData 시작:', filteredUsers.length, '명');
+            
+            const rawEvents = (chartDataStore.rawEvents && chartDataStore.rawEvents.length > 0) ? 
+                chartDataStore.rawEvents : (currentRawEventsData || []);
+            
+            if (!rawEvents || rawEvents.length === 0) {
+                console.log('⚠️ 이벤트 데이터가 없습니다.');
+                return new Map();
+            }
+            
+            // 사용자별 활동 및 모델 사용량 계산
+            const userActivityData = [];
+            filteredUsers.forEach(member => {
+                const userEmail = member.email;
+                const userId = userEmail.split('@')[0];
+                
+                const userEvents = rawEvents.filter(event => 
+                    event.userEmail === userEmail || event.email === userEmail
+                );
+                
+                // 활동이 없는 사용자는 제외
+                if (userEvents.length === 0) {
+                    return;
+                }
+                
+                const modelUsage = new Map();
+                userEvents.forEach(event => {
+                    const model = event.model || 'unknown';
+                    modelUsage.set(model, (modelUsage.get(model) || 0) + 1);
+                });
+                
+                userActivityData.push({
+                    userId: userId,
+                    email: userEmail,
+                    totalActivity: userEvents.length,
+                    modelUsage: modelUsage
+                });
+            });
+            
+            // 활동 수로 정렬하여 상위 20명 선택
+            const sortedUsers = userActivityData
+                .sort((a, b) => b.totalActivity - a.totalActivity)
+                .slice(0, 20);
+            
+            // Map 형태로 변환
+            const userModelPreference = new Map();
+            sortedUsers.forEach(user => {
+                userModelPreference.set(user.userId, user.modelUsage);
+            });
+            
+            console.log(`📊 필터된 모델 선호도 데이터 생성 완료: ${userModelPreference.size}명의 활성 사용자`);
+            return userModelPreference;
         }
 
         // Usage 섹션 현재 필터로 업데이트
@@ -4888,6 +8441,9 @@
                
                 createOverviewChart(); // 빈 차트 먼저 표시
                 window.overviewChartInitialized = true; // 차트 초기화 플래그 설정
+                
+                // 기본 차트 탭 활성화 (일별 활동 추이)
+                switchChart('activity-trend');
                
                 // 3단계: 백그라운드에서 데이터 로드 시작 (비동기)
                 console.log('📡 백그라운드 데이터 로드 시작...');
@@ -5236,7 +8792,12 @@
         document.addEventListener('DOMContentLoaded', function() {
             // 기본 설정 후
             setTimeout(async () => {
-                createOverviewChart();
+                // 드롭다운에서 초기 차트 설정
+                const chartSelect = document.getElementById('chartSelect');
+                if (chartSelect) {
+                    chartSelect.value = 'activity-trend';
+                    await switchChart('activity-trend');
+                }
                 console.log('=== 페이지 로드 시 자동 실제 API 데이터 새로고침 시작 ===');
                 await refreshAllRealData(); // 자동 새로고침
             }, 100);
