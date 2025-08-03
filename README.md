@@ -18,7 +18,7 @@ Samsung AI Experience Group을 위한 실시간 대시보드입니다. Cursor Ad
 - **정렬 기능**: 각 컬럼별 정렬 지원
 
 ### 📈 Usage 섹션
-- **사용량 카드**: Total Users, Lines of Agent Edits, Tabs Accepted, Chats
+- **사용량 카드**: 총 사용자, 에이전트 편집 라인, 수락된 탭, 채팅
 - **사용자별 누적 정보**: 선택된 기간의 상세 사용 통계
 - **All Raw Events**: 모든 활동 이벤트 로그 (페이지네이션 지원)
 - **기간별 필터링**: 1일, 7일, 30일 또는 사용자 정의 기간
