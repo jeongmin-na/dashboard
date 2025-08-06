@@ -1,0 +1,238 @@
+---
+description: API integration patterns and Cursor Admin API usage
+---
+
+# API Integration Guidelines
+
+## Cursor Admin API Endpoints
+
+The dashboard integrates with Cursor Admin API through a proxy server on localhost:8001.
+
+### Available Endpoints
+
+```javascript
+// Team member information
+GET /teams/members
+// Response: { teamMembers: Array<{name, email, id, role}> }
+
+// Usage data for date range
+POST /teams/daily-usage-data
+// Body: { startDate: timestamp, endDate: timestamp }
+// Response: { period: {startDate, endDate}, data: Array<usageData> }
+
+// Team spending information
+POST /teams/spend
+// Body: { page: number, pageSize: number }
+// Response: { teamMemberSpend: Array<spendData> }
+
+// Filtered usage events (paginated)
+POST /teams/filtered-usage-events
+// Body: { startDate: timestamp, endDate: timestamp, page: number, pageSize: number }
+// Response: { usageEvents: Array<event>, pagination: paginationInfo }
+```
+
+## Authentication
+
+All API calls use Basic Authentication with the API key:
+
+```javascript
+const API_CONFIG = {
+    baseUrl: 'http://localhost:8001',
+    apiKey: 'key_e46368ce482125bbd568b7d55090c657e30e4b73c824f522cbc9ef9b1bf3f0d3'
+};
+
+// Basic Auth header
+const credentials = `${API_CONFIG.apiKey}:`;
+const encodedCredentials = btoa(credentials);
+const headers = {
+    'Authorization': `Basic ${encodedCredentials}`,
+    'Content-Type': 'application/json'
+};
+```
+
+## Data Processing Patterns
+
+### Date Range Handling
+```javascript
+// Korean timezone (UTC+9) handling
+function getDateRange(days) {
+    const now = new Date();
+    const kstOffset = 9 * 60 * 60 * 1000; // 9 hours in milliseconds
+    
+    const endDate = now.getTime() + kstOffset;
+    const startDate = endDate - (days * 24 * 60 * 60 * 1000);
+    
+    return { startDate, endDate };
+}
+```
+
+### Member Data Processing
+```javascript
+// Combine members with spending data
+function processMembers(membersData, spendingData) {
+    return membersData.teamMembers.map(member => {
+        const spendInfo = spendingData.teamMemberSpend.find(
+            spend => spend.userId === member.id
+        ) || { spendCents: 0, fastPremiumRequests: 0 };
+        
+        return {
+            ...member,
+            spendData: {
+                spendCents: spendInfo.spendCents,
+                premiumRequests: spendInfo.fastPremiumRequests,
+                hardLimitOverride: spendInfo.hardLimitOverrideDollars
+            }
+        };
+    });
+}
+```
+
+### Usage Data Aggregation
+```javascript
+// Aggregate usage events by user
+function aggregateUsageByUser(events) {
+    const userStats = {};
+    
+    events.forEach(event => {
+        const userId = event.userId;
+        if (!userStats[userId]) {
+            userStats[userId] = {
+                totalRequests: 0,
+                totalCost: 0,
+                lastActivity: 0,
+                models: new Set(),
+                kinds: new Set()
+            };
+        }
+        
+        userStats[userId].totalRequests++;
+        userStats[userId].totalCost += parseFloat(event.cost || 0);
+        userStats[userId].lastActivity = Math.max(
+            userStats[userId].lastActivity, 
+            parseInt(event.timestamp)
+        );
+        userStats[userId].models.add(event.model);
+        userStats[userId].kinds.add(event.kind);
+    });
+    
+    return userStats;
+}
+```
+
+## Error Handling
+
+### API Error Types
+```javascript
+// Handle different error scenarios
+async function handleAPICall(apiFunction) {
+    try {
+        return await apiFunction();
+    } catch (error) {
+        if (error.message.includes('403')) {
+            showErrorMessage('API 키가 유효하지 않습니다.');
+        } else if (error.message.includes('404')) {
+            showErrorMessage('API 엔드포인트를 찾을 수 없습니다.');
+        } else if (error.message.includes('500')) {
+            showErrorMessage('서버 오류가 발생했습니다.');
+        } else {
+            showErrorMessage('네트워크 연결을 확인해주세요.');
+        }
+        throw error;
+    }
+}
+```
+
+### Rate Limiting
+```javascript
+// Implement simple rate limiting for API calls
+class APIRateLimiter {
+    constructor(maxRequests = 10, windowMs = 60000) {
+        this.requests = [];
+        this.maxRequests = maxRequests;
+        this.windowMs = windowMs;
+    }
+    
+    async canMakeRequest() {
+        const now = Date.now();
+        this.requests = this.requests.filter(time => now - time < this.windowMs);
+        
+        if (this.requests.length >= this.maxRequests) {
+            const oldestRequest = Math.min(...this.requests);
+            const waitTime = this.windowMs - (now - oldestRequest);
+            await new Promise(resolve => setTimeout(resolve, waitTime));
+        }
+        
+        this.requests.push(now);
+        return true;
+    }
+}
+```
+
+## Proxy Server Integration
+
+The [proxy_server.py](mdc:proxy_server.py) handles CORS and API forwarding:
+
+```python
+# Key configuration in proxy_server.py
+class CursorAPIProxy(http.server.SimpleHTTPRequestHandler):
+    def __init__(self, *args, **kwargs):
+        self.api_key = "key_e46368ce482125bbd568b7d55090c657e30e4b73c824f522cbc9ef9b1bf3f0d3"
+        self.base_url = "https://api.cursor.com"
+```
+
+### CORS Headers
+```python
+# Always include CORS headers in responses
+self.send_header('Access-Control-Allow-Origin', '*')
+self.send_header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS')
+self.send_header('Access-Control-Allow-Headers', 'Content-Type, Authorization')
+```
+
+## Performance Optimization
+
+### Data Caching Strategy
+```javascript
+// Cache frequently accessed data
+const dataCache = {
+    members: { data: null, timestamp: null, ttl: 5 * 60 * 1000 }, // 5 minutes
+    usage: { data: null, timestamp: null, ttl: 2 * 60 * 1000 }    // 2 minutes
+};
+
+function getCachedData(key) {
+    const cache = dataCache[key];
+    if (cache.data && cache.timestamp && 
+        (Date.now() - cache.timestamp) < cache.ttl) {
+        return cache.data;
+    }
+    return null;
+}
+
+function setCachedData(key, data) {
+    dataCache[key] = {
+        data: data,
+        timestamp: Date.now(),
+        ttl: dataCache[key].ttl
+    };
+}
+```
+
+### Batch API Calls
+```javascript
+// Load multiple data sources in parallel
+async function loadDashboardData(dateRange) {
+    console.log('=== Loading dashboard data in parallel ===');
+    
+    const [membersResult, usageResult, spendingResult] = await Promise.allSettled([
+        getTeamMembers(),
+        getUsageData(dateRange.startDate, dateRange.endDate),
+        getTeamSpendingData()
+    ]);
+    
+    // Handle individual failures gracefully
+    const members = membersResult.status === 'fulfilled' ? membersResult.value : null;
+    const usage = usageResult.status === 'fulfilled' ? usageResult.value : null;
+    const spending = spendingResult.status === 'fulfilled' ? spendingResult.value : null;
+    
+    return { members, usage, spending };
+}
+```

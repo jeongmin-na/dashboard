@@ -1,0 +1,422 @@
+---
+description: Data flow patterns and state management guidelines
+---
+
+# Data Flow & State Management
+
+## Application State Architecture
+
+### Global State Variables
+```javascript
+// ============================================================================
+// Global State Management
+// ============================================================================
+
+// Current section and navigation state
+let currentSection = 'overview';
+let sectionVisited = {
+    overview: false,
+    members: false, 
+    usage: false,
+    settings: false
+};
+
+// Filter and date range state
+let currentDateRange = null;
+let currentFilterType = 'total'; // 'total', 'active', 'inactive'
+let currentFilterDays = 30;
+
+// Pagination state for different sections
+let currentOverviewPage = 1;
+let currentMembersPage = 1;
+let currentUsagePage = 1;
+let currentUserCumulativePage = 1;
+
+// Data loading states
+let isUsageDataLoaded = false;
+let isRefreshInProgress = false;
+let isUsageLoading = false;
+
+// Data cache
+let cachedMembersData = null;
+let cachedUsageData = null;
+let originalMembersData = [];
+let currentMembersData = [];
+let currentRawEventsData = [];
+```
+
+## Data Flow Patterns
+
+### 1. Initial Page Load
+```javascript
+// Page load sequence
+document.addEventListener('DOMContentLoaded', function() {
+    // 1. Setup event listeners
+    setupEventListeners();
+    
+    // 2. Initialize default state
+    setTimeout(async () => {
+        // 3. Load initial data
+        console.log('=== Initial data refresh started ===');
+        await refreshAllRealData();
+        
+        // 4. Setup default chart
+        const chartSelect = document.getElementById('chartSelect');
+        if (chartSelect) {
+            chartSelect.value = 'activity-trend';
+            await switchChart('activity-trend');
+        }
+    }, 100);
+});
+```
+
+### 2. Section Navigation Flow
+```javascript
+// Navigation flow
+Menu Click → Section Switch → Data Load → UI Update
+
+function showSection(sectionName) {
+    // 1. Hide all sections
+    document.querySelectorAll('.content-section').forEach(section => {
+        section.classList.remove('active');
+    });
+    
+    // 2. Show target section
+    document.getElementById(sectionName).classList.add('active');
+    
+    // 3. Update navigation state
+    updateMenuActiveState(sectionName);
+    
+    // 4. Load section data
+    switch(sectionName) {
+        case 'overview':
+            setTimeout(async () => {
+                await refreshAllRealData();
+            }, 100);
+            break;
+        case 'members':
+            setTimeout(async () => {
+                await updateMembersWithRealData();
+            }, 100);
+            break;
+        case 'usage':
+            setTimeout(async () => {
+                if (!isUsageDataLoaded) {
+                    await updateUsageWithCurrentFilter(30, true);
+                } else {
+                    updateUsageWithCurrentFilter(30, false);
+                }
+            }, 100);
+            break;
+    }
+}
+```
+
+### 3. Filter Update Flow
+```javascript
+// Filter update sequence
+Filter Change → Date Range Update → API Call → Data Process → UI Refresh
+
+async function updateOverviewWithCurrentFilter(days = null, forceRefresh = false) {
+    try {
+        // 1. Determine date range
+        const filterDays = days || getCurrentFilterDays();
+        const dateRange = getDateRange(filterDays);
+        
+        // 2. Update global state
+        currentDateRange = dateRange;
+        currentFilterDays = filterDays;
+        
+        // 3. Update filter display
+        updateFilterPeriodDisplay(dateRange.startDate, dateRange.endDate);
+        
+        // 4. Load data in parallel
+        const [membersData, eventsData, spendingData] = await Promise.all([
+            getTeamMembers(),
+            getFilteredEvents(dateRange.startDate, dateRange.endDate),
+            getTeamSpendingData()
+        ]);
+        
+        // 5. Process and combine data
+        const processedMembers = processMembers(membersData, spendingData);
+        const usageStats = calculateUsageStats(eventsData);
+        
+        // 6. Update UI components
+        updateUsageCards(usageStats);
+        updateOverviewStats(processedMembers);
+        updateActivityList(eventsData);
+        
+        console.log('✅ Overview data updated successfully');
+        
+    } catch (error) {
+        console.error('❌ Overview update failed:', error);
+        showErrorMessage('데이터를 불러오는 중 오류가 발생했습니다.');
+    }
+}
+```
+
+## Data Processing Pipeline
+
+### 1. Member Data Processing
+```javascript
+// Members data flow: API → Process → Cache → Display
+async function updateMembersWithRealData() {
+    try {
+        // 1. Fetch raw data
+        const [membersResponse, spendingResponse] = await Promise.all([
+            getTeamMembers(),
+            getTeamSpendingData()
+        ]);
+        
+        // 2. Validate data
+        if (!membersResponse?.teamMembers) {
+            throw new Error('Invalid members data');
+        }
+        
+        // 3. Process and combine
+        const processedMembers = membersResponse.teamMembers.map(member => {
+            const spendInfo = spendingResponse.teamMemberSpend.find(
+                spend => spend.userId === member.id
+            ) || { spendCents: 0, fastPremiumRequests: 0 };
+            
+            return {
+                id: member.id,
+                name: member.name,
+                email: member.email,
+                role: member.role,
+                spendData: {
+                    spendCents: spendInfo.spendCents,
+                    premiumRequests: spendInfo.fastPremiumRequests,
+                    hardLimitOverride: spendInfo.hardLimitOverrideDollars || 0
+                }
+            };
+        });
+        
+        // 4. Update cache and state
+        originalMembersData = processedMembers;
+        currentMembersData = processedMembers;
+        
+        // 5. Render UI
+        renderMembersTableWithPagination(processedMembers);
+        
+    } catch (error) {
+        console.error('Members data update failed:', error);
+        showErrorMessage('멤버 데이터를 불러오는 중 오류가 발생했습니다.');
+    }
+}
+```
+
+### 2. Usage Data Processing
+```javascript
+// Usage data flow: API → Aggregate → Cache → Display
+async function updateUsageWithCurrentFilter(days = 30, isInitialLoad = false) {
+    try {
+        // 1. Set loading state
+        if (isInitialLoad) {
+            isUsageLoading = true;
+            showLoadingState('usage');
+        }
+        
+        // 2. Get date range
+        const dateRange = getDateRange(days);
+        updateUsageFilterPeriodDisplay(dateRange.startDate, dateRange.endDate);
+        
+        // 3. Fetch data
+        const [membersData, eventsData, usageData] = await Promise.all([
+            getTeamMembers(),
+            getFilteredEvents(dateRange.startDate, dateRange.endDate),
+            getUsageData(dateRange.startDate, dateRange.endDate)
+        ]);
+        
+        // 4. Aggregate user statistics
+        const userStats = aggregateUsageByUser(eventsData.usageEvents || []);
+        
+        // 5. Combine with member data
+        const userCumulativeData = membersData.teamMembers.map(member => {
+            const stats = userStats[member.id] || {
+                totalRequests: 0,
+                totalCost: 0,
+                lastActivity: 0
+            };
+            
+            return {
+                name: member.name,
+                email: member.email,
+                role: member.role,
+                requests: stats.totalRequests,
+                spend: stats.totalCost,
+                lastActivity: stats.lastActivity
+            };
+        });
+        
+        // 6. Update state and cache
+        currentUserCumulativeData = userCumulativeData;
+        currentRawEventsData = eventsData.usageEvents || [];
+        
+        // 7. Render components
+        renderUserCumulativeTable(userCumulativeData);
+        renderFilteredRawEventsTable(eventsData.usageEvents || []);
+        updateUsageCards(calculateUsageCards(usageData));
+        
+        // 8. Update loading state
+        isUsageDataLoaded = true;
+        isUsageLoading = false;
+        
+    } catch (error) {
+        console.error('Usage data update failed:', error);
+        isUsageLoading = false;
+        showErrorMessage('사용량 데이터를 불러오는 중 오류가 발생했습니다.');
+    }
+}
+```
+
+## State Synchronization
+
+### 1. Filter State Sync
+```javascript
+// Keep filter states synchronized across sections
+function getCurrentFilterState() {
+    return {
+        dateRange: currentDateRange || getDateRange(currentFilterDays),
+        filterType: currentFilterType,
+        filterDays: currentFilterDays,
+        members: currentMembersData,
+        rawEventsData: currentRawEventsData
+    };
+}
+
+function applyFilterState(filterState) {
+    currentDateRange = filterState.dateRange;
+    currentFilterType = filterState.filterType;
+    currentFilterDays = filterState.filterDays;
+    
+    // Update UI to reflect state
+    updateFilterButtons(currentFilterDays);
+    updateFilterPeriodDisplay(currentDateRange.startDate, currentDateRange.endDate);
+}
+```
+
+### 2. Navigation State Management
+```javascript
+// Track navigation state and scroll positions
+let scrollPositions = {
+    overview: 0,
+    members: 0,
+    usage: 0,
+    settings: 0
+};
+
+function saveScrollPosition(sectionName) {
+    const section = document.getElementById(sectionName);
+    if (section) {
+        scrollPositions[sectionName] = section.scrollTop;
+    }
+}
+
+function restoreScrollPosition(sectionName) {
+    const section = document.getElementById(sectionName);
+    if (section && scrollPositions[sectionName]) {
+        setTimeout(() => {
+            section.scrollTop = scrollPositions[sectionName];
+        }, 50);
+    }
+}
+```
+
+## Error State Management
+
+### 1. Error Handling Flow
+```javascript
+// Centralized error handling
+function handleDataError(error, context) {
+    console.error(`❌ Error in ${context}:`, error);
+    
+    // Determine error type and message
+    let message = '데이터를 불러오는 중 오류가 발생했습니다.';
+    
+    if (error.message.includes('403')) {
+        message = 'API 권한이 없습니다. 관리자에게 문의하세요.';
+    } else if (error.message.includes('network')) {
+        message = '네트워크 연결을 확인해주세요.';
+    }
+    
+    // Show error to user
+    showErrorMessage(message);
+    
+    // Log for debugging
+    console.error(`Context: ${context}`, error);
+}
+```
+
+### 2. Fallback Data Patterns
+```javascript
+// Provide fallback when data fails to load
+async function loadDataWithFallback(dataLoader, fallbackData = []) {
+    try {
+        const data = await dataLoader();
+        return data;
+    } catch (error) {
+        console.warn('Using fallback data due to error:', error);
+        return fallbackData;
+    }
+}
+
+// Usage
+const membersData = await loadDataWithFallback(
+    () => getTeamMembers(),
+    { teamMembers: [] }
+);
+```
+
+## Performance Optimization
+
+### 1. Data Caching Strategy
+```javascript
+// Smart caching with TTL
+const CACHE_TTL = {
+    members: 5 * 60 * 1000,  // 5 minutes
+    usage: 2 * 60 * 1000,    // 2 minutes
+    spending: 10 * 60 * 1000  // 10 minutes
+};
+
+function getCachedData(key) {
+    const cache = dataCache[key];
+    if (cache && cache.timestamp && 
+        (Date.now() - cache.timestamp) < CACHE_TTL[key]) {
+        console.log(`📦 Using cached data for ${key}`);
+        return cache.data;
+    }
+    return null;
+}
+```
+
+### 2. Background Refresh
+```javascript
+// Refresh data in background without disrupting UI
+async function refreshDataInBackground() {
+    try {
+        console.log('🔄 Background refresh started');
+        
+        // Load new data without showing loading states
+        const [membersData, usageData] = await Promise.all([
+            getTeamMembers(),
+            getUsageData(currentDateRange.startDate, currentDateRange.endDate)
+        ]);
+        
+        // Update cache silently
+        setCachedData('members', membersData);
+        setCachedData('usage', usageData);
+        
+        // Only update UI if user is on relevant section
+        if (currentSection === 'overview') {
+            updateCurrentSectionDisplay();
+        }
+        
+        console.log('✅ Background refresh completed');
+        
+    } catch (error) {
+        console.warn('Background refresh failed:', error);
+        // Don't show error for background operations
+    }
+}
+```

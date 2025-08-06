@@ -1,0 +1,49 @@
+---
+alwaysApply: true
+description: Samsung AI Experience Group Dashboard project structure and architecture
+---
+
+# Samsung AI Experience Group Dashboard - Project Structure
+
+## Main Files
+
+- [dash.html](mdc:dash.html) - Main dashboard single-page application (8,776 lines)
+- [proxy_server.py](mdc:proxy_server.py) - Proxy server for CORS handling and API communication
+- [requirements.txt](mdc:requirements.txt) - Python dependencies
+- [user_manual_doc.md](mdc:user_manual_doc.md) - User manual documentation
+- [technical_documentation.md](mdc:technical_documentation.md) - Technical documentation
+
+## Architecture Overview
+
+This is a single-page dashboard application with the following structure:
+
+```
+Dashboard Layout:
+├── Sidebar (250px fixed)
+│   ├── Logo section
+│   ├── Refresh button with progress bar
+│   └── Navigation menu (Overview, Members, Usage, Settings)
+└── Main Content Area
+    ├── Header (80px fixed)
+    └── Content sections (Overview, Members, Usage, Settings)
+```
+
+## Key Technologies
+
+- **Frontend**: Pure HTML/CSS/JavaScript (no frameworks)
+- **Backend**: Python proxy server using http.server
+- **API**: Cursor Admin API via localhost:8001 proxy
+- **Charts**: Custom JavaScript implementation
+- **Styling**: CSS Grid and Flexbox layouts
+
+## Data Flow
+
+1. **API Calls**: JavaScript → Proxy Server (port 8001) → Cursor Admin API
+2. **Authentication**: Basic Auth with API key
+3. **Data Caching**: Client-side caching for performance
+4. **State Management**: Global variables for filter states and pagination
+
+## Port Configuration
+
+- **Proxy Server**: localhost:8001
+- **Dashboard Access**: http://localhost:8001/dash.html

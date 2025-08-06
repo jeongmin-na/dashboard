@@ -1,0 +1,372 @@
+---
+description: UI component patterns and reusable elements
+alwaysApply: true
+---
+
+# UI Component Guidelines
+
+## ⚠️ CRITICAL: Design System Preservation
+
+**NEVER CHANGE** existing component styles unless explicitly requested by the user. All new components must match the current design system exactly.
+
+## Dashboard Layout Components
+
+### Sidebar Navigation
+```html
+<!-- Standard sidebar structure -->
+<div class="sidebar">
+    <!-- Logo/header section -->
+    <div class="logo-section">
+        <div class="logo-placeholder" style="height: 60px;"></div>
+    </div>
+    
+    <!-- Refresh button with progress bar -->
+    <div class="refresh-button" onclick="handleRefreshClick()">
+        🔄 사용자 정보 업데이트
+        <div class="refresh-progress">
+            <div class="refresh-progress-bar"></div>
+        </div>
+    </div>
+    
+    <!-- Navigation menu -->
+    <nav class="menu-items">
+        <a href="#" class="menu-item active" data-section="overview">
+            📊 Overview
+        </a>
+        <a href="#" class="menu-item" data-section="settings">
+            ⚙️ Settings  
+        </a>
+        <!-- More menu items -->
+    </nav>
+</div>
+```
+
+### Content Sections
+```html
+<!-- Section container pattern -->
+<div id="section-name" class="content-section">
+    <!-- Section content -->
+</div>
+
+<!-- Only one section should be active at a time -->
+<style>
+.content-section { display: none; }
+.content-section.active { display: block; }
+</style>
+```
+
+## Statistics Cards
+
+### Overview Statistics
+```html
+<div class="overview-stats">
+    <div class="overview-stat-box clickable" data-type="total" onclick="filterOverviewMembersByType('total')">
+        <div class="stat-number">25</div>
+        <div class="stat-label">전체 멤버</div>
+        <div class="stat-description">그룹 내 모든 멤버</div>
+    </div>
+    <!-- More stat boxes -->
+</div>
+```
+
+### Usage Cards
+```html
+<div class="usage-overview-cards">
+    <div class="usage-card">
+        <div class="usage-number" id="total-users">0</div>
+        <div class="usage-label">실제 활동한 사용자 수</div>
+        <div class="usage-description">해당 기간 활동 기록이 있는 사용자</div>
+    </div>
+    <!-- More usage cards -->
+</div>
+```
+
+## Filter Controls
+
+### Date Range Filters
+```html
+<div class="chart-controls">
+    <!-- Period display -->
+    <div class="filter-period-display">
+        <span id="filter-period-text">2025-08-03 ~ 2025-08-03</span>
+    </div>
+    
+    <!-- Quick filter buttons -->
+    <button class="chart-btn" data-days="1">1d</button>
+    <button class="chart-btn" data-days="7">7d</button>
+    <button class="chart-btn active" data-days="30">30d</button>
+    
+    <!-- Custom date picker -->
+    <div class="date-picker">
+        <input type="date" id="start-date" />
+        <span>~</span>
+        <input type="date" id="end-date" />
+        <button class="analytics-btn" onclick="applyDateFilter()">적용</button>
+    </div>
+</div>
+```
+
+### Search Components
+```html
+<div class="search-container">
+    <div style="position: relative; display: flex; align-items: center;">
+        <span style="position: absolute; left: 12px; color: #7a7a7a;">🔍</span>
+        <input type="text" class="search-box" placeholder="Search name, email..." 
+               style="padding-left: 35px;" 
+               onkeyup="filterFunction(this.value)"
+               oninput="toggleSearchClearBtn(this.id)">
+        <button class="search-clear-btn" onclick="clearSearch()" style="display: none;">×</button>
+    </div>
+    <div class="autocomplete-dropdown" style="display: none;"></div>
+</div>
+```
+
+## Data Tables
+
+### Standard Table Structure
+```html
+<div class="data-table-container">
+    <div class="table-header">📊 Table Title</div>
+    
+    <!-- Table grid -->
+    <div class="table-grid">
+        <div>COLUMN 1</div>
+        <div>COLUMN 2</div>
+        <div>COLUMN 3</div>
+        <!-- Header columns -->
+    </div>
+    
+    <!-- Table content container -->
+    <div id="table-content-container">
+        <!-- Dynamic content -->
+    </div>
+    
+    <!-- Pagination -->
+    <div class="table-pagination">
+        <!-- Page controls -->
+    </div>
+</div>
+```
+
+### Pagination Component
+```html
+<div class="pagination-container">
+    <!-- Page size selector -->
+    <div class="pagination-info">
+        <span>Show</span>
+        <select class="page-size-select" onchange="changePageSize(this.value)">
+            <option value="10">10</option>
+            <option value="20" selected>20</option>
+            <option value="50">50</option>
+        </select>
+        <span>items per page</span>
+    </div>
+    
+    <!-- Page navigation -->
+    <div class="pagination-controls">
+        <button class="page-btn" onclick="changePage(1)">First</button>
+        <button class="page-btn" onclick="changePage(currentPage - 1)">‹</button>
+        
+        <!-- Page numbers (generated dynamically) -->
+        <span class="page-numbers"></span>
+        
+        <button class="page-btn" onclick="changePage(currentPage + 1)">›</button>
+        <button class="page-btn" onclick="changePage(totalPages)">Last</button>
+    </div>
+</div>
+```
+
+## Form Components
+
+### Settings Accordion
+```html
+<div class="settings-section">
+    <div class="accordion-header" onclick="toggleAccordion(this)">
+        <div class="accordion-title">Section Title</div>
+        <div class="accordion-arrow">▼</div>
+    </div>
+    <div class="accordion-content">
+        <!-- Setting items -->
+        <div class="setting-item">
+            <div>
+                <div class="setting-label">Setting Name</div>
+                <div class="setting-description">Setting description</div>
+            </div>
+            <div class="toggle-switch" onclick="toggleSwitch(this)"></div>
+        </div>
+    </div>
+</div>
+```
+
+### Toggle Switch
+```html
+<div class="toggle-switch" onclick="toggleSwitch(this)"></div>
+
+<style>
+.toggle-switch {
+    width: 44px;
+    height: 24px;
+    background-color: #4a9eff;
+    border-radius: 12px;
+    position: relative;
+    cursor: pointer;
+    transition: background-color 0.2s ease;
+}
+
+.toggle-switch.off {
+    background-color: #5a5a5a;
+}
+
+.toggle-switch::after {
+    content: '';
+    width: 20px;
+    height: 20px;
+    background-color: white;
+    border-radius: 50%;
+    position: absolute;
+    top: 2px;
+    right: 2px;
+    transition: all 0.2s ease;
+}
+
+.toggle-switch.off::after {
+    right: 22px;
+}
+</style>
+```
+
+### Select Dropdowns
+```html
+<select class="setting-select">
+    <option>Option 1</option>
+    <option selected>Option 2</option>
+    <option>Option 3</option>
+</select>
+
+<style>
+.setting-select {
+    background: #3a3a3a;
+    color: #fff;
+    border: 1px solid #4a4a4a;
+    padding: 8px 12px;
+    border-radius: 4px;
+    font-size: 14px;
+}
+</style>
+```
+
+## Button Components
+
+### Button Types
+```html
+<!-- Primary action button -->
+<button class="analytics-btn">주요 액션</button>
+
+<!-- Secondary button -->
+<button class="chart-btn">보조 액션</button>
+
+<!-- Export button -->
+<button class="export-btn">📥 Export 하기</button>
+```
+
+### Button States
+```css
+/* Primary button */
+.analytics-btn {
+    background-color: #4a9eff;
+    color: white;
+    border: none;
+    padding: 8px 16px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.analytics-btn:hover {
+    background-color: #3a8edf;
+}
+
+/* Secondary button */
+.chart-btn {
+    background-color: #3a3a3a;
+    border: 1px solid #4a4a4a;
+    color: #b1b1b1;
+    padding: 6px 12px;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+
+.chart-btn:hover {
+    background-color: #4a4a4a;
+    color: #fff;
+}
+
+.chart-btn.active {
+    background-color: #4a9eff;
+    border-color: #4a9eff;
+    color: white;
+}
+```
+
+## Loading States
+
+### Progress Bar
+```html
+<div class="refresh-progress">
+    <div class="refresh-progress-bar" style="width: 60%;"></div>
+</div>
+```
+
+### Loading Messages
+```html
+<div class="loading-container">
+    <div style="padding: 20px; text-align: center; color: #7a7a7a; background-color: #1a1a1a;">
+        데이터를 불러오는 중...
+    </div>
+</div>
+```
+
+### Empty States
+```html
+<div class="empty-state">
+    <div style="padding: 20px; text-align: center; color: #7a7a7a; background-color: #1a1a1a;">
+        표시할 데이터가 없습니다.
+    </div>
+</div>
+```
+
+## Interactive Elements
+
+### Hover Effects
+```css
+.interactive-element {
+    transition: all 0.2s ease;
+}
+
+.interactive-element:hover {
+    background-color: #3a3a3a;
+    color: #fff;
+    cursor: pointer;
+}
+```
+
+### Selection States
+```css
+.selectable-item.selected {
+    background-color: #3a3a3a;
+    border-color: #5a9eff;
+    box-shadow: 0 0 10px rgba(90, 158, 255, 0.3);
+}
+```
+
+### Click Feedback
+```javascript
+// Add click feedback to interactive elements
+function addClickFeedback(element) {
+    element.style.transform = 'scale(0.98)';
+    setTimeout(() => {
+        element.style.transform = 'scale(1)';
+    }, 100);
+}
+```
