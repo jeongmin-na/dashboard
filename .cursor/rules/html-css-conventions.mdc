@@ -1,0 +1,153 @@
+---
+globs: *.html,*.css
+description: HTML and CSS coding conventions for the dashboard
+alwaysApply: true
+---
+
+# HTML & CSS Conventions
+
+## ⚠️ CRITICAL: Design System Preservation
+
+**NEVER CHANGE** the existing design system unless explicitly requested by the user. All new components must match the current styling exactly.
+
+## Color System
+
+**MUST PRESERVE** these color variables - DO NOT CHANGE without explicit user permission:
+
+```css
+/* Background Colors */
+--bg-primary: #1a1a1a    /* Main background */
+--bg-secondary: #2a2a2a  /* Cards/sidebar */
+--bg-tertiary: #3a3a3a   /* Hover/active */
+
+/* Text Colors */
+--text-primary: #fff     /* Headings */
+--text-secondary: #e1e1e1 /* Regular text */
+--text-muted: #b1b1b1    /* Secondary text */
+--text-disabled: #7a7a7a /* Disabled text */
+
+/* Accent Colors */
+--accent-primary: #4a9eff  /* Primary buttons */
+--accent-warning: #ff9800  /* Filter displays */
+--accent-success: #5a9eff  /* Selected states */
+```
+
+## Typography Scale
+
+**MUST PRESERVE** these typography settings - DO NOT CHANGE without explicit user permission:
+
+```css
+font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+
+/* Font Sizes - NEVER CHANGE */
+--font-xl: 36px     /* Statistics numbers */
+--font-lg: 24px     /* Page titles */
+--font-md: 18px     /* Section titles */
+--font-base: 16px   /* Regular text */
+--font-sm: 14px     /* Menu items, buttons */
+--font-xs: 12px     /* Descriptions, captions */
+```
+
+## Spacing System
+
+**MUST PRESERVE** these spacing values - DO NOT CHANGE without explicit user permission:
+
+Use consistent spacing values:
+
+```css
+--space-xs: 4px
+--space-sm: 8px
+--space-md: 12px
+--space-lg: 20px
+--space-xl: 30px
+```
+
+## CSS Class Naming
+
+- Use kebab-case for CSS classes: `.overview-stat-box`
+- Component-based naming: `.component-element-modifier`
+- State classes: `.active`, `.selected`, `.disabled`
+
+## Layout Patterns
+
+### Grid Systems
+```css
+/* 3-column layout for overview cards */
+.overview-stats {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 20px;
+}
+
+/* Table-style grids */
+.user-cumulative-table {
+    display: grid;
+    grid-template-columns: 2fr 3fr 1fr 1fr 1fr 1fr;
+    gap: 15px;
+}
+```
+
+### Flexbox Patterns
+```css
+/* Navigation items */
+.menu-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 20px;
+}
+
+/* Button groups */
+.chart-controls {
+    display: flex;
+    gap: 8px;
+    align-items: center;
+}
+```
+
+## Interactive Elements
+
+### Hover States
+```css
+.interactive-element:hover {
+    background-color: #3a3a3a;
+    color: #fff;
+    transition: all 0.2s ease;
+}
+```
+
+### Active States
+```css
+.element.active {
+    background-color: #4a9eff;
+    color: white;
+}
+```
+
+## Component Standards
+
+### Buttons
+**MUST MATCH** existing button styles - DO NOT CREATE NEW BUTTON STYLES:
+
+- Primary: `.analytics-btn` (blue background: #4a9eff)
+- Secondary: `.chart-btn` (gray background: #3a3a3a)
+- Export: `.export-btn` (full width, icon + text)
+
+**When creating new buttons, always use existing button classes or match their exact styling.**
+
+### Forms
+**MUST MATCH** existing form styles - DO NOT CREATE NEW FORM STYLES:
+
+- Inputs: `.search-box` (dark theme: #2a2a2a background, #e1e1e1 text)
+- Selects: `.setting-select` (consistent styling: #3a3a3a background)
+- Toggle switches: `.toggle-switch` (custom implementation)
+
+**When creating new form elements, always use existing form classes or match their exact styling.**
+
+### Cards
+**MUST MATCH** existing card styles - DO NOT CREATE NEW CARD STYLES:
+
+- Statistics: `.overview-stat-box` (hover effects, clickable, #2a2a2a background)
+- Content: `.settings-section` (accordion style, #2a2a2a background)
+- Tables: `.user-cumulative-info` (grid-based, #2a2a2a background)
+
+**When creating new cards, always use existing card classes or match their exact styling.**

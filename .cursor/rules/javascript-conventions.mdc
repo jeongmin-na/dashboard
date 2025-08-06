@@ -1,0 +1,277 @@
+---
+globs: *.js,*.html
+description: JavaScript coding conventions and patterns for the dashboard
+---
+
+# JavaScript Conventions
+
+## Naming Conventions
+
+### Variables and Functions
+```javascript
+// camelCase for variables and functions
+let currentFilterType = 'total';
+let isRefreshInProgress = false;
+
+// UPPER_SNAKE_CASE for constants
+const API_CONFIG = {
+    baseUrl: 'http://localhost:8001',
+    apiKey: 'key_...'
+};
+```
+
+### Function Naming Patterns
+```javascript
+// API functions: get + DataType
+async function getTeamMembers()
+async function getUsageData()
+async function getFilteredEvents()
+
+// Update functions: update + Target + with + Method
+async function updateOverviewWithCurrentFilter()
+async function updateMembersWithRealData()
+
+// Render functions: render + Target + Type
+function renderMembersTableWithPagination()
+function renderFilteredRawEventsTable()
+
+// Filter functions: filter + Target + by + Criteria
+function filterOverviewMembersByType()
+function filterUsageMembers()
+
+// Event handlers: handle + Event + Action
+function handleRefreshClick()
+function handleDateFilterChange()
+```
+
+## API Call Patterns
+
+### Standard API Call Structure
+```javascript
+async function callAPI(endpoint, method = 'GET', data = null) {
+    try {
+        // Basic Auth setup
+        const credentials = `${API_CONFIG.apiKey}:`;
+        const encodedCredentials = btoa(credentials);
+        
+        const options = {
+            method: method,
+            headers: {
+                ...API_CONFIG.headers,
+                'Authorization': `Basic ${encodedCredentials}`
+            }
+        };
+
+        if (data && method === 'POST') {
+            options.body = JSON.stringify(data);
+        }
+
+        console.log(`API Call: ${method} ${API_CONFIG.baseUrl}${endpoint}`, data);
+        
+        const response = await fetch(API_CONFIG.baseUrl + endpoint, options);
+        
+        if (!response.ok) {
+            throw new Error(`API Error: ${response.status} - ${response.statusText}`);
+        }
+
+        const result = await response.json();
+        console.log('API Response:', result);
+        
+        return result;
+        
+    } catch (error) {
+        console.error('API Call Error:', error);
+        throw error;
+    }
+}
+```
+
+### Pagination Pattern
+```javascript
+// Always handle pagination with while loop for complete data
+async function getFilteredEvents(startDate, endDate) {
+    let allEvents = [];
+    let currentPage = 1;
+    let hasMorePages = true;
+    
+    while (hasMorePages) {
+        const pageData = await callAPI('/teams/filtered-usage-events', 'POST', {
+            startDate: startDate,
+            endDate: endDate,
+            page: currentPage,
+            pageSize: 1000
+        });
+        
+        if (pageData && pageData.usageEvents) {
+            allEvents = allEvents.concat(pageData.usageEvents);
+            hasMorePages = pageData.pagination && pageData.pagination.hasNextPage;
+            currentPage++;
+            
+            // Prevent infinite loops
+            if (currentPage > 10) break;
+        } else {
+            hasMorePages = false;
+        }
+    }
+    
+    return { usageEvents: allEvents };
+}
+```
+
+## State Management
+
+### Global Variables Pattern
+```javascript
+// Current state variables
+let currentPage = 1;
+let currentPageSize = 20;
+let currentData = [];
+let currentDateRange = null;
+let currentFilterType = 'total';
+
+// Loading states
+let isUsageDataLoaded = false;
+let isRefreshInProgress = false;
+
+// Cache variables
+let cachedMembersData = null;
+let cachedUsageData = null;
+```
+
+### Filter State Management
+```javascript
+function getCurrentFilterState() {
+    return {
+        dateRange: currentDateRange || getDateRange(getCurrentFilterDays()),
+        filterType: currentFilterType,
+        members: currentMembers,
+        rawEventsData: currentRawEventsData
+    };
+}
+```
+
+## Event Handling
+
+### Event Listener Setup
+```javascript
+// Menu navigation
+document.querySelectorAll('.menu-item').forEach(item => {
+    item.addEventListener('click', (event) => {
+        // Remove active from all items
+        document.querySelectorAll('.menu-item').forEach(i => i.classList.remove('active'));
+        
+        // Add active to clicked item
+        item.classList.add('active');
+        
+        // Handle section switching
+        const section = item.getAttribute('data-section');
+        showSection(section);
+    });
+});
+
+// Filter buttons
+document.querySelectorAll('.chart-btn').forEach(btn => {
+    btn.addEventListener('click', async (event) => {
+        // Update active state
+        document.querySelectorAll('.chart-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+        
+        // Apply filter
+        const days = parseInt(btn.getAttribute('data-days'));
+        await updateWithFilter(days);
+    });
+});
+```
+
+## Error Handling
+
+### Async Function Error Pattern
+```javascript
+async function fetchDataWithErrorHandling() {
+    try {
+        console.log('=== Data fetch started ===');
+        
+        const data = await callAPI('/endpoint');
+        
+        if (!data) {
+            throw new Error('No data received');
+        }
+        
+        console.log('✅ Data fetch successful');
+        return data;
+        
+    } catch (error) {
+        console.error('❌ Data fetch failed:', error);
+        
+        // Show user-friendly error
+        showErrorMessage('데이터를 불러오는 중 오류가 발생했습니다.');
+        
+        // Return fallback or rethrow
+        return null;
+    }
+}
+```
+
+## Logging Standards
+
+### Console Log Patterns
+```javascript
+// Section separators
+console.log('=== Major Operation Started ===');
+
+// Status indicators
+console.log('✅ Success message');
+console.log('❌ Error message');
+console.log('⚠️ Warning message');
+console.log('📊 Data processing');
+console.log('🔄 Refresh operation');
+
+// Data logging
+console.log(`Processed ${count} items`);
+console.log('API Response:', data);
+```
+
+## Performance Patterns
+
+### Debouncing
+```javascript
+function debounce(func, wait) {
+    let timeout;
+    return function executedFunction(...args) {
+        const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+        };
+        clearTimeout(timeout);
+        timeout = setTimeout(later, wait);
+    };
+}
+
+// Usage
+const debouncedSearch = debounce(searchFunction, 300);
+```
+
+### Background Loading
+```javascript
+// Load data in background without blocking UI
+async function refreshDataInBackground() {
+    try {
+        const [membersData, usageData] = await Promise.all([
+            getTeamMembers(),
+            getUsageData(startDate, endDate)
+        ]);
+        
+        // Update cache
+        cachedMembersData = membersData;
+        cachedUsageData = usageData;
+        
+        // Update UI if needed
+        if (currentSection === 'overview') {
+            renderCurrentSection();
+        }
+        
+    } catch (error) {
+        console.error('Background refresh failed:', error);
+    }
+}
+```
