@@ -17,6 +17,11 @@ from email.mime.text import MIMEText
 from email.mime.multipart import MIMEMultipart
 from email.mime.base import MIMEBase
 from email import encoders
+from io import BytesIO
+try:
+    from openpyxl import Workbook
+except Exception:
+    Workbook = None
 
 class CursorAPIProxy(http.server.SimpleHTTPRequestHandler):
     """Cursor Admin API 프록시 핸들러"""
@@ -49,6 +54,8 @@ class CursorAPIProxy(http.server.SimpleHTTPRequestHandler):
             self.handle_api_request('POST')
         elif self.path == '/send-email':
             self.handle_email_send()
+        elif self.path == '/generate-xlsx':
+            self.handle_generate_xlsx()
         else:
             self.send_error(404, "Not Found")
     
@@ -176,6 +183,47 @@ class CursorAPIProxy(http.server.SimpleHTTPRequestHandler):
                 'message': str(e)
             }
             self.send_error_response(500, json.dumps(error_response, ensure_ascii=False))
+
+    def handle_generate_xlsx(self):
+        """프런트에서 보낸 시트 정의로 XLSX를 생성하여 바이너리로 응답"""
+        try:
+            if Workbook is None:
+                raise RuntimeError('openpyxl 미설치')
+            content_length = int(self.headers.get('Content-Length', 0))
+            if content_length <= 0:
+                raise ValueError('요청 데이터가 없습니다.')
+            payload = json.loads(self.rfile.read(content_length).decode('utf-8'))
+            sheets = payload.get('sheets', [])
+            filename = payload.get('filename', 'attachments.xlsx')
+
+            wb = Workbook()
+            # 기본 시트 제거
+            default_ws = wb.active
+            wb.remove(default_ws)
+            for sheet in sheets:
+                name = sheet.get('name', 'Sheet')[:31] or 'Sheet'
+                ws = wb.create_sheet(title=name)
+                headers = sheet.get('headers', [])
+                rows = sheet.get('rows', [])
+                if headers:
+                    ws.append(headers)
+                for row in rows:
+                    ws.append(row)
+
+            bio = BytesIO()
+            wb.save(bio)
+            data = bio.getvalue()
+
+            self.send_response(200)
+            self.send_header('Access-Control-Allow-Origin', '*')
+            self.send_header('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+            self.send_header('Content-Disposition', f'attachment; filename="{filename}"')
+            self.send_header('Content-Length', str(len(data)))
+            self.end_headers()
+            self.wfile.write(data)
+        except Exception as e:
+            print(f'❌ XLSX 생성 실패: {e}')
+            self.send_error_response(500, json.dumps({'error':'XLSX 생성 실패','message':str(e)}, ensure_ascii=False))
     
     def send_email_via_smtp(self, email_data):
         """SMTP를 통한 이메일 발송"""
@@ -184,8 +232,12 @@ class CursorAPIProxy(http.server.SimpleHTTPRequestHandler):
         smtp_port = 587
         
         # 발신자 정보 (실제 Gmail 계정 정보로 변경 필요)
-        sender_email = "jeongmin.na7@gmail.com"  # 실제 Gmail 주소로 변경
+        sender_email = "jeongmin.na7@gmail.com"  # 실제 Gmail 주소로 변경 (기본 계정)
         sender_password = "rfwz pyja jtft igvh"   # Gmail 앱 비밀번호로 변경 (앱 비밀번호 생성 후 변경)
+
+        # 프론트에서 전달된 발신자 표시 이름/이메일(옵션)
+        requested_from_email = (email_data.get('from_email') or '').strip()
+        requested_from_name = (email_data.get('from_name') or '').strip()
         
         print(f"📧 Gmail SMTP 설정 - 서버: {smtp_server}:{smtp_port}")
         print(f"📧 발신자: {sender_email}")
@@ -198,8 +250,12 @@ class CursorAPIProxy(http.server.SimpleHTTPRequestHandler):
         print(f"📬 수신자 목록: {to_emails}")
         
         # 이메일 메시지 생성
-        msg = MIMEMultipart('alternative')
-        msg['From'] = f"Samsung AI Dashboard <{sender_email}>"
+        msg = MIMEMultipart('mixed')
+        display_name = requested_from_name if requested_from_name else 'Samsung AI Dashboard'
+        from_header_email = requested_from_email if requested_from_email else sender_email
+        msg['From'] = f"{display_name} <{from_header_email}>"
+        # 수신자 회신 시 표시를 보장하기 위해 Reply-To를 명시적으로 설정
+        msg['Reply-To'] = f"{display_name} <{from_header_email}>"
         msg['Subject'] = email_data.get('subject', '[Samsung AI Dashboard] 리포트')
         
         # HTML 본문 생성
@@ -221,18 +277,8 @@ class CursorAPIProxy(http.server.SimpleHTTPRequestHandler):
             </div>
             
             <div class="content">
-                <div class="highlight">
-                    <strong>📧 발송 정보</strong><br>
-                    발송 시간: {email_data.get('timestamp', 'N/A')}<br>
-                    수신자 수: {email_data.get('recipient_count', 0)}명<br>
-                    선택된 그룹: {email_data.get('recipients', 'N/A')}
-                </div>
-                
                 <h2>📝 메시지</h2>
                 <p>{email_data.get('message', '메시지가 없습니다.')}</p>
-                
-                <h2>🔗 대시보드 링크</h2>
-                <p><a href="{email_data.get('dashboard_url', '#')}" target="_blank">대시보드 바로가기</a></p>
             </div>
             
             <div class="footer">
@@ -246,24 +292,47 @@ class CursorAPIProxy(http.server.SimpleHTTPRequestHandler):
         # 텍스트 본문 (HTML을 지원하지 않는 클라이언트용)
         text_content = f"""
         Samsung AI Dashboard 리포트
-        
-        발송 시간: {email_data.get('timestamp', 'N/A')}
-        수신자 수: {email_data.get('recipient_count', 0)}명
-        선택된 그룹: {email_data.get('recipients', 'N/A')}
-        
+
         메시지:
         {email_data.get('message', '메시지가 없습니다.')}
-        
-        대시보드 링크: {email_data.get('dashboard_url', '#')}
-        
         ---
         이 이메일은 Samsung AI Dashboard에서 자동으로 발송되었습니다.
         © 2025 Samsung AI Experience Group
         """
         
-        # 본문 첨부
-        msg.attach(MIMEText(text_content, 'plain', 'utf-8'))
-        msg.attach(MIMEText(html_content, 'html', 'utf-8'))
+        # 본문 첨부 (alternative 파트 생성)
+        alt = MIMEMultipart('alternative')
+        alt.attach(MIMEText(text_content, 'plain', 'utf-8'))
+        alt.attach(MIMEText(html_content, 'html', 'utf-8'))
+        msg.attach(alt)
+
+        # 첨부 파일: XLSX 시트 데이터가 포함된 경우 생성하여 첨부
+        try:
+            sheets_payload = email_data.get('attachmentsSheets')
+            if sheets_payload and Workbook is not None:
+                wb = Workbook()
+                default_ws = wb.active
+                wb.remove(default_ws)
+                for sheet in sheets_payload.get('sheets', []):
+                    name = sheet.get('name', 'Sheet')[:31] or 'Sheet'
+                    ws = wb.create_sheet(title=name)
+                    headers = sheet.get('headers', [])
+                    rows = sheet.get('rows', [])
+                    if headers:
+                        ws.append(headers)
+                    for row in rows:
+                        ws.append(row)
+                bio = BytesIO()
+                wb.save(bio)
+                xlsx_bytes = bio.getvalue()
+                part = MIMEBase('application', 'vnd.openxmlformats-officedocument.spreadsheetml.sheet')
+                part.set_payload(xlsx_bytes)
+                encoders.encode_base64(part)
+                filename = sheets_payload.get('filename', 'attachments.xlsx')
+                part.add_header('Content-Disposition', f'attachment; filename="{filename}"')
+                msg.attach(part)
+        except Exception as e:
+            print(f'⚠️ XLSX 첨부 생성 건너뜀: {e}')
         
         # SMTP 서버 연결 및 발송
         try:
@@ -281,14 +350,19 @@ class CursorAPIProxy(http.server.SimpleHTTPRequestHandler):
                 # 각 수신자에게 개별 발송 (BCC 효과)
                 for i, recipient in enumerate(to_emails):
                     # 개별 메시지 생성 (헤더 중복 방지)
-                    individual_msg = MIMEMultipart('alternative')
-                    individual_msg['From'] = f"Samsung AI Dashboard <{sender_email}>"
+                    individual_msg = MIMEMultipart('mixed')
+                    individual_msg['From'] = f"{display_name} <{from_header_email}>"
                     individual_msg['To'] = recipient
                     individual_msg['Subject'] = email_data.get('subject', '[Samsung AI Dashboard] 리포트')
-                    
+                    individual_msg['Reply-To'] = f"{display_name} <{from_header_email}>"
                     # 본문 첨부
-                    individual_msg.attach(MIMEText(text_content, 'plain', 'utf-8'))
-                    individual_msg.attach(MIMEText(html_content, 'html', 'utf-8'))
+                    alt2 = MIMEMultipart('alternative')
+                    alt2.attach(MIMEText(text_content, 'plain', 'utf-8'))
+                    alt2.attach(MIMEText(html_content, 'html', 'utf-8'))
+                    individual_msg.attach(alt2)
+                    # 동일 첨부 추가
+                    for att in msg.get_payload()[1:]:  # alt 이후 첨부들
+                        individual_msg.attach(att)
                     
                     print(f"📤 이메일 발송 중 ({i+1}/{len(to_emails)}): {recipient}")
                     server.send_message(individual_msg)
