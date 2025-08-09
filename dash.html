@@ -1390,7 +1390,7 @@
                                 <div class="search-container">
                                     <div style="position: relative; display: flex; align-items: center; max-width: 300px;">
                                         <span style="position: absolute; left: 12px; color: #7a7a7a; font-size: 14px;">🔍</span>
-                                        <input type="text" class="search-box" id="chart-search-input" placeholder="Search..." onkeyup="handleChartSearch(this.value)" oninput="toggleSearchClearBtn('chart-search-input')" autocomplete="off" style="padding-left: 35px; border-radius: 8px; border: 1px solid #3a3a3a; background-color: #2a2a2a; color: #e1e1e1; padding-right: 35px;">
+                                        <input type="text" class="search-box" id="chart-search-input" placeholder="Search..." onkeyup="handleChartSearch(this.value)" oninput="toggleSearchClearBtn('chart-search-input')" onclick="showChartAutocomplete('chart-search-input')" onfocus="showChartAutocomplete('chart-search-input')" autocomplete="off" style="padding-left: 35px; border-radius: 8px; border: 1px solid #3a3a3a; background-color: #2a2a2a; color: #e1e1e1; padding-right: 35px;">
                                         <button class="search-clear-btn" id="chart-search-input-clear" onclick="clearChartSearch('chart-search-input')" style="display: none; position: absolute; right: 8px; background: none; border: none; color: #7a7a7a; font-size: 18px; cursor: pointer; padding: 4px; border-radius: 50%; width: 24px; height: 24px; display: flex; align-items: center; justify-content: center;">×</button>
                                     </div>
                                 </div>
@@ -1428,21 +1428,21 @@
                     <!-- 2.1.2 통계 카드 -->
                     <div class="overview-stats">
                         <div class="overview-stat-box clickable" data-type="total" onclick="filterOverviewMembersByType('total')">
-                            <div class="stat-number">20</div>
+                            <div class="stat-number">-</div>
                             <div class="stat-label">
                                 <span class="role-badge" style="background-color: #4a9eff; color: white;">전체 멤버</span>
                             </div>
                             <div class="stat-description">모든 멤버의 활동 기록</div>
                         </div>
                         <div class="overview-stat-box clickable" data-type="active" onclick="filterOverviewMembersByType('active')">
-                            <div class="stat-number">13</div>
+                            <div class="stat-number">-</div>
                             <div class="stat-label">
                                 <span class="role-badge" style="background-color: #4caf50; color: white;">활성 멤버</span>
                             </div>
                             <div class="stat-description">활성 멤버의 활동 기록</div>
                         </div>
                         <div class="overview-stat-box clickable" data-type="inactive" onclick="filterOverviewMembersByType('inactive')">
-                            <div class="stat-number">7</div>
+                            <div class="stat-number">-</div>
                             <div class="stat-label">
                                 <span class="role-badge" style="background-color: #ff9800; color: white;">비활성 멤버</span>
                             </div>
@@ -1487,7 +1487,7 @@
                                 <div class="search-container">
                                     <div style="position: relative; display: flex; align-items: center;">
                                         <span style="position: absolute; left: 12px; color: #7a7a7a; font-size: 14px;">🔍</span>
-                                        <input type="text" class="search-box" id="members-search" placeholder="Search name, email..." onkeyup="filterMembers(this.value)" oninput="toggleSearchClearBtn('members-search'); showAutocomplete('members-search')" autocomplete="off" style="padding-left: 35px;">
+                                        <input type="text" class="search-box" id="members-search" placeholder="Search name, email..." onkeyup="filterMembers(this.value)" oninput="toggleSearchClearBtn('members-search'); showAutocomplete('members-search')" onclick="showAutocomplete('members-search')" onfocus="showAutocomplete('members-search')" autocomplete="off" style="padding-left: 35px;">
                                         <button class="search-clear-btn" id="members-search-clear" onclick="clearSearch('members-search')" style="display: none;">×</button>
                                     </div>
                                     <div id="members-autocomplete" class="autocomplete-dropdown" style="display: none;"></div>
@@ -1533,7 +1533,7 @@
                             <div class="search-container">
                                 <div style="position: relative; display: flex; align-items: center;">
                                     <span style="position: absolute; left: 12px; color: #7a7a7a; font-size: 14px;">🔍</span>
-                                    <input type="text" class="search-box" id="usage-search" placeholder="Search name, email..." onkeyup="filterUsageMembers(this.value)" oninput="toggleSearchClearBtn('usage-search'); showAutocomplete('usage-search')" autocomplete="off" style="padding-left: 35px;">
+                                    <input type="text" class="search-box" id="usage-search" placeholder="Search name, email..." onkeyup="filterUsageMembers(this.value)" oninput="toggleSearchClearBtn('usage-search'); showAutocomplete('usage-search')" onclick="showAutocomplete('usage-search')" onfocus="showAutocomplete('usage-search')" autocomplete="off" style="padding-left: 35px;">
                                     <button class="search-clear-btn" id="usage-search-clear" onclick="clearSearch('usage-search')" style="display: none;">×</button>
                                 </div>
                                 <div id="usage-autocomplete" class="autocomplete-dropdown" style="display: none;"></div>
@@ -1654,7 +1654,7 @@
                             </div>
 
                             <!-- 발송 주기 -->
-                            <div class="setting-item">
+                            <div class="setting-item" id="email-frequency-setting">
                                 <div>
                                     <div class="setting-label">발송 주기</div>
                                     <div class="setting-description">리포트를 발송할 주기를 선택하세요</div>
@@ -1667,7 +1667,7 @@
                             </div>
 
                             <!-- 발송 시간 설정 -->
-                            <div class="setting-item">
+                            <div class="setting-item" id="email-time-setting">
                                 <div>
                                     <div class="setting-label">발송 시간 설정</div>
                                     <div class="setting-description">리포트를 발송할 구체적인 시간을 설정하세요</div>
@@ -1841,6 +1841,137 @@
                                 </div>
                             </div>
 
+                            <!-- 첨부 파일 -->
+                            <div class="setting-item" style="flex-direction: column; align-items: flex-start;">
+                                <div style="margin-bottom: 10px;">
+                                    <div class="setting-label">첨부 파일</div>
+                                    <div class="setting-description">리포트에 포함할 첨부 파일을 선택하세요</div>
+                                </div>
+                                <div style="display: flex; gap: 12px; flex-wrap: wrap; align-items: center;">
+                                    <label style="display: flex; align-items: center; gap: 6px;">
+                                        <input type="checkbox" id="attachment-all-members" style="width: 16px; height: 16px;" onclick="handleAttachmentTargetToggle('all', this)">
+                                        <span style="color: #e1e1e1; font-size: 14px;">전체 멤버</span>
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 6px;">
+                                        <input type="checkbox" id="attachment-inactive-members" style="width: 16px; height: 16px;" onclick="handleAttachmentTargetToggle('inactive', this)">
+                                        <span style="color: #e1e1e1; font-size: 14px;">비활성 멤버</span>
+                                    </label>
+                                    <label style="display: flex; align-items: center; gap: 6px;">
+                                        <input type="checkbox" id="attachment-custom" style="width: 16px; height: 16px;" onclick="handleAttachmentTargetToggle('custom', this)">
+                                        <span style="color: #e1e1e1; font-size: 14px;">직접 입력</span>
+                                    </label>
+                                </div>
+
+                                <!-- 전체 멤버 섹션 -->
+                                <div id="attachment-all-section" style="display: none; margin-top: 10px; width: 100%;">
+                                    <div class="setting-label" style="margin-bottom: 8px;">전체 멤버 리스트</div>
+                                    <div style="display:flex; justify-content: space-between; align-items:center; gap:12px; margin-bottom:8px;">
+                                        <div style="position: relative; display:flex; align-items:center;">
+                                            <span style="position:absolute; left:10px; color:#7a7a7a;">🔍</span>
+                                            <input type="text" id="attachment-all-search" class="search-box" placeholder="Search name, email..." style="padding-left: 30px; width: 260px;" oninput="filterAttachmentList('all', this.value)">
+                                        </div>
+                                        <div style="display:flex; gap:8px; align-items:center;">
+                                            <select id="attachment-all-sort" class="setting-select" style="background-color: transparent; min-width: 160px;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'" onchange="sortAttachmentList('all', this.value)">
+                                                <option value="name_asc" selected>이름 ↑</option>
+                                                <option value="name_desc">이름 ↓</option>
+                                                <option value="email_asc">이메일 ↑</option>
+                                                <option value="email_desc">이메일 ↓</option>
+                                            </select>
+                                            <select id="attachment-all-page-size" class="setting-select" style="background-color: transparent; min-width: 100px;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'" onchange="changeAttachmentPageSize('all', this.value)">
+                                                <option value="10">10</option>
+                                                <option value="20" selected>20</option>
+                                                <option value="50">50</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div id="attachment-all-list" style="margin-bottom: 8px; background: #1a1a1a; border: 1px solid #3a3a3a; border-radius: 6px; padding: 12px; color: #e1e1e1; max-height: 220px; overflow-y: auto;"></div>
+                                    <div id="attachment-all-pagination" class="pagination-container" style="display:flex; justify-content: flex-end; gap:8px; align-items:center;"></div>
+                                    <label style="display:flex; align-items: center; gap: 6px;">
+                                        <input type="checkbox" id="attachment-all-usage" style="width: 16px; height: 16px;" onclick="toggleAttachmentUsageSection('all', this)">
+                                        <span style="color: #e1e1e1; font-size: 14px;">사용량</span>
+                                    </label>
+                                </div>
+
+                                <!-- 비활성 멤버 섹션 -->
+                                <div id="attachment-inactive-section" style="display: none; margin-top: 10px; width: 100%;">
+                                    <div class="setting-label" id="attachment-inactive-title" style="margin-bottom: 8px;">비활성 멤버 리스트</div>
+                                    <div style="display:flex; justify-content: space-between; align-items:center; gap:12px; margin-bottom:8px;">
+                                        <div style="position: relative; display:flex; align-items:center;">
+                                            <span style="position:absolute; left:10px; color:#7a7a7a;">🔍</span>
+                                            <input type="text" id="attachment-inactive-search" class="search-box" placeholder="Search name, email..." style="padding-left: 30px; width: 260px;" oninput="filterAttachmentList('inactive', this.value)">
+                                        </div>
+                                        <div style="display:flex; gap:8px; align-items:center;">
+                                            <select id="attachment-inactive-sort" class="setting-select" style="background-color: transparent; min-width: 160px;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'" onchange="sortAttachmentList('inactive', this.value)">
+                                                <option value="name_asc" selected>이름 ↑</option>
+                                                <option value="name_desc">이름 ↓</option>
+                                                <option value="email_asc">이메일 ↑</option>
+                                                <option value="email_desc">이메일 ↓</option>
+                                                <option value="last_asc">마지막 활동 오래된순</option>
+                                                <option value="last_desc">마지막 활동 최근순</option>
+                                            </select>
+                                            <select id="attachment-inactive-page-size" class="setting-select" style="background-color: transparent; min-width: 100px;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'" onchange="changeAttachmentPageSize('inactive', this.value)">
+                                                <option value="10">10</option>
+                                                <option value="20" selected>20</option>
+                                                <option value="50">50</option>
+                                            </select>
+                                            <select id="attachment-inactive-days" class="setting-select" style="background-color: transparent; min-width: 140px;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'" onchange="setInactiveDaysFilter(this.value)">
+                                                <option value="7">최근 7일 무활동</option>
+                                                <option value="14" selected>최근 14일 무활동</option>
+                                                <option value="30">최근 30일 무활동</option>
+                                                <option value="60">최근 60일 무활동</option>
+                                            </select>
+                                        </div>
+                                    </div>
+                                    <div id="attachment-inactive-list" style="margin-bottom: 8px; background: #1a1a1a; border: 1px solid #3a3a3a; border-radius: 6px; padding: 12px; color: #e1e1e1; max-height: 220px; overflow-y: auto;"></div>
+                                    <div id="attachment-inactive-pagination" class="pagination-container" style="display:flex; justify-content: flex-end; gap:8px; align-items:center;"></div>
+                                    <label style="display:flex; align-items: center; gap: 6px;">
+                                        <input type="checkbox" id="attachment-inactive-usage" style="width: 16px; height: 16px;" onclick="toggleAttachmentUsageSection('inactive', this)">
+                                        <span style="color: #e1e1e1; font-size: 14px;">사용량</span>
+                                    </label>
+                                </div>
+
+                                <!-- 직접 입력 섹션 -->
+                                <div id="attachment-custom-section" style="display: none; margin-top: 10px; width: 100%;">
+                                    <div style="margin-bottom: 10px;">
+                                        <div class="setting-label">직접 입력 이메일 주소</div>
+                                        <div class="setting-description">쉼표로 구분하여 이메일 주소를 직접 입력하세요</div>
+                                    </div>
+                                    <div style="position: relative; background-color: #1a1a1a; border: 1px solid #3a3a3a; border-radius: 4px; transition: all 0.2s ease; width: 100%; max-width: 800px; margin-bottom: 10px;">
+                                        <textarea id="attachment-custom-emails" placeholder="email을 직접 입력 하세요.(example1@samsung.com, example2@samsung.com)" style="width: 100%; height: 120px; padding: 12px; border: none; background: transparent; color: #ff9800; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.5; outline: none; resize: vertical; min-height: 120px; max-height: 200px; box-sizing: border-box;" onfocus="this.parentElement.style.backgroundColor='#2a2a2a'; this.parentElement.style.borderColor='#4a9eff'" onblur="this.parentElement.style.backgroundColor='#1a1a1a'; this.parentElement.style.borderColor='#3a3a3a'"></textarea>
+                                    </div>
+                                    <label style="display:flex; align-items: center; gap: 6px;">
+                                        <input type="checkbox" id="attachment-custom-usage" style="width: 16px; height: 16px;" onclick="toggleAttachmentUsageSection('custom', this)">
+                                        <span style="color: #e1e1e1; font-size: 14px;">사용량</span>
+                                    </label>
+                                </div>
+
+                                <!-- 사용량 첨부 설정 (공통, 선택된 섹션 아래로 이동하여 표시) -->
+                                <div id="usage-attachment-settings" style="display: none; margin-top: 12px; width: 100%;">
+                                    
+                                    <!-- 기간 설정 -->
+                                    <div style="display: flex; gap: 16px; align-items: center;">
+                                        <div style="min-width: 80px; color: #b1b1b1; font-size: 14px;">기간</div>
+                                        <div class="chart-controls" id="usage-attachment-period-buttons" style="gap: 8px;">
+                                            <button type="button" class="chart-btn" onclick="selectUsageAttachmentPeriod('1')">1d</button>
+                                            <button type="button" class="chart-btn" onclick="selectUsageAttachmentPeriod('7')">7d</button>
+                                            <button type="button" class="chart-btn" onclick="selectUsageAttachmentPeriod('30')">30d</button>
+                                            <button type="button" class="chart-btn" onclick="selectUsageAttachmentPeriod('custom')">직접입력</button>
+                                        </div>
+                                        <div id="usage-attachment-custom-date" class="chart-controls" style="display: none; gap: 8px; align-items: center;">
+                                            <div class="filter-period-display">
+                                                <span id="usage-attachment-period-text">기간을 선택하세요</span>
+                                            </div>
+                                            <div class="date-picker">
+                                                <input type="date" id="usage-attachment-start-date" />
+                                                <span>~</span>
+                                                <input type="date" id="usage-attachment-end-date" />
+                                                <button type="button" class="analytics-btn" onclick="applyUsageAttachmentDateRange()">적용</button>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
                             <!-- 수신자 그룹 -->
                             <div class="setting-item">
                                 <div>
@@ -1914,10 +2045,12 @@
                                     <div class="setting-label">설정 관리</div>
                                     <div class="setting-description">현재 설정을 확인하고 저장합니다</div>
                                 </div>
-                                <div style="display: flex; gap: 10px;">
+                                <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items:center;">
+                                    <button class="analytics-btn" onclick="showEmailSettingsList()">설정 리스트</button>
                                     <button class="analytics-btn" onclick="showEmailScheduleList()">예약 리스트</button>
                                     <button class="analytics-btn" onclick="showEmailRecipients()">수신자 보기</button>
                                     <button class="analytics-btn" onclick="saveEmailSettings()">설정 저장</button>
+                                    
                                 </div>
                             </div>
 
@@ -1937,21 +2070,125 @@
                                     <div class="setting-label">자동 백업</div>
                                     <div class="setting-description">데이터를 정기적으로 자동 백업합니다</div>
                                 </div>
-                                <div class="toggle-switch" onclick="toggleSwitch(this)"></div>
+                                <div class="toggle-switch off" onclick="toggleSwitch(this)"></div>
                             </div>
-                            <div class="setting-item">
+                            <div class="setting-item" id="backup-frequency-setting" style="display: none;">
                                 <div>
-                                    <div class="setting-label">Export 형식</div>
-                                    <div class="setting-description">문서를 내보낼 파일 형식을 선택합니다</div>
+                                    <div class="setting-label">백업 주기</div>
+                                    <div class="setting-description">백업을 수행할 주기를 선택하세요</div>
                                 </div>
-                                <select class="setting-select">
-                                    <option>CSV</option>
-                                    <option selected>Excel (XLSX)</option>
-                                    <option>PDF</option>
-                                    <option>JSON</option>
+                                <select class="setting-select" id="backup-frequency-select" style="background-color: transparent;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'">
+                                    <option value="daily" selected>매일</option>
+                                    <option value="weekly">매주</option>
+                                    <option value="monthly">매월</option>
                                 </select>
                             </div>
+                            <div class="setting-item" id="backup-time-setting" style="display: none;">
+                                <div>
+                                    <div class="setting-label">백업 시간</div>
+                                    <div class="setting-description">백업을 실행할 구체적인 시간을 설정하세요</div>
+                                </div>
+                                <div style="display: flex; gap: 10px; align-items: center;">
+                                    <select id="backup-hour-select" style="
+                                        background-color: transparent;
+                                        border: 1px solid #3a3a3a;
+                                        border-radius: 4px;
+                                        padding: 8px 12px;
+                                        color: #e1e1e1;
+                                        font-size: 14px;
+                                        font-family: inherit;
+                                        transition: background-color 0.2s ease;
+                                        min-width: 120px;
+                                        max-height: 200px;
+                                        overflow-y: auto;
+                                    " onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'" onchange="updateBackupTimeInput()">
+                                        <option value="00">오전 12시</option>
+                                        <option value="01">오전 1시</option>
+                                        <option value="02" selected>오전 2시</option>
+                                        <option value="03">오전 3시</option>
+                                        <option value="04">오전 4시</option>
+                                        <option value="05">오전 5시</option>
+                                        <option value="06">오전 6시</option>
+                                        <option value="07">오전 7시</option>
+                                        <option value="08">오전 8시</option>
+                                        <option value="09">오전 9시</option>
+                                        <option value="10">오전 10시</option>
+                                        <option value="11">오전 11시</option>
+                                        <option value="12">오후 12시</option>
+                                        <option value="13">오후 1시</option>
+                                        <option value="14">오후 2시</option>
+                                        <option value="15">오후 3시</option>
+                                        <option value="16">오후 4시</option>
+                                        <option value="17">오후 5시</option>
+                                        <option value="18">오후 6시</option>
+                                        <option value="19">오후 7시</option>
+                                        <option value="20">오후 8시</option>
+                                        <option value="21">오후 9시</option>
+                                        <option value="22">오후 10시</option>
+                                        <option value="23">오후 11시</option>
+                                    </select>
+                                    <select id="backup-minute-select" style="
+                                        background-color: transparent;
+                                        border: 1px solid #3a3a3a;
+                                        border-radius: 4px;
+                                        padding: 8px 12px;
+                                        color: #e1e1e1;
+                                        font-size: 14px;
+                                        font-family: inherit;
+                                        transition: background-color 0.2s ease;
+                                        min-width: 80px;
+                                        max-height: 200px;
+                                        overflow-y: auto;
+                                    " onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'" onchange="updateBackupTimeInput()">
+                                        <option value="00" selected>00분</option>
+                                        <option value="05">05분</option>
+                                        <option value="10">10분</option>
+                                        <option value="15">15분</option>
+                                        <option value="20">20분</option>
+                                        <option value="25">25분</option>
+                                        <option value="30">30분</option>
+                                        <option value="35">35분</option>
+                                        <option value="40">40분</option>
+                                        <option value="45">45분</option>
+                                        <option value="50">50분</option>
+                                        <option value="55">55분</option>
+                                    </select>
+                                    <input type="time" id="backup-time-input" value="02:00" style="display: none;">
+                                </div>
+                            </div>
+                            <div class="setting-item" id="backup-location-setting" style="display: none;">
+                                <div>
+                                    <div class="setting-label">백업 위치</div>
+                                    <div class="setting-description">백업 파일이 저장될 위치를 입력하세요</div>
+                                </div>
+                                <input type="text" id="backup-location-input" class="search-box" placeholder="예: C:\\Backups\\Dashboard 또는 /backups/dashboard" style="min-width: 300px;" />
+                            </div>
+                            <!-- Export 종류 → Export 범위(조건) → Export 형식 순서 -->
                             <div class="setting-item">
+                                <div>
+                                    <div class="setting-label">Export 종류</div>
+                                    <div class="setting-description">내보낼 데이터의 종류를 선택합니다</div>
+                                </div>
+                                <div style="display:flex; gap: 12px; flex-wrap: wrap; align-items:center;">
+                                    <label style="display:flex; align-items:center; gap:6px;">
+                                        <input type="checkbox" id="export-type-summary" value="summary" onclick="handleExportTypeCheckboxChange()" style="width:16px; height:16px;">
+                                        <span style="color:#e1e1e1; font-size:14px;">요약 리포트</span>
+                                    </label>
+                                    <label style="display:flex; align-items:center; gap:6px;">
+                                        <input type="checkbox" id="export-type-raw" value="raw-events" onclick="handleExportTypeCheckboxChange()" style="width:16px; height:16px;">
+                                        <span style="color:#e1e1e1; font-size:14px;">사용 이벤트 원본</span>
+                                    </label>
+                                    <label style="display:flex; align-items:center; gap:6px;">
+                                        <input type="checkbox" id="export-type-members" value="members" onclick="handleExportTypeCheckboxChange()" style="width:16px; height:16px;">
+                                        <span style="color:#e1e1e1; font-size:14px;">멤버 목록</span>
+                                    </label>
+                                    <label style="display:flex; align-items:center; gap:6px;">
+                                        <input type="checkbox" id="export-type-all" value="all" onclick="handleExportTypeCheckboxChange()" style="width:16px; height:16px;">
+                                        <span style="color:#e1e1e1; font-size:14px;">전체 (요약 + 원본)</span>
+                                    </label>
+                                </div>
+                            </div>
+                            <div class="setting-item" id="export-range-setting">
                                 <div>
                                     <div class="setting-label">Export 범위</div>
                                     <div class="setting-description">내보낼 데이터의 기간을 설정합니다</div>
@@ -1964,8 +2201,181 @@
                                     <option>사용자 지정</option>
                                 </select>
                             </div>
-                            <div style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #3a3a3a;">
-                                <button class="export-btn">📥 지금 Export 하기</button>
+                            <div class="setting-item">
+                                <div>
+                                    <div class="setting-label">Export 형식</div>
+                                    <div class="setting-description">문서를 내보낼 파일 형식을 선택합니다</div>
+                                </div>
+                                <select id="export-format-select" class="setting-select" style="background-color: transparent;" onchange="handleExportFormatChange(this.value)" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'">
+                                    <option value="csv">CSV</option>
+                                    <option value="xlsx" selected>Excel (XLSX)</option>
+                                    <option value="pdf">PDF</option>
+                                    <option value="json">JSON</option>
+                                </select>
+                            </div>
+                            
+                            <!-- 형식별 세부 옵션 -->
+                            <div id="export-format-options" style="margin-top: 6px;">
+                                <!-- CSV 옵션 -->
+                                <div id="csv-options" style="display: none;">
+                                    <div class="setting-item">
+                                        <div>
+                                            <div class="setting-label">CSV 구분자</div>
+                                            <div class="setting-description">필드 간 값을 구분하는 문자</div>
+                                        </div>
+                                        <select class="setting-select" id="csv-delimiter" style="background-color: transparent;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'">
+                                            <option value="," selected>콤마 (,)</option>
+                                            <option value="\t">탭 (\t)</option>
+                                        </select>
+                                    </div>
+                                    <div class="setting-item">
+                                        <div>
+                                            <div class="setting-label">인코딩</div>
+                                            <div class="setting-description">엑셀 호환을 위해 UTF-8 with BOM 권장</div>
+                                        </div>
+                                        <select class="setting-select" id="csv-encoding" style="background-color: transparent;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'">
+                                            <option value="utf8">UTF-8</option>
+                                            <option value="utf8-bom" selected>UTF-8 with BOM</option>
+                                        </select>
+                                    </div>
+                                    <div class="setting-item">
+                                        <div>
+                                            <div class="setting-label">헤더 포함</div>
+                                            <div class="setting-description">첫 행에 필드명을 포함</div>
+                                        </div>
+                                        <select class="setting-select" id="csv-include-header" style="background-color: transparent;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'">
+                                            <option value="yes" selected>예</option>
+                                            <option value="no">아니오</option>
+                                        </select>
+                                    </div>
+                                    <div class="setting-item">
+                                        <div>
+                                            <div class="setting-label">날짜/시간 포맷</div>
+                                            <div class="setting-description">표시 형식</div>
+                                        </div>
+                                        <select class="setting-select" id="csv-datetime-format" style="background-color: transparent;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'">
+                                            <option value="YYYY-MM-DD">YYYY-MM-DD</option>
+                                            <option value="YYYY-MM-DD HH:mm" selected>YYYY-MM-DD HH:mm</option>
+                                            <option value="ISO8601">ISO 8601</option>
+                                        </select>
+                                    </div>
+                                    <div class="setting-item">
+                                        <div>
+                                            <div class="setting-label">줄바꿈</div>
+                                            <div class="setting-description">운영체제별 줄바꿈 문자</div>
+                                        </div>
+                                        <select class="setting-select" id="csv-newline" style="background-color: transparent;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'">
+                                            <option value="LF">LF (Unix)</option>
+                                            <option value="CRLF" selected>CRLF (Windows)</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- XLSX 옵션 -->
+                                <div id="xlsx-options" style="display: none;">
+                                    <div class="setting-item">
+                                        <div>
+                                            <div class="setting-label">시트 구성</div>
+                                            <div class="setting-description">요약/멤버/원본 데이터 분리 저장</div>
+                                        </div>
+                                        <select class="setting-select" id="xlsx-sheets" style="background-color: transparent;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'">
+                                            <option value="single">단일 시트</option>
+                                            <option value="multi" selected>다중 시트 (권장)</option>
+                                        </select>
+                                    </div>
+                                    <div class="setting-item">
+                                        <div>
+                                            <div class="setting-label">헤더 고정</div>
+                                            <div class="setting-description">스크롤 시 헤더 행 고정</div>
+                                        </div>
+                                        <select class="setting-select" id="xlsx-freeze-header" style="background-color: transparent;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'">
+                                            <option value="yes" selected>예</option>
+                                            <option value="no">아니오</option>
+                                        </select>
+                                    </div>
+                                    <div class="setting-item">
+                                        <div>
+                                            <div class="setting-label">열 너비 자동 맞춤</div>
+                                            <div class="setting-description">내용에 맞춰 열 너비 조정</div>
+                                        </div>
+                                        <select class="setting-select" id="xlsx-autofit" style="background-color: transparent;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'">
+                                            <option value="yes" selected>예</option>
+                                            <option value="no">아니오</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- PDF 옵션 -->
+                                <div id="pdf-options" style="display: none;">
+                                    <div class="setting-item">
+                                        <div>
+                                            <div class="setting-label">용지/방향</div>
+                                            <div class="setting-description">PDF 페이지 크기 및 방향</div>
+                                        </div>
+                                        <select class="setting-select" id="pdf-page" style="background-color: transparent;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'">
+                                            <option value="A4-portrait" selected>A4 - 세로</option>
+                                            <option value="A4-landscape">A4 - 가로</option>
+                                            <option value="Letter-portrait">Letter - 세로</option>
+                                        </select>
+                                    </div>
+                                    <div class="setting-item">
+                                        <div>
+                                            <div class="setting-label">머리말/바닥글</div>
+                                            <div class="setting-description">제목/페이지 번호/날짜 표시</div>
+                                        </div>
+                                        <select class="setting-select" id="pdf-header-footer" style="background-color: transparent;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'">
+                                            <option value="yes" selected>예</option>
+                                            <option value="no">아니오</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- JSON 옵션 -->
+                                <div id="json-options" style="display: none;">
+                                    <div class="setting-item">
+                                        <div>
+                                            <div class="setting-label">구조</div>
+                                            <div class="setting-description">출력 JSON 형식</div>
+                                        </div>
+                                        <select class="setting-select" id="json-structure" style="background-color: transparent;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'">
+                                            <option value="array">배열 (Array)</option>
+                                            <option value="ndjson" selected>NDJSON (줄 단위)</option>
+                                        </select>
+                                    </div>
+                                    <div class="setting-item">
+                                        <div>
+                                            <div class="setting-label">들여쓰기</div>
+                                            <div class="setting-description">가독성을 위한 Pretty 출력</div>
+                                        </div>
+                                        <select class="setting-select" id="json-indent" style="background-color: transparent;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'">
+                                            <option value="minify">미니파이</option>
+                                            <option value="2" selected>2칸</option>
+                                            <option value="4">4칸</option>
+                                        </select>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- 공통 옵션 -->
+                            <div id="export-common-options" style="margin-top: 6px;">
+                                <div class="setting-item">
+                                    <div>
+                                        <div class="setting-label">압축(Zip)</div>
+                                        <div class="setting-description">대용량 파일 전송을 위해 권장</div>
+                                    </div>
+                                    <select class="setting-select" id="export-zip" style="background-color: transparent;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'">
+                                        <option value="yes">예</option>
+                                        <option value="no" selected>아니오</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="setting-item" style="margin-top: 20px; padding-top: 20px; border-top: 1px solid #3a3a3a; justify-content: flex-end;">
+                                <div></div>
+                                <div style="display: flex; gap: 10px;">
+                                    <button class="analytics-btn" onclick="showExportSettingsList()">설정 리스트</button>
+                                    <button class="analytics-btn" onclick="handleExportNow()">지금 Export 하기</button>
+                                    <button class="analytics-btn" onclick="saveExportSettings()">설정 저장</button>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -1975,6 +2385,16 @@
     </div>
 
     <script>
+        // html2pdf.js CDN (원클릭 PDF 저장용)
+        (function injectHtml2Pdf(){
+            const existing = document.querySelector('script[data-lib="html2pdf"]');
+            if (existing) return;
+            const s = document.createElement('script');
+            s.src = 'https://cdn.jsdelivr.net/npm/html2pdf.js@0.10.1/dist/html2pdf.bundle.min.js';
+            s.defer = true;
+            s.setAttribute('data-lib','html2pdf');
+            document.head.appendChild(s);
+        })();
         // 멤버 활동 데이터
         const memberData = {
             total: [
@@ -2009,6 +2429,10 @@
         function renderMemberList(type) {
             const memberList = document.getElementById('member-list');
             const memberListTitle = document.getElementById('member-list-title');
+            if (!memberList || !memberListTitle) {
+                console.warn('renderMemberList: 대상 요소를 찾을 수 없어 초기 렌더를 건너뜁니다. (member-list / member-list-title)');
+                return;
+            }
            
             let activities = [];
             let title = "";
@@ -4591,6 +5015,11 @@
                     const isActive = !toggle.classList.contains('off');
                     handleEmailSchedulerToggle(isActive);
                 }
+                // 자동 백업 토글인지 확인
+                if (label && label.textContent === '자동 백업') {
+                    const isBackupActive = !toggle.classList.contains('off');
+                    handleBackupToggle(isBackupActive);
+                }
             }
         }
 
@@ -4601,9 +5030,64 @@
             if (isActive) {
                 console.log('✅ 예약 메일 발송 활성화됨 - 백그라운드 체크 시작');
                 startEmailScheduler();
+                // 설정 UI 표시
+                const freqEl = document.getElementById('email-frequency-setting');
+                const timeEl = document.getElementById('email-time-setting');
+                if (freqEl) freqEl.style.display = '';
+                if (timeEl) timeEl.style.display = '';
             } else {
                 console.log('❌ 예약 메일 발송 비활성화됨 - 백그라운드 체크 중지');
                 stopEmailScheduler();
+                // 설정 UI 숨김
+                const freqEl = document.getElementById('email-frequency-setting');
+                const timeEl = document.getElementById('email-time-setting');
+                if (freqEl) freqEl.style.display = 'none';
+                if (timeEl) timeEl.style.display = 'none';
+            }
+        }
+
+        // 자동 백업 토글 처리
+        function handleBackupToggle(isActive) {
+            const freqEl = document.getElementById('backup-frequency-setting');
+            const timeEl = document.getElementById('backup-time-setting');
+            const locEl = document.getElementById('backup-location-setting');
+
+            if (isActive) {
+                if (freqEl) freqEl.style.display = '';
+                if (timeEl) timeEl.style.display = '';
+                if (locEl) locEl.style.display = '';
+                // 초기 시간 드롭다운 동기화
+                initializeBackupTimeDropdowns();
+            } else {
+                if (freqEl) freqEl.style.display = 'none';
+                if (timeEl) timeEl.style.display = 'none';
+                if (locEl) locEl.style.display = 'none';
+            }
+        }
+
+        // 백업 시간 드롭다운 → 숨겨진 time input 동기화
+        function updateBackupTimeInput() {
+            const hourSelect = document.getElementById('backup-hour-select');
+            const minuteSelect = document.getElementById('backup-minute-select');
+            const timeInput = document.getElementById('backup-time-input');
+            if (hourSelect && minuteSelect && timeInput) {
+                const hour = String(hourSelect.value).padStart(2, '0');
+                const minute = String(minuteSelect.value).padStart(2, '0');
+                timeInput.value = `${hour}:${minute}`;
+                console.log(`⏰ 백업 시간 드롭다운 업데이트: ${timeInput.value}`);
+            }
+        }
+
+        // 페이지 로드 시 백업 시간 드롭다운 초기화
+        function initializeBackupTimeDropdowns() {
+            const timeInput = document.getElementById('backup-time-input');
+            const hourSelect = document.getElementById('backup-hour-select');
+            const minuteSelect = document.getElementById('backup-minute-select');
+            if (timeInput && hourSelect && minuteSelect && timeInput.value.includes(':')) {
+                const [hours, minutes] = timeInput.value.split(':');
+                hourSelect.value = hours;
+                minuteSelect.value = minutes;
+                console.log(`⏰ 백업 시간 드롭다운 초기화: ${hours}:${minutes}`);
             }
         }
 
@@ -4635,6 +5119,485 @@
                 console.log(`📅 활성 예약이 발견되어 스케줄러를 시작합니다. (활성 예약: ${activeSchedules.length}개)`);
                 startEmailScheduler();
             }
+        }
+
+        // 첨부 파일 - 사용량 토글 처리
+        function handleUsageAttachmentToggle(checkbox) {
+            const settings = document.getElementById('usage-attachment-settings');
+            if (!settings) return;
+            settings.style.display = checkbox && checkbox.checked ? '' : 'none';
+        }
+        // 첨부 파일 - 타겟 토글 처리 (전체/비활성/직접입력)
+        function handleAttachmentTargetToggle(target, checkbox) {
+            const allSec = document.getElementById('attachment-all-section');
+            const inactiveSec = document.getElementById('attachment-inactive-section');
+            const customSec = document.getElementById('attachment-custom-section');
+            const usageSettings = document.getElementById('usage-attachment-settings');
+            if (!allSec || !inactiveSec || !customSec || !usageSettings) return;
+
+            // 섹션 열기/닫기
+            if (target === 'all') {
+                allSec.style.display = checkbox.checked ? '' : 'none';
+                if (!checkbox.checked) document.getElementById('attachment-all-usage').checked = false;
+            } else if (target === 'inactive') {
+                inactiveSec.style.display = checkbox.checked ? '' : 'none';
+                if (!checkbox.checked) document.getElementById('attachment-inactive-usage').checked = false;
+            } else if (target === 'custom') {
+                customSec.style.display = checkbox.checked ? '' : 'none';
+                if (!checkbox.checked) document.getElementById('attachment-custom-usage').checked = false;
+            }
+
+            // 사용량 설정 패널은 전역 1개를 상황에 따라 이동/표시
+            if (checkbox && checkbox.checked) {
+                window._lastAttachmentTarget = target;
+                setActiveUsageTarget(target);
+            } else {
+                // 선택 해제 시 마지막 대상이었으면 대체 타겟 선택: custom > inactive > all
+                const allChecked = !!document.getElementById('attachment-all-members')?.checked;
+                const inactiveChecked = !!document.getElementById('attachment-inactive-members')?.checked;
+                const customChecked = !!document.getElementById('attachment-custom')?.checked;
+                let next = null;
+                if (customChecked) next = 'custom';
+                else if (inactiveChecked) next = 'inactive';
+                else if (allChecked) next = 'all';
+                setActiveUsageTarget(next);
+            }
+            refreshUsageAttachmentSettingsPlacement();
+        }
+
+        // 사용량 체크박스별로 설정 패널 표시 위치/상태 갱신
+        function toggleAttachmentUsageSection(target, checkbox) {
+            const usageSettings = document.getElementById('usage-attachment-settings');
+            if (!usageSettings) return;
+            // 체크되었을 때만 패널 표시. 해당 섹션의 "사용량" 라벨 바로 아래로 이동
+            const map = { all: 'attachment-all-usage', inactive: 'attachment-inactive-usage', custom: 'attachment-custom-usage' };
+            const usageInput = document.getElementById(map[target]);
+            if (checkbox && checkbox.checked && usageInput) {
+                const labelEl = usageInput.closest('label');
+                if (labelEl && labelEl.parentNode) {
+                    labelEl.parentNode.insertBefore(usageSettings, labelEl.nextSibling);
+                }
+                usageSettings.style.display = '';
+            } else {
+                usageSettings.style.display = 'none';
+            }
+        }
+
+        // 현재 체크 상태를 기반으로 패널 재배치
+        function refreshUsageAttachmentSettingsPlacement() {
+            const usageSettings = document.getElementById('usage-attachment-settings');
+            if (!usageSettings) return;
+            const allUsage = document.getElementById('attachment-all-usage');
+            const inactiveUsage = document.getElementById('attachment-inactive-usage');
+            const customUsage = document.getElementById('attachment-custom-usage');
+            const order = [allUsage, inactiveUsage, customUsage];
+            const checkedInput = order.find(inp => inp && inp.checked);
+            if (checkedInput) {
+                const labelEl = checkedInput.closest('label');
+                if (labelEl && labelEl.parentNode) {
+                    labelEl.parentNode.insertBefore(usageSettings, labelEl.nextSibling);
+                }
+                usageSettings.style.display = '';
+            } else {
+                usageSettings.style.display = 'none';
+            }
+        }
+
+        // 사용량 체크박스는 한 섹션에만 노출되도록 제어
+        function setActiveUsageTarget(target) {
+            const map = {
+                all: document.getElementById('attachment-all-usage')?.closest('label'),
+                inactive: document.getElementById('attachment-inactive-usage')?.closest('label'),
+                custom: document.getElementById('attachment-custom-usage')?.closest('label')
+            };
+            // 모두 숨김
+            Object.values(map).forEach(lbl => { if (lbl) lbl.style.display = 'none'; });
+            // 모두 체크 해제 (한 곳만 사용량 사용하도록 강제)
+            const allU = document.getElementById('attachment-all-usage');
+            const inU = document.getElementById('attachment-inactive-usage');
+            const cuU = document.getElementById('attachment-custom-usage');
+            if (allU) allU.checked = false;
+            if (inU) inU.checked = false;
+            if (cuU) cuU.checked = false;
+            
+            if (target && map[target]) {
+                map[target].style.display = 'flex';
+            }
+        }
+
+        // 첨부 리스트 렌더링 (검색/정렬/페이지네이션 + 비활성 N일 기준)
+        function renderAttachmentMemberLists() {
+            try {
+                const allList = document.getElementById('attachment-all-list');
+                const inactiveList = document.getElementById('attachment-inactive-list');
+                if (!allList || !inactiveList) return;
+
+                const baseMembers = (originalMembersData && originalMembersData.length ? originalMembersData : currentMembersData) || [];
+                if (!baseMembers || baseMembers.length === 0) {
+                    allList.innerHTML = '<div style="color:#7a7a7a;">표시할 멤버가 없습니다.</div>';
+                    inactiveList.innerHTML = '<div style="color:#7a7a7a;">표시할 멤버가 없습니다.</div>';
+                    return;
+                }
+
+                // 주의: allowedEvents/lastEventMap은 렌더 시마다 최신 전역 데이터로 재계산해야 함(초기 빈 데이터 캡쳐 방지)
+
+                // 상태 초기화
+                window.attachmentAllState = window.attachmentAllState || { page: 1, pageSize: 20, search: '', sort: 'name_asc' };
+                window.attachmentInactiveState = window.attachmentInactiveState || { page: 1, pageSize: 20, search: '', sort: 'name_asc', days: 14 };
+
+                function renderList(type) {
+                    const state = type === 'all' ? window.attachmentAllState : window.attachmentInactiveState;
+
+                    // 최신 이벤트로 lastEventMap/allowedEvents 재계산 (전역 let과 window 프로퍼티 모두 대응)
+                    const rawEventsNow = (typeof currentRawEventsData !== 'undefined' && Array.isArray(currentRawEventsData) ? currentRawEventsData : (window.currentRawEventsData || []));
+                    const allowedEventsNow = rawEventsNow.filter(ev => ev && ev.userEmail && typeof ev.requestsCosts === 'number' && ev.requestsCosts > 0 && !isNaN(parseInt(ev.timestamp)));
+                    const lastEventMapNow = {};
+                    for (const ev of allowedEventsNow) {
+                        const email = ev.userEmail;
+                        const ts = parseInt(ev.timestamp);
+                        if (!lastEventMapNow[email] || ts > lastEventMapNow[email]) {
+                            lastEventMapNow[email] = ts;
+                        }
+                    }
+
+                    // 진단 로그: 렌더 타이밍 데이터 상태
+                    try {
+                        const tsValues = rawEventsNow.map(e => parseInt(e.timestamp)).filter(v => !isNaN(v));
+                        const minTs = tsValues.length ? Math.min(...tsValues) : null;
+                        const maxTs = tsValues.length ? Math.max(...tsValues) : null;
+                        console.group(`[첨부파일/비활성] 렌더 진단 (${type})`);
+                        console.log('멤버 수:', baseMembers.length);
+                        console.log('Raw 이벤트 수:', rawEventsNow.length, '범위:', minTs ? new Date(minTs).toISOString() : '-', '~', maxTs ? new Date(maxTs).toISOString() : '-');
+                        console.log('활동 인정(>0) 이벤트 수:', allowedEventsNow.length);
+                        console.groupEnd();
+                    } catch (e) {}
+
+                    let members = baseMembers.map(m => ({
+                        ...m,
+                        lastActivityTimestamp: lastEventMapNow[m.email] || 0
+                    }));
+
+                    // 비활성 기준: 최근 N일 무활동 (Overview와 동일한 활동 정의로 계산)
+                    if (type === 'inactive') {
+                        const cutoff = Date.now() - (state.days * 24 * 60 * 60 * 1000);
+                        const activeEmails = new Set();
+                        let eventsWithinCutoff = 0;
+                        for (const ev of allowedEventsNow) {
+                            const ts = parseInt(ev.timestamp);
+                            if (ts >= cutoff) { activeEmails.add(ev.userEmail); eventsWithinCutoff++; }
+                        }
+                        members = members.filter(m => !activeEmails.has(m.email));
+                        // 제목에 현재 비활성 수 표기
+                        try {
+                            const titleEl = document.getElementById('attachment-inactive-title');
+                            if (titleEl) {
+                                titleEl.textContent = `비활성 멤버 리스트 (${members.length})`;
+                            }
+                        } catch (e) {
+                            // no-op
+                        }
+                        // 진단 로그: 필터 결과
+                        try {
+                            console.group('[첨부파일/비활성] 필터 결과');
+                            console.log('선택 N일:', state.days);
+                            console.log('컷오프 시각:', new Date(cutoff).toISOString());
+                            console.log('컷오프 내 이벤트 수:', eventsWithinCutoff);
+                            console.log('활성 이메일 수(N일 내):', activeEmails.size);
+                            console.log('비활성 결과 멤버 수:', members.length);
+                            console.groupEnd();
+                        } catch (e) {}
+                    }
+
+                    // 검색
+                    if (state.search && state.search.trim()) {
+                        const q = state.search.trim().toLowerCase();
+                        members = members.filter(m => (m.name || '').toLowerCase().includes(q) || (m.email || '').toLowerCase().includes(q));
+                    }
+
+                    // 정렬
+                    const [field, dir] = state.sort.split('_');
+                    members.sort((a, b) => {
+                        if (field === 'last') {
+                            const at = a.lastActivityTimestamp || 0;
+                            const bt = b.lastActivityTimestamp || 0;
+                            return dir === 'asc' ? at - bt : bt - at;
+                        }
+                        const av = field === 'email' ? (a.email || '') : (a.name || '');
+                        const bv = field === 'email' ? (b.email || '') : (b.name || '');
+                        return dir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+                    });
+
+                    // 페이지네이션
+                    const total = members.length;
+                    const totalPages = Math.max(1, Math.ceil(total / state.pageSize));
+                    if (state.page > totalPages) state.page = totalPages;
+                    const start = (state.page - 1) * state.pageSize;
+                    const pageData = members.slice(start, start + state.pageSize);
+
+                    // 렌더링
+                    const listEl = document.getElementById(type === 'all' ? 'attachment-all-list' : 'attachment-inactive-list');
+                    listEl.innerHTML = pageData.map(m => `<div style=\"display:flex; justify-content:space-between; padding:6px 8px; border-bottom:1px solid #2a2a2a;\"><span>${m.name || m.email}</span><span style=\"color:#7a7a7a;\">${m.email || ''}</span></div>`).join('');
+                    if (pageData.length === 0) {
+                        listEl.innerHTML = '<div style=\"color:#7a7a7a;\">표시할 멤버가 없습니다.</div>';
+                    }
+
+                    const pagEl = document.getElementById(type === 'all' ? 'attachment-all-pagination' : 'attachment-inactive-pagination');
+                    if (pagEl) {
+                        pagEl.innerHTML = renderAttachmentPagination(type, state.page, totalPages);
+                    }
+                }
+
+                renderList('all');
+                renderList('inactive');
+                window._renderAttachmentList = renderList;
+            } catch (e) {
+                console.error('첨부 리스트 렌더링 실패:', e);
+            }
+        }
+
+        // (삭제됨) 첨부 파일 - 사용량 대상 변경 처리: 대상 UI 제거에 따라 비활성화
+
+        // 검색
+        function filterAttachmentList(type, query) {
+            const state = type === 'all' ? window.attachmentAllState : window.attachmentInactiveState;
+            state.search = query || '';
+            state.page = 1;
+            window._renderAttachmentList && window._renderAttachmentList(type);
+        }
+
+        // 정렬
+        function sortAttachmentList(type, sortValue) {
+            const state = type === 'all' ? window.attachmentAllState : window.attachmentInactiveState;
+            state.sort = sortValue;
+            window._renderAttachmentList && window._renderAttachmentList(type);
+        }
+
+        // 페이지 사이즈 변경
+        function changeAttachmentPageSize(type, pageSize) {
+            const state = type === 'all' ? window.attachmentAllState : window.attachmentInactiveState;
+            state.pageSize = parseInt(pageSize, 10) || 20;
+            state.page = 1;
+            window._renderAttachmentList && window._renderAttachmentList(type);
+        }
+
+        // 페이지 이동
+        function changeAttachmentPage(type, page) {
+            const state = type === 'all' ? window.attachmentAllState : window.attachmentInactiveState;
+            state.page = Math.max(1, page);
+            window._renderAttachmentList && window._renderAttachmentList(type);
+        }
+
+        // 비활성 기준 기간 변경
+        function setInactiveDaysFilter(days) {
+            const state = window.attachmentInactiveState || (window.attachmentInactiveState = { page: 1, pageSize: 20, search: '', sort: 'name_asc', days: 14 });
+            state.days = parseInt(days, 10) || 14;
+            state.page = 1;
+            if (window._renderAttachmentList) {
+                window._renderAttachmentList('inactive');
+            } else {
+                // 초기 렌더러가 아직 준비되지 않은 경우 즉시 초기화 후 렌더링 보장
+                try {
+                    renderAttachmentMemberLists();
+                    // 렌더러 바인딩 후 즉시 갱신
+                    setTimeout(() => {
+                        window._renderAttachmentList && window._renderAttachmentList('inactive');
+                    }, 0);
+                } catch (e) {
+                    console.error('비활성 기간 변경 즉시 반영 실패:', e);
+                }
+            }
+        }
+
+        // 페이지네이션 HTML 렌더링
+        function renderAttachmentPagination(type, current, total) {
+            const prev = Math.max(1, current - 1);
+            const next = Math.min(total, current + 1);
+            return `
+                <button class="page-btn" onclick="changeAttachmentPage('${type}', 1)">First</button>
+                <button class="page-btn" onclick="changeAttachmentPage('${type}', ${prev})">‹</button>
+                <span style="color:#b1b1b1; font-size: 12px;">${current} / ${total}</span>
+                <button class="page-btn" onclick="changeAttachmentPage('${type}', ${next})">›</button>
+                <button class="page-btn" onclick="changeAttachmentPage('${type}', ${total})">Last</button>
+            `;
+        }
+
+        // 첨부 파일 - 사용량 기간 선택
+        function selectUsageAttachmentPeriod(value) {
+            const customInput = document.getElementById('usage-attachment-custom-days-input');
+            const customDateBox = document.getElementById('usage-attachment-custom-date');
+            const periodButtons = document.getElementById('usage-attachment-period-buttons');
+            // 버튼 active 상태 업데이트
+            const container = periodButtons || (customInput ? customInput.parentElement : null);
+            if (container) {
+                container.querySelectorAll('.chart-btn').forEach(btn => btn.classList.remove('active'));
+            }
+            
+            if (value === 'custom') {
+                // usage 섹션과 동일하게 기간 필터를 노출
+                if (customInput) customInput.style.display = 'none';
+                if (customDateBox) customDateBox.style.display = '';
+                // 마지막 버튼을 active 처리
+                if (container) {
+                    const btns = container.querySelectorAll('.chart-btn');
+                    if (btns.length) btns[btns.length - 1].classList.add('active');
+                }
+                // 커스텀은 직접 적용 버튼으로 텍스트가 설정됨
+                window.__usageAttachmentSelectedDays = undefined;
+            } else {
+                if (customInput) { customInput.style.display = 'none'; customInput.value = ''; }
+                if (customDateBox) customDateBox.style.display = 'none';
+                // 해당 값의 버튼 active 처리
+                if (container) {
+                    const map = { '1': 0, '7': 1, '30': 2 };
+                    const idx = map[value];
+                    const btns = container.querySelectorAll('.chart-btn');
+                    if (idx !== undefined && btns[idx]) btns[idx].classList.add('active');
+                }
+
+                // 선택된 일수 기준으로 오늘 기준 날짜 범위를 텍스트에 즉시 반영
+                const days = parseInt(value, 10);
+                if (!isNaN(days)) {
+                    const toDateStr = (d) => {
+                        const yyyy = d.getFullYear();
+                        const mm = String(d.getMonth() + 1).padStart(2, '0');
+                        const dd = String(d.getDate()).padStart(2, '0');
+                        return `${yyyy}-${mm}-${dd}`;
+                    };
+                    const end = new Date();
+                    const start = new Date();
+                    start.setDate(start.getDate() - days);
+                    const textEl = document.getElementById('usage-attachment-period-text');
+                    if (textEl) {
+                        textEl.textContent = `${toDateStr(start)} ~ ${toDateStr(end)}`;
+                    }
+                    window.__usageAttachmentSelectedDays = days;
+                }
+            }
+        }
+
+        // 첨부 파일 - 사용량 기간 직접입력 적용
+        function applyUsageAttachmentDateRange() {
+            const startInput = document.getElementById('usage-attachment-start-date');
+            const endInput = document.getElementById('usage-attachment-end-date');
+            const text = document.getElementById('usage-attachment-period-text');
+            if (!startInput || !endInput || !text) return;
+            if (!startInput.value || !endInput.value) {
+                showSimpleAlert('⚠️ 기간 시작일과 종료일을 모두 선택하세요.', 'warning');
+                return;
+            }
+            text.textContent = `${startInput.value} ~ ${endInput.value}`;
+            console.log(`📅 사용량 첨부 기간 설정: ${text.textContent}`);
+        }
+
+        // Export Documents - 지금 Export 하기
+        function handleExportNow() {
+            try {
+                const selFormatEl = document.getElementById('export-format-select');
+                const format = selFormatEl ? selFormatEl.value : 'xlsx';
+                const exportMembersChecked = document.getElementById('export-type-members')?.checked || document.getElementById('export-type-all')?.checked;
+
+                if (exportMembersChecked) {
+                    if (!currentMembersData || currentMembersData.length === 0) {
+                        showSimpleAlert('⚠️ 내보낼 멤버 데이터가 없습니다.', 'warning');
+                        return;
+                    }
+                    const dateStr = new Date().toISOString().split('T')[0];
+                    let filename = '';
+                    if (format === 'csv') {
+                        filename = `members_export_${dateStr}.csv`;
+                        exportMembersToCSV(filename);
+                    } else if (format === 'json') {
+                        filename = `members_export_${dateStr}.json`;
+                        exportMembersToJSON(filename);
+                    } else if (format === 'pdf') {
+                        filename = `members_export_${dateStr}.pdf`;
+                        exportMembersToPDF(filename);
+                    } else {
+                        // 기본: Excel 형식(HTML 테이블 기반 .xls)로 내보내기
+                        filename = `members_export_${dateStr}.xls`;
+                        exportMembersToExcelHTML(filename);
+                    }
+                    const hint = getDownloadLocationHint(filename);
+                    console.log(`멤버 목록 Export 완료: ${hint}`);
+                    return;
+                }
+
+                showSimpleAlert('ℹ️ 선택된 Export 종류가 아직 지원되지 않습니다. (멤버 목록만 우선 지원)', 'info');
+            } catch (e) {
+                console.error('Export 실패:', e);
+                showSimpleAlert('❌ Export 처리 중 오류가 발생했습니다.', 'error');
+            }
+        }
+
+        // Export Documents - 설정 저장
+        function saveExportSettings() {
+            try {
+                showSimpleAlert('✅ Export 설정이 저장되었습니다.', 'success');
+            } catch (e) {
+                console.error('Export 설정 저장 실패:', e);
+                showSimpleAlert('❌ Export 설정 저장 중 오류가 발생했습니다.', 'error');
+            }
+        }
+
+        // Export 종류 선택에 따라 Export 범위 표시/숨김
+        function handleExportTypeChange(value) {
+            const rangeItem = document.getElementById('export-range-setting');
+            if (!rangeItem) return;
+            if (value === 'members') {
+                rangeItem.style.display = 'none';
+            } else {
+                rangeItem.style.display = '';
+            }
+        }
+
+        // 체크박스형 Export 종류 변경 처리
+        function handleExportTypeCheckboxChange() {
+            const summary = document.getElementById('export-type-summary').checked;
+            const raw = document.getElementById('export-type-raw').checked;
+            const members = document.getElementById('export-type-members').checked;
+            const all = document.getElementById('export-type-all').checked;
+
+            // 유효성: "전체"가 선택되면 나머지 자동 선택/동기화
+            if (all) {
+                document.getElementById('export-type-summary').checked = true;
+                document.getElementById('export-type-raw').checked = true;
+                document.getElementById('export-type-members').checked = true;
+            }
+
+            // 범위 표시 규칙: 멤버만 단독 선택 시 범위 숨김, 그 외는 표시
+            const rangeItem = document.getElementById('export-range-setting');
+            if (rangeItem) {
+                const selectedCount = (summary?1:0) + (raw?1:0) + (members?1:0) + (all?1:0);
+                const onlyMembers = members && !summary && !raw && !all && selectedCount === 1;
+                rangeItem.style.display = onlyMembers ? 'none' : '';
+            }
+        }
+
+        // Export 형식 선택에 따라 세부 옵션 표시
+        function handleExportFormatChange(value) {
+            const csv = document.getElementById('csv-options');
+            const xlsx = document.getElementById('xlsx-options');
+            const pdf = document.getElementById('pdf-options');
+            const json = document.getElementById('json-options');
+            if (!csv || !xlsx || !pdf || !json) return;
+            csv.style.display = 'none';
+            xlsx.style.display = 'none';
+            pdf.style.display = 'none';
+            json.style.display = 'none';
+            if (value === 'csv') csv.style.display = '';
+            else if (value === 'xlsx') xlsx.style.display = '';
+            else if (value === 'pdf') pdf.style.display = '';
+            else if (value === 'json') json.style.display = '';
+        }
+
+        // 설정 리스트(Email Report)
+        function showEmailSettingsList() {
+            showSimpleAlert('ℹ️ 설정 리스트 표시 (준비 중)', 'info');
+        }
+
+        // 설정 리스트(Export Documents)
+        function showExportSettingsList() {
+            showSimpleAlert('ℹ️ Export 설정 리스트 표시 (준비 중)', 'info');
         }
 
         // 예약 메일 발송 스케줄러 시작 (토글용)
@@ -5255,6 +6218,19 @@
                     // 현재 Raw Events 데이터 업데이트
                     currentRawEventsData = eventsData.usageEvents;
                     console.log('🔄 currentRawEventsData 업데이트 완료:', currentRawEventsData.length, '개 이벤트');
+                    // 첨부파일 비활성 리스트 즉시 갱신 시도
+                    try {
+                        const inactiveSec = document.getElementById('attachment-inactive-section');
+                        const isInactiveVisible = inactiveSec && inactiveSec.style.display !== 'none';
+                        console.log('📣 [첨부파일/비활성] 이벤트 업데이트 감지. 섹션 표시 상태:', isInactiveVisible);
+                        if (window._renderAttachmentList) {
+                            window._renderAttachmentList('inactive');
+                        } else if (typeof renderAttachmentMemberLists === 'function') {
+                            renderAttachmentMemberLists();
+                        }
+                    } catch (e) {
+                        console.warn('첨부파일 비활성 리스트 자동 갱신 실패:', e);
+                    }
                     
                     // 통합 차트 데이터 저장소 업데이트
                     const currentFilter = getCurrentFilterState();
@@ -6401,49 +7377,222 @@
             }
         }
 
-        // Export CSV 기능
-        function exportMembersToCSV() {
+        // Export CSV 기능 (Members 섹션 필드 기준, BOM/구분자/개행 반영)
+        function exportMembersToCSV(filenameOverride) {
             try {
                 if (!currentMembersData || currentMembersData.length === 0) {
                     alert('내보낼 멤버 데이터가 없습니다.');
                     return;
                 }
-                
-                // CSV 헤더
-                const headers = ['Name', 'Email', 'Role', 'Premium Requests', 'Spend ($)', 'Hard Limit Override ($)'];
-                
+
+                // 옵션 반영
+                const delimiter = (document.getElementById('csv-delimiter')?.value) || ',';
+                const includeHeader = (document.getElementById('csv-include-header')?.value || 'yes') === 'yes';
+                const newline = (document.getElementById('csv-newline')?.value || 'CRLF') === 'CRLF' ? '\r\n' : '\n';
+                const encoding = (document.getElementById('csv-encoding')?.value || 'utf8-bom');
+
+                // CSV 헤더 (Members 섹션 기준 컬럼)
+                const headers = ['Name', 'Email', 'Role', 'Premium Requests', 'Spend ($)'];
+
+                // 필드 안전 인용
+                const quote = (val) => {
+                    const s = (val ?? '').toString();
+                    const needsQuote = s.includes('"') || s.includes(delimiter) || s.includes('\n') || s.includes('\r');
+                    const escaped = s.replace(/"/g, '""');
+                    return needsQuote ? `"${escaped}"` : escaped;
+                };
+
                 // CSV 데이터 생성
-                const csvData = currentMembersData.map(member => [
-                    member.name || '',
-                    member.email || '',
-                    member.role || '',
-                    member.spendData?.premiumRequests || 0,
-                    (member.spendData?.spend || 0).toFixed(2),
-                    (member.spendData?.hardLimitOverride || 0).toFixed(2)
-                ]);
-                
-                // CSV 문자열 생성
-                const csvContent = [
-                    headers.join(','),
-                    ...csvData.map(row => row.join(','))
-                ].join('\n');
-                
-                // 파일 다운로드
-                const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+                const csvRows = [];
+                if (includeHeader) csvRows.push(headers.map(quote).join(delimiter));
+                for (const member of currentMembersData) {
+                    const row = [
+                        member.name || '',
+                        member.email || '',
+                        member.role || '',
+                        member.spendData?.premiumRequests ?? 0,
+                        (member.spendData?.spend ?? 0).toFixed(2)
+                    ];
+                    csvRows.push(row.map(quote).join(delimiter));
+                }
+
+                const content = csvRows.join(newline);
+                const bom = encoding === 'utf8-bom' ? '\uFEFF' : '';
+                const blob = new Blob([bom + content], { type: 'text/csv;charset=utf-8;' });
                 const link = document.createElement('a');
                 const url = URL.createObjectURL(blob);
                 link.setAttribute('href', url);
-                link.setAttribute('download', `members_export_${new Date().toISOString().split('T')[0]}.csv`);
+                const filename = filenameOverride || `members_export_${new Date().toISOString().split('T')[0]}.csv`;
+                link.setAttribute('download', filename);
                 link.style.visibility = 'hidden';
                 document.body.appendChild(link);
                 link.click();
                 document.body.removeChild(link);
-                
                 console.log(`📊 CSV 내보내기 완료: ${currentMembersData.length}명의 멤버 데이터`);
+                return filename;
             } catch (error) {
                 console.error('❌ CSV 내보내기 오류:', error);
                 alert('CSV 내보내기에 실패했습니다.');
             }
+        }
+
+        // Excel(HTML 테이블 기반 .xls) Export (Members 섹션 필드 기준)
+        function exportMembersToExcelHTML(filenameOverride) {
+            const sanitize = (s) => (s ?? '').toString()
+                .replace(/&/g, '&amp;')
+                .replace(/</g, '&lt;')
+                .replace(/>/g, '&gt;')
+                .replace(/\"/g, '&quot;')
+                .replace(/'/g, '&#39;');
+
+            const rows = currentMembersData.map(member => `
+                <tr>
+                    <td>${sanitize(member.name || '')}</td>
+                    <td>${sanitize(member.email || '')}</td>
+                    <td>${sanitize(member.role || '')}</td>
+                    <td>${sanitize(member.spendData?.premiumRequests ?? 0)}</td>
+                    <td>${sanitize((member.spendData?.spend ?? 0).toFixed(2))}</td>
+                </tr>`).join('');
+
+            const html = `<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>
+                <table border="1">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Role</th>
+                            <th>Premium Requests</th>
+                            <th>Spend ($)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${rows}
+                    </tbody>
+                </table>
+            </body></html>`;
+
+            const blob = new Blob(['\uFEFF' + html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+            const link = document.createElement('a');
+            const url = URL.createObjectURL(blob);
+            link.href = url;
+            const filename = filenameOverride || `members_export_${new Date().toISOString().split('T')[0]}.xls`;
+            link.download = filename;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            return filename;
+        }
+
+        // JSON Export (Members 섹션 필드 기준)
+        function exportMembersToJSON(filename) {
+            try {
+                const structure = (document.getElementById('json-structure')?.value || 'ndjson');
+                const indentVal = document.getElementById('json-indent')?.value || '2';
+                const indent = indentVal === 'minify' ? 0 : parseInt(indentVal, 10);
+
+                const rows = currentMembersData.map(m => ({
+                    name: m.name || '',
+                    email: m.email || '',
+                    role: m.role || '',
+                    premiumRequests: m.spendData?.premiumRequests ?? 0,
+                    spend: Number((m.spendData?.spend ?? 0).toFixed(2))
+                }));
+
+                let payload = '';
+                if (structure === 'ndjson') {
+                    payload = rows.map(r => JSON.stringify(r)).join('\n');
+                } else {
+                    payload = JSON.stringify(rows, null, indent);
+                }
+
+                const blob = new Blob([payload], { type: 'application/json;charset=utf-8;' });
+                const link = document.createElement('a');
+                const url = URL.createObjectURL(blob);
+                link.href = url;
+                link.download = filename || `members_export_${new Date().toISOString().split('T')[0]}.json`;
+                document.body.appendChild(link);
+                link.click();
+                document.body.removeChild(link);
+            } catch (e) {
+                console.error('JSON Export 실패:', e);
+                showSimpleAlert('❌ JSON 내보내기 중 오류가 발생했습니다.', 'error');
+            }
+        }
+
+        // PDF Export (Members 섹션 필드 기준, 원클릭 저장 - html2pdf.js 사용)
+        function exportMembersToPDF(filename) {
+            try {
+                if (!window.html2pdf) {
+                    console.warn('html2pdf 라이브러리가 로드되지 않아 XLS로 대체 저장합니다.');
+                    exportMembersToExcelHTML(filename?.replace(/\.pdf$/, '.xls'));
+                    return;
+                }
+
+                const page = (document.getElementById('pdf-page')?.value || 'A4-portrait');
+                const headerFooter = (document.getElementById('pdf-header-footer')?.value || 'yes') === 'yes';
+                const [size, orientation] = page.split('-');
+
+                const container = document.createElement('div');
+                container.style.background = '#ffffff';
+                container.style.color = '#000000';
+                container.style.width = '794px';
+                container.style.padding = '16px';
+                container.style.fontFamily = "-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif";
+
+                const title = headerFooter ? `<div style="text-align:center; margin-bottom:10px; font-weight:600;">Members Export - ${new Date().toLocaleDateString('ko-KR')}</div>` : '';
+                const rows = currentMembersData.map(m => `
+                    <tr>
+                        <td style="padding:6px 8px; border: 1px solid #999;">${m.name || ''}</td>
+                        <td style="padding:6px 8px; border: 1px solid #999;">${m.email || ''}</td>
+                        <td style="padding:6px 8px; border: 1px solid #999;">${m.role || ''}</td>
+                        <td style="padding:6px 8px; border: 1px solid #999; text-align:right;">${m.spendData?.premiumRequests ?? 0}</td>
+                        <td style="padding:6px 8px; border: 1px solid #999; text-align:right;">${(m.spendData?.spend ?? 0).toFixed(2)}</td>
+                    </tr>`).join('');
+
+                container.innerHTML = `
+                    ${title}
+                    <table style="width:100%; border-collapse: collapse;">
+                        <thead>
+                            <tr>
+                                <th style="padding:6px 8px; border: 1px solid #999; background:#eee;">Name</th>
+                                <th style="padding:6px 8px; border: 1px solid #999; background:#eee;">Email</th>
+                                <th style="padding:6px 8px; border: 1px solid #999; background:#eee;">Role</th>
+                                <th style="padding:6px 8px; border: 1px solid #999; background:#eee;">Premium Requests</th>
+                                <th style="padding:6px 8px; border: 1px solid #999; background:#eee;">Spend ($)</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rows}
+                        </tbody>
+                    </table>`;
+
+                const opt = {
+                    margin:       10,
+                    filename:     filename || `members_export_${new Date().toISOString().split('T')[0]}.pdf`,
+                    image:        { type: 'jpeg', quality: 0.98 },
+                    html2canvas:  { scale: 2, useCORS: true },
+                    jsPDF:        { unit: 'pt', format: size.toLowerCase(), orientation: (orientation === 'landscape' ? 'landscape' : 'portrait') },
+                    pagebreak:    { mode: ['avoid-all','css','legacy'] }
+                };
+
+                window.html2pdf().set(opt).from(container).save();
+            } catch (e) {
+                console.error('PDF Export 실패:', e);
+                showSimpleAlert('❌ PDF 내보내기 중 오류가 발생했습니다.', 'error');
+            }
+        }
+
+        // 다운로드 위치 힌트 생성
+        function getDownloadLocationHint(filename) {
+            const ua = navigator.userAgent || '';
+            if (/Windows/i.test(ua)) {
+                return `C:\\Users\\(사용자명)\\Downloads\\${filename}`;
+            } else if (/Macintosh|Mac OS X/i.test(ua)) {
+                return `~/Downloads/${filename}`;
+            } else if (/Linux/i.test(ua)) {
+                return `~/Downloads/${filename}`;
+            }
+            return `브라우저 기본 다운로드 폴더 (${filename})`;
         }
 
         // 멤버 테이블 업데이트 (실제 지출 데이터 사용)
@@ -6798,11 +7947,6 @@
             
             const searchTerm = searchInput.value.toLowerCase().trim();
             
-            if (searchTerm.length === 0) {
-                autocomplete.style.display = 'none';
-                return;
-            }
-            
             // 사용자 데이터 가져오기
             let users = [];
             if (searchId === 'members-search') {
@@ -6811,11 +7955,14 @@
                 users = getUsageUsers();
             }
             
-            // 검색어와 매칭되는 사용자 필터링
-            const filteredUsers = users.filter(user => 
-                user.name.toLowerCase().includes(searchTerm) || 
-                user.email.toLowerCase().includes(searchTerm)
-            );
+            // 검색어가 없으면 전체 사용자 표시, 있으면 필터링
+            let filteredUsers = users;
+            if (searchTerm.length > 0) {
+                filteredUsers = users.filter(user => 
+                    user.name.toLowerCase().includes(searchTerm) || 
+                    user.email.toLowerCase().includes(searchTerm)
+                );
+            }
             
             if (filteredUsers.length === 0) {
                 autocomplete.style.display = 'none';
@@ -6843,19 +7990,17 @@
             
             const searchTerm = searchInput.value.toLowerCase().trim();
             
-            if (searchTerm.length === 0) {
-                autocomplete.style.display = 'none';
-                return;
-            }
-            
             // 사용자별 성과 데이터에서 사용자 정보 가져오기
             const users = getUserPerformanceUsers();
             
-            // 검색어와 매칭되는 사용자 필터링
-            const filteredUsers = users.filter(user => 
-                user.name.toLowerCase().includes(searchTerm) || 
-                user.email.toLowerCase().includes(searchTerm)
-            );
+            // 검색어가 없으면 전체 사용자 표시, 있으면 필터링
+            let filteredUsers = users;
+            if (searchTerm.length > 0) {
+                filteredUsers = users.filter(user => 
+                    user.name.toLowerCase().includes(searchTerm) || 
+                    user.email.toLowerCase().includes(searchTerm)
+                );
+            }
             
             if (filteredUsers.length === 0) {
                 autocomplete.style.display = 'none';
@@ -6872,6 +8017,97 @@
             
             autocomplete.innerHTML = dropdownHTML;
             autocomplete.style.display = 'block';
+        }
+
+        // 차트 검색창 자동완성 드롭다운 표시
+        function showChartAutocomplete(searchId) {
+            const searchInput = document.getElementById(searchId);
+            
+            if (!searchInput) return;
+            
+            const searchTerm = searchInput.value.toLowerCase().trim();
+            const chartSelect = document.getElementById('chartSelect');
+            const currentChartType = chartSelect ? chartSelect.value : 'activity-trend';
+            
+            // 차트 타입에 따라 적절한 드롭다운 표시
+            if (currentChartType === 'user-performance') {
+                // 사용자별 성과 차트의 경우 전체 사용자 표시
+                const users = getUserPerformanceUsers();
+                
+                // 검색어가 없으면 전체 사용자 표시, 있으면 필터링
+                let filteredUsers = users;
+                if (searchTerm.length > 0) {
+                    filteredUsers = users.filter(user => 
+                        user.name.toLowerCase().includes(searchTerm) || 
+                        user.email.toLowerCase().includes(searchTerm)
+                    );
+                }
+                
+                if (filteredUsers.length === 0) {
+                    return;
+                }
+                
+                // 드롭다운 HTML 생성 (최대 20개)
+                const dropdownHTML = filteredUsers.slice(0, 20).map(user => `
+                    <div class="autocomplete-item" onclick="selectChartUser('${searchId}', '${user.email}')">
+                        <div class="user-name">${user.name}</div>
+                        <div class="user-email">${user.email}</div>
+                    </div>
+                `).join('');
+                
+                // 기존 드롭다운 제거 후 새로 생성
+                const existingDropdown = document.getElementById('chart-autocomplete-dropdown');
+                if (existingDropdown) {
+                    existingDropdown.remove();
+                }
+                
+                const dropdown = document.createElement('div');
+                dropdown.id = 'chart-autocomplete-dropdown';
+                dropdown.className = 'autocomplete-dropdown';
+                dropdown.style.cssText = `
+                    position: absolute;
+                    top: 100%;
+                    left: 0;
+                    right: 0;
+                    background-color: #2a2a2a;
+                    border: 1px solid #3a3a3a;
+                    border-radius: 6px;
+                    max-height: 200px;
+                    overflow-y: auto;
+                    z-index: 1000;
+                    margin-top: 2px;
+                    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.3);
+                `;
+                dropdown.innerHTML = dropdownHTML;
+                
+                // 검색창 컨테이너에 드롭다운 추가
+                const inputContainer = searchInput.parentElement;
+                inputContainer.style.position = 'relative';
+                inputContainer.appendChild(dropdown);
+                
+                dropdown.style.display = 'block';
+            }
+        }
+
+        // 차트 검색창 사용자 선택
+        function selectChartUser(searchId, userEmail) {
+            const searchInput = document.getElementById(searchId);
+            const dropdown = document.getElementById('chart-autocomplete-dropdown');
+            
+            if (searchInput) {
+                searchInput.value = userEmail;
+                
+                // 차트 검색 실행
+                handleChartSearch(userEmail);
+                
+                // X 버튼 표시
+                toggleSearchClearBtn(searchId);
+            }
+            
+            // 드롭다운 숨기기
+            if (dropdown) {
+                dropdown.style.display = 'none';
+            }
         }
 
         // 사용자 선택
@@ -8878,6 +10114,49 @@
             }
         });
 
+        // 유틸리티 가드: PerformanceMonitor / updatePerformanceIndicator / SkeletonUI가 없으면 안전한 기본 구현 제공
+        (function(){
+            try {
+                if (typeof window.PerformanceMonitor === 'undefined') {
+                    window.PerformanceMonitor = {
+                        _marks: new Map(),
+                        start(label) {
+                            try { this._marks.set(label, (window.performance && performance.now) ? performance.now() : Date.now()); } catch (_) {}
+                        },
+                        end(label) {
+                            try {
+                                const start = this._marks.get(label);
+                                const now = (window.performance && performance.now) ? performance.now() : Date.now();
+                                const delta = (start != null) ? Math.round(now - start) : 0;
+                                this._marks.delete(label);
+                                return delta;
+                            } catch (_) { return 0; }
+                        }
+                    };
+                }
+                if (typeof window.updatePerformanceIndicator === 'undefined') {
+                    window.updatePerformanceIndicator = function(){ /* no-op */ };
+                }
+                if (typeof window.SkeletonUI === 'undefined') {
+                    window.SkeletonUI = { show: function(){}, hide: function(){} };
+                }
+                if (typeof window.DataCache === 'undefined') {
+                    window.DataCache = {
+                        members: null,
+                        events: null,
+                        _ts: {},
+                        set(key, value) { this[key] = value; this._ts[key] = Date.now(); },
+                        get(key) { return this[key]; },
+                        isValid(key, ttlMs = 5 * 60 * 1000) { // 기본 TTL 5분
+                            const ts = this._ts[key];
+                            return !!ts && (Date.now() - ts) < ttlMs && !!this[key];
+                        },
+                        clear() { this.members = null; this.events = null; this._ts = {}; }
+                    };
+                }
+            } catch (_) { /* ignore guard setup errors */ }
+        })();
+
         // 최적화된 페이지 초기화 (Progressive Loading)
         document.addEventListener('DOMContentLoaded', async function() {
             PerformanceMonitor.start('페이지 전체 로드');
@@ -9407,9 +10686,26 @@
                 existingModal.remove();
             }
 
+            // 선택 상태 초기화 (이전 팝업에서 남은 선택으로 오작동 방지)
+            window._selectedScheduleIds = new Set();
+
             // 예약 리스트 데이터 (저장된 예약만 표시)
             let scheduleList = [];
             
+            // 수신자 문자열 정리 함수 (과거에 잘못 저장된 비수신자 토큰 제거)
+            const sanitizeRecipients = (recipients) => {
+                if (!recipients || typeof recipients !== 'string') return recipients || '';
+                const validTokens = new Set(['관리자', '전체 멤버', '비활성 멤버', '직접입력', '직접 입력']);
+                const cleaned = [];
+                recipients.split(',').forEach(token => {
+                    const t = token.trim();
+                    if (validTokens.has(t) && !cleaned.includes(t)) {
+                        cleaned.push(t);
+                    }
+                });
+                return cleaned.join(', ');
+            };
+
             // 저장된 예약 리스트가 있으면 추가 (기존 데이터 마이그레이션 포함)
             if (window.emailScheduleList && window.emailScheduleList.length > 0) {
                 // 기존 데이터에 currentSend 필드가 없는 경우 추가 및 시간 갱신
@@ -9426,6 +10722,15 @@
                     
                     // 시간 갱신: 이번 발송 시간이 과거인 경우 갱신
                     updateScheduleTimeIfNeeded(schedule);
+
+                    // 수신자 문자열 정리: 비수신자 토큰(예: 사용량) 제거 및 중복 제거
+                    if (schedule.recipients) {
+                        const before = schedule.recipients;
+                        schedule.recipients = sanitizeRecipients(schedule.recipients);
+                        if (before !== schedule.recipients) {
+                            console.log(`🧹 수신자 정리: '${before}' → '${schedule.recipients}'`);
+                        }
+                    }
                     
                     return schedule;
                 });
@@ -9531,7 +10836,7 @@
                             <!-- 테이블 헤더 -->
                             <div style="
                                 display: grid;
-                                grid-template-columns: 2fr 1fr 1.2fr 1.2fr 1.5fr 0.8fr 0.8fr 0.8fr;
+                                grid-template-columns: 0.6fr 2fr 1fr 1.2fr 1.2fr 1.5fr 0.8fr 0.8fr 0.8fr;
                                 gap: 15px;
                                 padding: 15px;
                                 border-bottom: 1px solid #3a3a3a;
@@ -9539,6 +10844,9 @@
                                 color: #fff;
                                 font-size: 14px;
                             ">
+                                <div style="text-align:center;">
+                                    <input type="checkbox" id="select-all-schedules" style="width: 16px; height: 16px; accent-color: #4a9eff;">
+                                </div>
                                 <div>제목</div>
                                 <div>주기</div>
                                 <div>이번 발송</div>
@@ -9552,9 +10860,9 @@
                             <!-- 테이블 내용 -->
                             <div id="schedule-list-content">
                                 ${scheduleList.map(item => `
-                                    <div class="schedule-item" data-status="${item.status}" style="
+                                    <div class="schedule-item" data-id="${item.id}" data-status="${item.status}" style="
                                         display: grid;
-                                        grid-template-columns: 2fr 1fr 1.2fr 1.2fr 1.5fr 0.8fr 0.8fr 0.8fr;
+                                        grid-template-columns: 0.6fr 2fr 1fr 1.2fr 1.2fr 1.5fr 0.8fr 0.8fr 0.8fr;
                                         gap: 15px;
                                         padding: 15px;
                                         border-bottom: 1px solid #3a3a3a;
@@ -9562,14 +10870,33 @@
                                         font-size: 14px;
                                         transition: background-color 0.2s ease;
                                     " onmouseover="this.style.backgroundColor='#3a3a3a'" onmouseout="this.style.backgroundColor='transparent'">
-                                        <div style="cursor: pointer;" onclick="showScheduleDetail(${item.id})">
-                                            <div style="font-weight: 600; color: #fff; margin-bottom: 5px;">${item.title}</div>
-                                            <div style="color: #7a7a7a; font-size: 12px;">${item.message}</div>
+                                        <!-- 선택 체크박스 -->
+                                        <div style="text-align: center;">
+                                            <input type="checkbox" class="schedule-select-checkbox" data-id="${item.id}" onchange="handleSelectSchedule(${item.id}, this.checked)" style="
+                                                width: 16px;
+                                                height: 16px;
+                                                accent-color: #4a9eff;
+                                            ">
                                         </div>
-                                        <div>${item.frequency}</div>
-                                        <div style="color: #ff9800; font-weight: 600;">${item.currentSend || item.nextSend}</div>
-                                        <div style="color: #7a7a7a;">${item.nextSend}</div>
-                                        <div>${item.recipients}</div>
+                                        <!-- 제목 (요약 표시) -->
+                                        <div>
+                                            <div class="editable-field" data-field="title" style="font-weight: 600; color: #fff; margin-bottom: 5px;">${item.title}</div>
+                                            <div style="color: #7a7a7a; font-size: 12px; display:-webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden;">${(() => { const limit = (window.PREVIEW_MESSAGE_MAX || 80); const m=(item.message||'').toString().replace(/\s+/g,' ').trim(); return m.length>limit? m.slice(0,limit)+'…': m; })()}</div>
+                                        </div>
+                                        <!-- 주기 -->
+                                        <div>
+                                            <div class="editable-field" data-field="frequency">${item.frequency}</div>
+                                        </div>
+                                        <!-- 이번 발송 -->
+                                        <div>
+                                            <div class="editable-field" data-field="currentSend" style="color: #ff9800; font-weight: 600;">${item.currentSend || item.nextSend}</div>
+                                        </div>
+                                        <!-- 다음 발송 (자동 계산) -->
+                                        <div class="next-send-time" style="color: #7a7a7a;">${item.nextSend}</div>
+                                        <!-- 수신자 -->
+                                        <div>
+                                            <div class="editable-field" data-field="recipients">${item.recipients}</div>
+                                        </div>
                                         <div style="text-align: center;">
                                             <input type="radio" name="status-${item.id}" value="active" ${item.status === '활성' ? 'checked' : ''} 
                                                    onchange="updateScheduleStatus(${item.id}, '활성')" style="
@@ -9608,7 +10935,9 @@
                                 총 ${scheduleList.length}개의 예약 리스트
                             </div>
                             <div style="display: flex; gap: 10px;">
-                                <button class="analytics-btn" onclick="addNewSchedule()">새 예약 추가</button>
+                                <button class="chart-btn" onclick="showSelectedSchedulePreview()">미리보기</button>
+                                <button class="chart-btn" onclick="editSelectedSchedule()">수정</button>
+                                <button class="chart-btn" onclick="saveScheduleChanges()">저장</button>
                                 <button class="chart-btn" onclick="closeEmailScheduleModal()">닫기</button>
                             </div>
                         </div>
@@ -9619,16 +10948,10 @@
             // 모달을 페이지에 추가
             document.body.insertAdjacentHTML('beforeend', modalHTML);
 
-            // 모달 외부 클릭 시 닫기
-            document.getElementById('email-schedule-modal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeEmailScheduleModal();
-                }
-            });
-
             // 검색 기능 추가
             setTimeout(() => {
                 const searchInput = document.getElementById('schedule-search');
+                const selectAll = document.getElementById('select-all-schedules');
                 if (searchInput) {
                     searchInput.addEventListener('input', function() {
                         const searchTerm = this.value.toLowerCase();
@@ -9644,7 +10967,705 @@
                         });
                     });
                 }
+                if (selectAll) {
+                    selectAll.addEventListener('change', function() {
+                        const checked = this.checked;
+                        const checkboxes = document.querySelectorAll('#email-schedule-modal .schedule-select-checkbox');
+                        checkboxes.forEach(cb => {
+                            cb.checked = checked;
+                            const id = parseInt(cb.getAttribute('data-id'));
+                            handleSelectSchedule(id, checked);
+                        });
+                    });
+                }
             }, 100);
+        }
+
+        // 예약 리스트 선택 상태 관리
+        window._selectedScheduleIds = new Set();
+        function handleSelectSchedule(id, isSelected) {
+            if (!window._selectedScheduleIds) window._selectedScheduleIds = new Set();
+            if (isSelected) window._selectedScheduleIds.add(id);
+            else window._selectedScheduleIds.delete(id);
+            // 단일 선택 보장 옵션: 하나만 선택되어야 하는 액션 대비 안전장치
+            // 체크한 직후에도 DOM에서 다시 확인 가능
+        }
+
+        // 선택된 예약 미리보기 (첨부 파일 포함)
+        async function showSelectedSchedulePreview() {
+            const ids = Array.from(window._selectedScheduleIds || []);
+            if (!ids.length) {
+                showSimpleAlert('⚠️ 미리보기할 예약을 선택하세요.', 'warning');
+                return;
+            }
+            const schedules = (window.emailScheduleList || []).filter(s => ids.includes(s.id));
+            if (!schedules.length) {
+                showSimpleAlert('⚠️ 선택된 예약을 찾을 수 없습니다.', 'warning');
+                return;
+            }
+
+            // 첨부 파일 현재 설정 요약
+            // 첨부 설정: 저장된 예약의 스냅샷 우선, 없으면 현재 UI 값 사용
+            const saved = schedules[0] || {};
+            const attAll = (typeof saved.attachAllMembers === 'boolean') ? saved.attachAllMembers : !!document.getElementById('attachment-all-members')?.checked;
+            const attInactive = (typeof saved.attachInactiveMembers === 'boolean') ? saved.attachInactiveMembers : !!document.getElementById('attachment-inactive-members')?.checked;
+            const attCustom = (typeof saved.attachCustom === 'boolean') ? saved.attachCustom : !!document.getElementById('attachment-custom')?.checked;
+            const attAllUsage = !!document.getElementById('attachment-all-usage')?.checked;
+            const attInactiveUsage = !!document.getElementById('attachment-inactive-usage')?.checked;
+            const attCustomUsage = !!document.getElementById('attachment-custom-usage')?.checked;
+            const usagePeriodText = (() => {
+                const savedText = (saved.usagePeriodText && saved.usagePeriodText.trim()) || '';
+                const fromAttachment = (document.getElementById('usage-attachment-period-text')?.textContent || '').trim();
+                const fromUsage = (document.getElementById('usage-filter-period-text')?.textContent || '').trim();
+                const fromOverview = (document.getElementById('filter-period-text')?.textContent || '').trim();
+                const isUnset = (t) => !t || t === '기간을 선택하세요';
+                if (!isUnset(savedText)) return savedText;
+                if (!isUnset(fromAttachment)) return fromAttachment;
+                if (!isUnset(fromUsage)) return fromUsage;
+                return fromOverview;
+            })();
+            const customAttachmentEmails = (document.getElementById('attachment-custom-emails')?.value || '').trim();
+
+            // 표본 데이터 생성: 비활성 멤버 상위 N명, 전체 멤버 상위 N명, 직접입력 N개, 사용량 기간 요약
+            const SAMPLE_COUNT = 10;
+            let inactiveSamples = [];
+            let allMemberSamples = [];
+            let customSamples = [];
+
+            try {
+                if ((attInactive || attAll) && typeof getTeamMembers === 'function') {
+                    const membersData = await getTeamMembers();
+                    const members = membersData && membersData.teamMembers ? membersData.teamMembers : [];
+                    if (attInactive) {
+                        const inactives = members.filter(m => (m.spendData && m.spendData.premiumRequests === 0));
+                        inactiveSamples = inactives.slice(0, SAMPLE_COUNT).map(m => `${m.name || m.email || 'unknown'} <${m.email || ''}>`);
+                    }
+                    if (attAll) {
+                        allMemberSamples = members.slice(0, SAMPLE_COUNT).map(m => `${m.name || m.email || 'unknown'} <${m.email || ''}>`);
+                    }
+                }
+            } catch (e) {
+                console.warn('첨부 표본 데이터 수집 중 오류:', e);
+            }
+
+            if (attCustom) {
+                const list = (customAttachmentEmails || '')
+                    .split(',')
+                    .map(s => s.trim())
+                    .filter(Boolean);
+                customSamples = list.slice(0, SAMPLE_COUNT);
+            }
+
+            let attachmentSummaryHTML = "";
+
+            // 상세 첨부 요약을 위한 전체 목록 및 카운트 계산
+            const allMemberFullList = [];
+            const inactiveFullList = [];
+            const customFullList = (customAttachmentEmails || '').split(',').map(s => s.trim()).filter(Boolean);
+
+            const allMemberCount = 0;
+            const inactiveCount = 0;
+            const customCount = attCustom ? customFullList.length : 0;
+
+            const sampleBlock = (items) => {
+                const take = items.slice(0, Math.max(3, Math.min(10, items.length)));
+                if (!take.length) return '<div style="color:#7a7a7a;">표시할 항목이 없습니다.</div>';
+                return `<pre style=\"white-space:pre-wrap; background:#0f0f0f; border:1px solid #3a3a3a; border-radius:6px; padding:10px; color:#e1e1e1; max-height:120px; overflow:auto;\">${take.join('\n')}${items.length>take.length?'\n…':''}</pre>`;
+            };
+
+            const attachmentRows = [];
+            attachmentRows.push(`<div>• 전체 멤버 리스트: <span style=\"color:#ff9800; font-weight:600;\">${attAll ? '포함' : '미포함'}${attAllUsage ? ' (사용량 포함)' : ''}</span>${attAll ? ` <span style=\"color:#b1b1b1;\">(총 ${allMemberCount}명)</span>` : ''} ${attAll ? `<button id=\"view-all-all-members\" class=\"chart-btn\" style=\"padding:2px 8px; font-size:12px; margin-left:6px;\">전체 보기</button>` : ''}</div>`);
+            if (attAll) attachmentRows.push(`<div style=\"margin-top:6px;\">${'<div style="color:#7a7a7a;">목록은 멤버 로딩 후 표시됩니다.</div>'}</div>`);
+            attachmentRows.push(`<div style=\"margin-top:10px;\">• 비활성 멤버 리스트: <span style=\"color:#ff9800; font-weight:600;\">${attInactive ? '포함' : '미포함'}${attInactiveUsage ? ' (사용량 포함)' : ''}</span>${attInactive ? ` <span style=\"color:#b1b1b1;\">(총 ${inactiveCount}명)</span>` : ''} ${attInactive ? `<button id=\"view-all-inactive-members\" class=\"chart-btn\" style=\"padding:2px 8px; font-size:12px; margin-left:6px;\">전체 보기</button>` : ''}</div>`);
+            if (attInactive) attachmentRows.push(`<div style=\"margin-top:6px;\">${'<div style="color:#7a7a7a;">목록은 멤버 로딩 후 표시됩니다.</div>'}</div>`);
+            attachmentRows.push(`<div style=\"margin-top:10px;\">• 직접 입력 리스트: <span style=\"color:#ff9800; font-weight:600;\">${attCustom ? '포함' : '미포함'}${attCustomUsage ? ' (사용량 포함)' : ''}</span>${attCustom ? ` <span style=\"color:#b1b1b1;\">(총 ${customCount}명)</span>` : ''} ${attCustom ? `<button id=\"view-all-custom\" class=\"chart-btn\" style=\"padding:2px 8px; font-size:12px; margin-left:6px;\">전체 보기</button>` : ''}</div>`);
+            if (attCustom) attachmentRows.push(`<div style=\"margin-top:6px;\">${sampleBlock(customFullList)}</div>`);
+
+            attachmentSummaryHTML = attachmentRows.join('');
+
+            // CSV 생성 준비
+            const delimiter = ',';
+            const newline = '\n';
+            const quote = (val) => {
+                const s = (val ?? '').toString();
+                const needsQuote = s.includes('"') || s.includes(delimiter) || s.includes('\n') || s.includes('\r');
+                const escaped = s.replace(/"/g, '""');
+                return needsQuote ? `"${escaped}"` : escaped;
+            };
+
+            // 사용량 기간 파싱
+            let startDate = null, endDate = null;
+            const periodMatch = usagePeriodText.match(/(\d{4}-\d{2}-\d{2})\s*~\s*(\d{4}-\d{2}-\d{2})/);
+            if (periodMatch) {
+                startDate = periodMatch[1];
+                endDate = periodMatch[2];
+            }
+
+            // 멤버/이벤트 데이터 수집
+            let members = [];
+            try {
+                const membersData = await getTeamMembers();
+                members = membersData && membersData.teamMembers ? membersData.teamMembers : [];
+            } catch (e) {
+                console.warn('미리보기 멤버 데이터 수집 실패:', e);
+            }
+
+            // 이벤트 맵: 기간이 설정되면 이벤트 먼저 수집해 비활성 계산에 사용
+            let emailToUsageCost = new Map();
+            const anyUsage = (attAllUsage || attInactiveUsage || attCustomUsage) && startDate && endDate;
+            const needEventsForInactivity = attInactive && startDate && endDate;
+            const shouldFetchEvents = (anyUsage || needEventsForInactivity) && startDate && endDate;
+            if (shouldFetchEvents) {
+                try {
+                    const eventsData = await getFilteredEvents(startDate, endDate);
+                    if (eventsData && eventsData.usageEvents) {
+                        for (const ev of eventsData.usageEvents) {
+                            const key = ev.userEmail || ev.email;
+                            if (!key) continue;
+                            const prev = emailToUsageCost.get(key) || 0;
+                            emailToUsageCost.set(key, prev + (ev.requestsCosts || 0));
+                        }
+                    }
+                } catch (e) {
+                    console.warn('미리보기 사용량 데이터 수집 실패:', e);
+                }
+            }
+
+            // 멤버 확보 후 첨부 요약 생성 (실제 목록/카운트/샘플/전체보기)
+            (function(){
+                try {
+                    const allMemberFullList = (members || []).map(m => `${m.name || m.email || 'unknown'} <${m.email || ''}>`).filter(Boolean);
+                    const customFullList = (customAttachmentEmails || '').split(',').map(s => s.trim()).filter(Boolean);
+
+                    // 비활성 기준: 첨부 파일 섹션과 동일하게 "최근 N일 무활동" 기준 사용
+                    const inactivityDays = (window.attachmentInactiveState && window.attachmentInactiveState.days)
+                        || parseInt(document.getElementById('attachment-inactive-days')?.value)
+                        || 14;
+                    const rawEventsNow = (typeof currentRawEventsData !== 'undefined' && Array.isArray(currentRawEventsData)
+                        ? currentRawEventsData
+                        : (window.currentRawEventsData || []));
+                    const allowedEventsNow = rawEventsNow.filter(ev => ev && ev.userEmail && typeof ev.requestsCosts === 'number' && ev.requestsCosts > 0 && !isNaN(parseInt(ev.timestamp)));
+                    const cutoffTs = Date.now() - (inactivityDays * 24 * 60 * 60 * 1000);
+                    const activeEmailsSet = new Set();
+                    for (const ev of allowedEventsNow) {
+                        const ts = parseInt(ev.timestamp);
+                        if (ts >= cutoffTs) {
+                            activeEmailsSet.add(ev.userEmail);
+                        }
+                    }
+                    const inactiveByDays = (members || []).filter(m => !activeEmailsSet.has(m.email));
+                    const inactiveFullList = inactiveByDays.map(m => `${m.name || m.email || 'unknown'} <${m.email || ''}>`).filter(Boolean);
+
+                    const allMemberCount = attAll ? allMemberFullList.length : 0;
+                    const inactiveCount = attInactive ? inactiveFullList.length : 0;
+                    const customCount = attCustom ? customFullList.length : 0;
+
+                    const sampleBlock = (items) => {
+                        const take = items.slice(0, Math.max(3, Math.min(10, items.length)));
+                        if (!take.length) return '<div style=\"color:#7a7a7a;\">표시할 항목이 없습니다.</div>';
+                        return `<pre style=\"white-space:pre-wrap; background:#0f0f0f; border:1px solid #3a3a3a; border-radius:6px; padding:10px; color:#e1e1e1; max-height:120px; overflow:auto;\">${take.join('\\n')}${items.length>take.length?'\\n…':''}</pre>`;
+                    };
+
+                    const attachmentRows = [];
+                    attachmentRows.push(`<div>• 전체 멤버 리스트: <span style=\"color:#ff9800; font-weight:600;\">${attAll ? '포함' : '미포함'}${attAllUsage ? ' (사용량 포함)' : ''}</span>${attAll ? ` <span style=\"color:#b1b1b1;\">(총 ${allMemberCount}명)</span>` : ''} ${attAll ? `<button id=\"view-all-all-members\" class=\"chart-btn\" style=\"padding:2px 8px; font-size:12px; margin-left:6px;\">전체 보기</button>` : ''}</div>`);
+                    if (attAll) attachmentRows.push(`<div style=\"margin-top:6px;\">${sampleBlock(allMemberFullList)}</div>`);
+                    attachmentRows.push(`<div style=\"margin-top:10px;\">• 비활성 멤버 리스트: <span style=\"color:#ff9800; font-weight:600;\">${attInactive ? '포함' : '미포함'}${attInactiveUsage ? ' (사용량 포함)' : ''}</span>${attInactive ? ` <span style=\"color:#b1b1b1;\">(총 ${inactiveCount}명)</span>` : ''} ${attInactive ? `<button id=\"view-all-inactive-members\" class=\"chart-btn\" style=\"padding:2px 8px; font-size:12px; margin-left:6px;\">전체 보기</button>` : ''}</div>`);
+                    if (attInactive) attachmentRows.push(`<div style=\"margin-top:6px;\">${sampleBlock(inactiveFullList)}</div>`);
+                    attachmentRows.push(`<div style=\"margin-top:10px;\">• 직접 입력 리스트: <span style=\"color:#ff9800; font-weight:600;\">${attCustom ? '포함' : '미포함'}${attCustomUsage ? ' (사용량 포함)' : ''}</span>${attCustom ? ` <span style=\"color:#b1b1b1;\">(총 ${customCount}명)</span>` : ''} ${attCustom ? `<button id=\"view-all-custom\" class=\"chart-btn\" style=\"padding:2px 8px; font-size:12px; margin-left:6px;\">전체 보기</button>` : ''}</div>`);
+                    if (attCustom) attachmentRows.push(`<div style=\"margin-top:6px;\">${sampleBlock(customFullList)}</div>`);
+                    // 사용량 기간은 사용량 옵션이 하나라도 체크된 경우, 요약 맨 하단에 표시
+                    if (attAllUsage || attInactiveUsage || attCustomUsage) {
+                        attachmentRows.push(`<div style=\"margin-top:10px;\">• 사용량 기간: <span style=\"color:#ff9800; font-weight:600;\">${usagePeriodText || '설정 없음'}</span></div>`);
+                    }
+
+                    attachmentSummaryHTML = attachmentRows.join('');
+
+                    // 모달에서 사용할 비활성 이메일 목록 저장 (첨부 섹션과 동일 기준)
+                    window.__previewInactiveEmailsByPeriod = inactiveByDays.map(m => m.email).filter(Boolean);
+                } catch (e) { console.warn('첨부 요약 생성 실패:', e); }
+            })();
+
+            // CSV 헤더 구성 (사용량 컬럼은 그룹별 사용량 옵션이 하나라도 선택된 경우 포함)
+            const includeUsageCol = (attAllUsage || attInactiveUsage || attCustomUsage);
+            const headers = ['Type', 'Name', 'Email', 'Role', 'Premium Requests', 'Spend ($)']
+                .concat(includeUsageCol ? ['Usage RequestsCosts'] : []);
+            const rows = [headers];
+
+            // 전체 멤버
+            if (attAll) {
+                const usageOn = !!attAllUsage;
+                for (const m of members) {
+                    const row = [
+                        '전체',
+                        m.name || '',
+                        m.email || '',
+                        m.role || '',
+                        m.spendData?.premiumRequests ?? 0,
+                        (m.spendData?.spend ?? 0).toFixed(2)
+                    ];
+                    if (includeUsageCol) {
+                        row.push(usageOn ? (emailToUsageCost.get(m.email) || 0) : '');
+                    }
+                    rows.push(row);
+                }
+            }
+
+            // 비활성 멤버 (spendData.premiumRequests === 0 기준)
+            if (attInactive) {
+                const usageOn = !!attInactiveUsage;
+                const inactives = members.filter(m => (m.spendData && m.spendData.premiumRequests === 0));
+                for (const m of inactives) {
+                    const row = [
+                        '비활성',
+                        m.name || '',
+                        m.email || '',
+                        m.role || '',
+                        m.spendData?.premiumRequests ?? 0,
+                        (m.spendData?.spend ?? 0).toFixed(2)
+                    ];
+                    if (includeUsageCol) {
+                        row.push(usageOn ? (emailToUsageCost.get(m.email) || 0) : '');
+                    }
+                    rows.push(row);
+                }
+            }
+
+            // 직접 입력 리스트
+            if (attCustom) {
+                const usageOn = !!attCustomUsage;
+                const list = (customAttachmentEmails || '')
+                    .split(',')
+                    .map(s => s.trim())
+                    .filter(Boolean);
+                for (const email of list) {
+                    const row = [
+                        '직접입력',
+                        '',
+                        email,
+                        'custom',
+                        '',
+                        ''
+                    ];
+                    if (includeUsageCol) {
+                        row.push(usageOn ? (emailToUsageCost.get(email) || 0) : '');
+                    }
+                    rows.push(row);
+                }
+            }
+
+            // CSV 문자열 생성
+            const csvLines = rows.map(r => r.map(quote).join(delimiter));
+            const csvContent = csvLines.join(newline);
+
+            const schedule = schedules[0] || {};
+            const html = `
+                <div id="schedule-preview-modal" style="
+                    position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1100;
+                ">
+                    <div style="
+                        position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
+                        width: 90%; max-width: 900px; max-height: 85vh; overflow: auto;
+                        background: #2a2a2a; border: 1px solid #3a3a3a; border-radius: 8px; padding: 20px;
+                    ">
+                        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #3a3a3a; padding-bottom:12px; margin-bottom:16px;">
+                            <div style="color:#fff; font-size:18px; font-weight:600;">예약 미리보기</div>
+                        </div>
+                        <!-- 수신자 보기 스타일의 상단 정보 블록 (실데이터는 오렌지색) -->
+                        <div style="background:#1a1a1a; border:1px solid #3a3a3a; border-radius:6px; padding:12px;">
+                            <div style="display:grid; grid-template-columns: 1fr 3fr; gap:8px;">
+                                <div style="color:#b1b1b1;">주기</div>
+                                <div style="color:#ff9800;">${schedules[0]?.frequency || ''}</div>
+                                <div style="color:#b1b1b1;">시간</div>
+                                <div>${(() => { const s=schedules[0]||{}; const d=parseNextSendTime((s.currentSend||s.nextSend||'')); if(d){ const h=d.getHours(); const m=String(d.getMinutes()).padStart(2,'0'); const ampm = h<12 ? '오전' : '오후'; const h12 = h===0?12:(h<=12?h:h-12); return `<span style=\"color:#ff9800;\">${ampm} ${h12}시 ${m}분</span>`; } const t=s.time||''; return `<span style=\"color:#ff9800;\">${t}</span>`; })()}</div>
+                            </div>
+                            <div style="font-size:14px; margin-top:12px;">
+                                <div style="color:#fff; font-weight:600; margin-bottom:6px;">발송 메시지</div>
+                                <div style="background:#0f0f0f; border:1px solid #3a3a3a; border-radius:6px; padding:12px; color:#ff9800; white-space:pre-wrap;">${schedules[0]?.message || ''}</div>
+                            </div>
+                            <div style="margin-top:12px;">
+                                <div style="color:#fff; font-weight:600; margin-bottom:8px;">수신자 그룹</div>
+                                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                                    ${(() => { const r=(schedule?.recipients||''); const map={ '관리자':'admin','전체 멤버':'all','비활성 멤버':'inactive','직접입력':'custom'}; const chips=['관리자','전체 멤버','비활성 멤버','직접입력'].filter(x=>r.includes(x)).map(x=>`<span class=\"recipient-chip\" data-group=\"${map[x]}\" style=\"background:#2a2a2a; border:1px solid #ff9800; color:#ff9800; padding:4px 8px; border-radius:999px; font-size:12px; cursor:pointer;\">${x}</span>`).join(' '); return chips || '<span style=\"color:#7a7a7a;\">선택된 그룹 없음</span>'; })()}
+                                </div>
+                            </div>
+                        </div>
+                        <div style="color:#e1e1e1; font-size:14px; margin:16px 0;">
+                            <div style="color:#fff; font-size:16px; font-weight:600; margin-bottom:8px;">첨부 파일 요약</div>
+                            <div id="attachments-summary-content" style="background:#1a1a1a; border:1px solid #3a3a3a; border-radius:6px; padding:12px; color:#e1e1e1; line-height:1.6;">${attachmentSummaryHTML}</div>
+                        </div>
+
+                        <!-- 첨부 파일 내용 (CSV 미리보기) -->
+                        <div style="margin-top:16px; background:#1a1a1a; border:1px solid #3a3a3a; border-radius:6px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; color:#fff; font-size:16px; font-weight:600; border-bottom:1px solid #3a3a3a; padding:12px;">
+                                <div>첨부 파일 내용</div>
+                                <div style="display:flex; gap:8px;">
+                                    <button class="analytics-btn" onclick="downloadAttachmentsPreviewCSV()">CSV 다운로드</button>
+                                </div>
+                            </div>
+                            <div style="padding:12px;">
+                                <pre id="attachments-csv-content" style="white-space:pre; overflow:auto; max-height:50vh; background:#0f0f0f; border:1px solid #3a3a3a; border-radius:6px; padding:12px; color:#e1e1e1;">${csvContent}</pre>
+                            </div>
+                        </div>
+
+                        <!-- 하단 버튼: 좌측 즉시 발송, 우측 수정/닫기 -->
+                        <div style="display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:16px; border-top:1px solid #3a3a3a; padding-top:16px;">
+                            <div>
+                                <button id="schedule-preview-send-now-btn" class="analytics-btn">📧 즉시 발송</button>
+                            </div>
+                            <div style="display:flex; gap:10px;">
+                                <button id="schedule-preview-edit-btn" class="chart-btn">수정</button>
+                            <button class="chart-btn" onclick="document.getElementById('schedule-preview-modal').remove()">닫기</button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', html);
+
+            // 미리보기 CSV 다운로드 핸들러를 위한 전역 함수 바인딩
+            window.downloadAttachmentsPreviewCSV = function() {
+                try {
+                    const pre = document.getElementById('attachments-csv-content');
+                    if (!pre) {
+                        showSimpleAlert('⚠️ 다운로드할 CSV 내용을 찾을 수 없습니다.', 'warning');
+                        return;
+                    }
+                    const content = pre.textContent || '';
+                    const bom = '\uFEFF';
+                    const blob = new Blob([bom + content], { type: 'text/csv;charset=utf-8;' });
+                    const url = URL.createObjectURL(blob);
+                    const a = document.createElement('a');
+                    a.href = url;
+                    a.download = `email_attachments_preview_${new Date().toISOString().split('T')[0]}.csv`;
+                    document.body.appendChild(a);
+                    a.click();
+                    a.remove();
+                    URL.revokeObjectURL(url);
+                } catch (e) {
+                    console.error('CSV 다운로드 실패:', e);
+                    showSimpleAlert('❌ CSV 다운로드 중 오류가 발생했습니다.', 'error');
+                }
+            };
+
+            // 첨부 요약의 '전체 보기' 버튼 및 수신자 그룹 칩 클릭 시 실제 이메일 리스트 표시
+            (function(){
+                function showEmailsModal(title, emails){
+                    const listHTML = (emails && emails.length)
+                        ? `<div style="max-height:50vh; overflow:auto; background:#0f0f0f; border:1px solid #3a3a3a; border-radius:6px; padding:12px; color:#e1e1e1; font-family:monospace; white-space:pre-wrap;">${emails.join('\n')}</div>`
+                        : `<div style="padding:12px; color:#7a7a7a; background:#1a1a1a; border:1px solid #3a3a3a; border-radius:6px;">표시할 이메일이 없습니다.</div>`;
+                    const m = `
+                        <div id="recipient-emails-modal" style="position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1200;">
+                            <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:90%; max-width:700px; background:#2a2a2a; border:1px solid #3a3a3a; border-radius:8px; padding:20px;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #3a3a3a; padding-bottom:12px; margin-bottom:16px;">
+                                    <div style="color:#fff; font-size:16px; font-weight:600;">${title}</div>
+                                    <button class="chart-btn" onclick="document.getElementById('recipient-emails-modal').remove()">닫기</button>
+                                </div>
+                                ${listHTML}
+                            </div>
+                        </div>`;
+                    document.body.insertAdjacentHTML('beforeend', m);
+                }
+
+                const chipEls = document.querySelectorAll('#schedule-preview-modal .recipient-chip');
+                chipEls.forEach(chip => {
+                    chip.addEventListener('click', () => {
+                        const group = chip.getAttribute('data-group');
+                        let emails = [];
+                        if (group === 'admin') {
+                            emails = (members || []).filter(m => (m.role === 'owner')).map(m => m.email).filter(Boolean);
+                            showEmailsModal('관리자 이메일 리스트', emails);
+                        } else if (group === 'all') {
+                            emails = (members || []).map(m => m.email).filter(Boolean);
+                            showEmailsModal('전체 멤버 이메일 리스트', emails);
+                        } else if (group === 'inactive') {
+                            // 기간이 선택되었다면 기간 기반 비활성 목록 사용, 아니면 기존 기준 사용
+                            const byPeriod = Array.isArray(window.__previewInactiveEmailsByPeriod) ? window.__previewInactiveEmailsByPeriod : null;
+                            emails = (byPeriod && byPeriod.length)
+                                ? byPeriod
+                                : (members || []).filter(m => (m.spendData && m.spendData.premiumRequests === 0)).map(m => m.email).filter(Boolean);
+                            showEmailsModal('비활성 멤버 이메일 리스트', emails);
+                        } else if (group === 'custom') {
+                            let customs = Array.isArray(schedule.customEmails) ? schedule.customEmails : [];
+                            if (!customs || customs.length === 0) {
+                                customs = (customAttachmentEmails || '').split(',').map(s => s.trim()).filter(Boolean);
+                            }
+                            showEmailsModal('직접 입력 이메일 리스트', customs);
+                        }
+                    });
+                });
+
+                // 첨부 요약의 전체 보기 버튼 연결
+                const btnAllMembers = document.getElementById('view-all-all-members');
+                if (btnAllMembers) {
+                    btnAllMembers.addEventListener('click', () => {
+                        const emails = (members || []).map(m => m.email).filter(Boolean);
+                        showEmailsModal('전체 멤버 이메일 전체 목록', emails);
+                    });
+                }
+                const btnInactive = document.getElementById('view-all-inactive-members');
+                if (btnInactive) {
+                    btnInactive.addEventListener('click', () => {
+                        const byPeriod = Array.isArray(window.__previewInactiveEmailsByPeriod) ? window.__previewInactiveEmailsByPeriod : null;
+                        const emails = (byPeriod && byPeriod.length)
+                            ? byPeriod
+                            : (members || []).filter(m => (m.spendData && m.spendData.premiumRequests === 0)).map(m => m.email).filter(Boolean);
+                        showEmailsModal('비활성 멤버 이메일 전체 목록', emails);
+                    });
+                }
+                const btnCustom = document.getElementById('view-all-custom');
+                if (btnCustom) {
+                    btnCustom.addEventListener('click', () => {
+                        let customs = Array.isArray(schedule.customEmails) ? schedule.customEmails : [];
+                        if (!customs || customs.length === 0) {
+                            customs = (customAttachmentEmails || '').split(',').map(s => s.trim()).filter(Boolean);
+                        }
+                        showEmailsModal('직접 입력 이메일 전체 목록', customs);
+                    });
+                }
+            })();
+
+            // 즉시 발송 버튼 동작 (예약 미리보기 기준으로 수신자 산출)
+            (function(){
+                const btn = document.getElementById('schedule-preview-send-now-btn');
+                if (!btn) return;
+                btn.addEventListener('click', async (ev) => {
+                    const original = btn.innerHTML; btn.disabled = true; btn.style.opacity='0.6'; btn.innerHTML='📧 발송 중...';
+                    try {
+                        const r = (schedule.recipients || '');
+                        let emails = [];
+                        if (r.includes('관리자')) {
+                            emails = emails.concat((members || []).filter(m => m.role === 'owner').map(m => m.email).filter(Boolean));
+                        }
+                        if (r.includes('전체 멤버')) {
+                            emails = emails.concat((members || []).map(m => m.email).filter(Boolean));
+                        }
+                        if (r.includes('비활성 멤버')) {
+                            emails = emails.concat((members || []).filter(m => (m.spendData && m.spendData.premiumRequests === 0)).map(m => m.email).filter(Boolean));
+                        }
+                        if (r.includes('직접입력') && Array.isArray(schedule.customEmails)) {
+                            emails = emails.concat(schedule.customEmails);
+                        }
+                        const unique = Array.from(new Set(emails));
+                        if (!unique.length) { showSimpleAlert('⚠️ 발송할 수신자가 없습니다.', 'warning'); return; }
+                        const payload = {
+                            message: (schedule.message || '삼성 AI Experience Group 대시보드 리포트입니다.'),
+                            selectedGroups: ['관리자','전체 멤버','비활성 멤버','직접입력'].filter(x=>r.includes(x)),
+                            customEmails: Array.isArray(schedule.customEmails) ? schedule.customEmails : [],
+                            allEmails: unique,
+                            timestamp: new Date().toLocaleString('ko-KR'),
+                            source: 'preview',
+                            scheduleTitle: schedule.title || '예약 리포트'
+                        };
+                        await sendEmailViaSMTP(payload);
+                        showSimpleAlert('✅ 이메일이 성공적으로 발송되었습니다!', 'success');
+                    } catch (e) {
+                        console.error(e); showSimpleAlert('❌ 이메일 발송에 실패했습니다. 잠시 후 다시 시도해주세요.', 'error');
+                    } finally {
+                        btn.innerHTML = original; btn.disabled = false; btn.style.opacity='1';
+                    }
+                });
+            })();
+
+            // 수정 버튼: 예약 수정 모달 열기
+            (function(){
+                const editBtn = document.getElementById('schedule-preview-edit-btn');
+                if (!editBtn) return;
+                editBtn.addEventListener('click', () => {
+                    try { openEditScheduleModal(schedule); } catch(e) { console.error(e); }
+                });
+            })();
+        }
+
+        // 선택된 예약 수정 열기
+        function editSelectedSchedule() {
+            // DOM에서 실제 체크된 상태를 다시 확인하여 신뢰성 보강
+            const domChecked = Array.from(document.querySelectorAll('#email-schedule-modal .schedule-select-checkbox'))
+                .filter(cb => cb.checked)
+                .map(cb => parseInt(cb.getAttribute('data-id')))
+                .filter(id => !isNaN(id));
+            const ids = domChecked.length ? domChecked : Array.from(window._selectedScheduleIds || []);
+            if (ids.length !== 1) {
+                showSimpleAlert('⚠️ 하나의 예약만 선택하여 수정하세요.', 'warning');
+                return;
+            }
+            const id = ids[0];
+            const schedule = (window.emailScheduleList || []).find(s => s.id === id);
+            if (!schedule) {
+                showSimpleAlert('⚠️ 선택된 예약을 찾을 수 없습니다.', 'warning');
+                return;
+            }
+            // 기존 인라인 편집(제목/주기/시간/수신자 클릭 편집) 유지 + 별도 수정 모달 제공
+            openEditScheduleModal(schedule);
+        }
+
+        function openEditScheduleModal(schedule) {
+            // 간단한 수정 모달: 제목, 메시지, 주기(셀렉트), 시간(시간 선택), 수신자 문자열
+            const html = `
+                <div id="edit-schedule-modal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1100;">
+                    <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:90%; max-width:720px; background:#2a2a2a; border:1px solid #3a3a3a; border-radius:8px; padding:20px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #3a3a3a; padding-bottom:12px; margin-bottom:16px;">
+                            <div style="color:#fff; font-size:18px; font-weight:600;">예약 수정</div>
+                            <button style="background:none; border:none; color:#7a7a7a; font-size:18px; cursor:pointer;" onclick="document.getElementById('edit-schedule-modal').remove()">×</button>
+                        </div>
+                        <div style="display:grid; gap:12px;">
+                            <label style="color:#e1e1e1; font-size:14px;">제목
+                                <input id="edit-title" class="search-box" style="width:100%; margin-top:6px; color:#ff9800;" value="${schedule.title || ''}">
+                            </label>
+                            <label style="color:#e1e1e1; font-size:14px;">메시지
+                                <textarea id="edit-message" class="search-box" style="width:100%; height:90px; margin-top:6px; color:#ff9800;">${schedule.message || ''}</textarea>
+                            </label>
+                            <label style="color:#e1e1e1; font-size:14px;">주기
+                                <select id="edit-frequency" class="setting-select" style="background-color: transparent; width:100%; margin-top:6px; color:#ff9800;" onfocus="this.style.backgroundColor='#3a3a3a'" onblur="this.style.backgroundColor='transparent'">
+                                    ${['매일','매주','매월'].map(opt => `<option value="${opt}" ${opt===(schedule.frequency||'')?'selected':''}>${opt}</option>`).join('')}
+                                </select>
+                            </label>
+                            <label style="color:#e1e1e1; font-size:14px;">이번 발송
+                                <input id="edit-current-send-dt" type="datetime-local" class="search-box" style="width:100%; margin-top:6px; color:#ff9800;" value="${(() => { const dv = parseNextSendTime(schedule.currentSend || schedule.nextSend || ''); if(!dv) return ''; const y=dv.getFullYear(); const m=String(dv.getMonth()+1).padStart(2,'0'); const d=String(dv.getDate()).padStart(2,'0'); const hh=String(dv.getHours()).padStart(2,'0'); const mm=String(dv.getMinutes()).padStart(2,'0'); return `${y}-${m}-${d}T${hh}:${mm}`; })()}">
+                            </label>
+                            <div style="color:#e1e1e1; font-size:14px;">수신자 그룹</div>
+                            <div style="display:flex; gap:10px; flex-wrap: wrap; align-items:center;">
+                                <label style="display:flex; align-items:center; gap:6px;">
+                                    <input type="checkbox" id="edit-admin-checkbox" ${((schedule.recipients||'').includes('관리자')) ? 'checked' : ''} style="width:16px; height:16px;">
+                                    <span style="color:#e1e1e1; font-size:14px;">관리자</span>
+                                </label>
+                                <label style="display:flex; align-items:center; gap:6px;">
+                                    <input type="checkbox" id="edit-all-members-checkbox" ${((schedule.recipients||'').includes('전체 멤버')) ? 'checked' : ''} style="width:16px; height:16px;">
+                                    <span style="color:#e1e1e1; font-size:14px;">전체 멤버</span>
+                                </label>
+                                <label style="display:flex; align-items:center; gap:6px;">
+                                    <input type="checkbox" id="edit-inactive-members-checkbox" ${((schedule.recipients||'').includes('비활성 멤버')) ? 'checked' : ''} style="width:16px; height:16px;">
+                                    <span style="color:#e1e1e1; font-size:14px;">비활성 멤버</span>
+                                </label>
+                                <label style="display:flex; align-items:center; gap:6px;">
+                                    <input type="checkbox" id="edit-custom-email-checkbox" ${((Array.isArray(schedule.customEmails) && schedule.customEmails.length>0) || (schedule.recipients||'').includes('직접입력')) ? 'checked' : ''} onclick="(function(){var c=document.getElementById('edit-custom-email-container'); if(c){ c.style.display = document.getElementById('edit-custom-email-checkbox').checked ? 'block' : 'none'; } })()" style="width:16px; height:16px;">
+                                    <span style="color:#e1e1e1; font-size:14px;">직접 입력</span>
+                                </label>
+                            </div>
+                            <div id="edit-custom-email-container" style="display: ${(Array.isArray(schedule.customEmails) && schedule.customEmails.length>0) ? 'block' : 'none'}; margin-top:8px;">
+                                <textarea id="edit-custom-emails" placeholder="email을 직접 입력 하세요.(example1@samsung.com, example2@samsung.com)" style="width: 100%; height: 100px; padding: 10px 12px; background-color: #2a2a2a; border: 1px solid #3a3a3a; border-radius: 4px; color: #ff9800; font-size: 14px; outline: none; resize: vertical; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;">${Array.isArray(schedule.customEmails) ? schedule.customEmails.join(', ') : ''}</textarea>
+                            </div>
+                        </div>
+                        <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:16px;">
+                            <button class="chart-btn" onclick="(function(){
+                                const t=document.getElementById('edit-title').value.trim();
+                                const m=document.getElementById('edit-message').value.trim();
+                                const f=document.getElementById('edit-frequency').value;
+                                const dtVal=document.getElementById('edit-current-send-dt').value; // yyyy-MM-ddTHH:mm
+                                // 수신자 그룹 수집
+                                var groups=[];
+                                if (document.getElementById('edit-admin-checkbox') && document.getElementById('edit-admin-checkbox').checked) groups.push('관리자');
+                                if (document.getElementById('edit-all-members-checkbox') && document.getElementById('edit-all-members-checkbox').checked) groups.push('전체 멤버');
+                                if (document.getElementById('edit-inactive-members-checkbox') && document.getElementById('edit-inactive-members-checkbox').checked) groups.push('비활성 멤버');
+                                var customList = [];
+                                var customChecked = document.getElementById('edit-custom-email-checkbox') && document.getElementById('edit-custom-email-checkbox').checked;
+                                var customValEl = document.getElementById('edit-custom-emails');
+                                if (customChecked) {
+                                    var raw = (customValEl && customValEl.value) ? customValEl.value : '';
+                                    var parts = raw.split(',').map(function(s){return s.trim();}).filter(function(s){return s.length>0;});
+                                    // 간단한 이메일 유효성 검사
+                                    var re=/^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+                                    for (var i=0;i<parts.length;i++){ if(!re.test(parts[i])){ showSimpleAlert('⚠️ 올바르지 않은 이메일 형식입니다: '+parts[i], 'warning'); return; } }
+                                    if (parts.length>0) { customList = parts; groups.push('직접입력'); }
+                                }
+                                const list=window.emailScheduleList||[];
+                                const idx=list.findIndex(s=>s.id===${schedule.id});
+                                if(idx>=0){
+                                    list[idx].title=t||list[idx].title;
+                                    list[idx].message=m;
+                                    list[idx].frequency=f||list[idx].frequency;
+                                    // 시간 반영: 인라인 편집과 동일하게 datetime-local 기준으로 업데이트
+                                    if (dtVal) {
+                                        var mdt = dtVal.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/);
+                                        if (mdt) {
+                                            var yy = parseInt(mdt[1],10);
+                                            var mo = parseInt(mdt[2],10);
+                                            var dd = parseInt(mdt[3],10);
+                                            var hhs = mdt[4];
+                                            var mms = mdt[5];
+                                            list[idx].currentSend = yy + '. ' + mo + '. ' + dd + '. ' + hhs + ':' + mms;
+                                            var hourNum=parseInt(hhs,10);
+                                            var minuteNum=parseInt(mms,10);
+                                            var ampm = (hourNum===0) ? '오전' : (hourNum<12 ? '오전' : '오후');
+                                            var hour12 = (hourNum===0)?12 : (hourNum<=12?hourNum:hourNum-12);
+                                            list[idx].time = ampm + ' ' + hour12 + '시 ' + String(minuteNum).padStart(2,'0') + '분';
+                                            try {
+                                                var freqVal2 = (typeof getFrequencyValue === 'function') ? getFrequencyValue(list[idx].frequency) : null;
+                                                if (freqVal2 && typeof calculateNextSendTimeFromCurrent === 'function') {
+                                                    list[idx].nextSend = calculateNextSendTimeFromCurrent(list[idx].currentSend, freqVal2);
+                                                }
+                                            } catch(e) {}
+                                        }
+                                    }
+                                    list[idx].recipients = groups.join(', ');
+                                    list[idx].customEmails = customList;
+                                }
+                                document.getElementById('edit-schedule-modal').remove();
+                                // 리스트 다시 표시
+                                const modal=document.getElementById('email-schedule-modal');
+                                if(modal){
+                                    // 테이블만 새로 그림
+                                    const content=document.getElementById('schedule-list-content');
+                                    if(content){
+                                        // 간단히 전체 팝업 재호출로 반영
+                                        modal.remove();
+                                        showEmailScheduleList();
+                                    }
+                                }
+                                showSimpleAlert('✅ 예약이 수정되었습니다.', 'success');
+                            })()">저장</button>
+                            <button class="chart-btn" onclick="document.getElementById('edit-schedule-modal').remove()">닫기</button>
+                        </div>
+                    </div>
+                </div>
+            `;
+            document.body.insertAdjacentHTML('beforeend', html);
+        }
+
+        // 미리보기 행의 본문(메시지) 클릭 시 전체 보기 + 수정 모달
+        function openPreviewMessageEditor(id) {
+            try {
+                const schedule = (window.emailScheduleList || []).find(s => s.id === id);
+                if (!schedule) {
+                    showSimpleAlert('⚠️ 메시지를 찾을 수 없습니다.', 'warning');
+                    return;
+                }
+                const html = `
+                    <div id="message-editor-modal" style="position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 1200;">
+                        <div style="position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:90%; max-width:720px; background:#2a2a2a; border:1px solid #3a3a3a; border-radius:8px; padding:20px;">
+                            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #3a3a3a; padding-bottom:12px; margin-bottom:16px;">
+                                <div style="color:#fff; font-size:18px; font-weight:600;">메시지 보기/수정</div>
+                                <button class="chart-btn" onclick="document.getElementById('message-editor-modal').remove()">닫기</button>
+                            </div>
+                            <div style="display:grid; gap:10px;">
+                                <div style="color:#e1e1e1; font-size:14px;">전체 본문</div>
+                                <textarea id="message-editor-text" class="search-box" style="width:100%; height:260px;">${(schedule.message || '').toString().replace(/</g,'&lt;').replace(/>/g,'&gt;')}</textarea>
+                                <div style="color:#7a7a7a; font-size:12px;">미리보기 (2줄 요약, 길이 제한 적용): ${(() => { const limit = (window.PREVIEW_MESSAGE_MAX || 80); const __m = (schedule.message || '').toString().replace(/\s+/g,' ').trim(); return __m.length > limit ? __m.slice(0, limit) + '…' : __m; })()}</div>
+                            </div>
+                            <div style="display:flex; justify-content:flex-end; gap:10px; margin-top:12px;">
+                                <button class="analytics-btn" onclick="(function(){
+                                    const ta=document.getElementById('message-editor-text');
+                                    const val=ta ? ta.value : '';
+                                    const list=window.emailScheduleList||[];
+                                    const idx=list.findIndex(s=>s.id===${id});
+                                    if(idx>=0){ list[idx].message=val; }
+                                    // 미리보기 행 요약도 업데이트
+                                    const preview=document.getElementById('preview-message-${id}');
+                                    if(preview){
+                                        var _v = (val || '').toString().replace(/\s+/g,' ').trim();
+                                        var _max = (window.PREVIEW_MESSAGE_MAX || 80);
+                                        preview.textContent = _v.length > _max ? _v.slice(0, _max) + '…' : _v;
+                                    }
+                                    document.getElementById('message-editor-modal').remove();
+                                    showSimpleAlert('✅ 본문을 저장했습니다.', 'success');
+                                })()">저장</button>
+                            </div>
+                        </div>
+                    </div>`;
+                document.body.insertAdjacentHTML('beforeend', html);
+            } catch (e) {
+                console.error('메시지 에디터 열기 실패:', e);
+                showSimpleAlert('❌ 메시지 에디터를 여는 중 오류가 발생했습니다.', 'error');
+            }
         }
 
         // 수신자 보기 함수
@@ -9950,13 +11971,6 @@
 
             // 모달을 페이지에 추가
             document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-            // 모달 외부 클릭 시 닫기
-            document.getElementById('email-recipients-modal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeEmailRecipientsModal();
-                }
-            });
 
             // 수신자 검색 기능 및 메시지 입력창 기능 추가
             setTimeout(() => {
@@ -10362,13 +12376,6 @@
 
             // 모달을 페이지에 추가
             document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-            // 모달 외부 클릭 시 닫기
-            document.getElementById('delete-all-confirm-modal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeDeleteAllConfirmModal();
-                }
-            });
         }
 
         // 전체 삭제 확인 모달 닫기 함수
@@ -10454,13 +12461,6 @@
 
             // 모달을 페이지에 추가
             document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-            // 모달 외부 클릭 시 닫기
-            document.getElementById('delete-confirm-modal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeDeleteConfirmModal();
-                }
-            });
         }
 
         // 삭제 확인 모달 닫기 함수
@@ -10839,13 +12839,6 @@
 
             // 모달을 페이지에 추가
             document.body.insertAdjacentHTML('beforeend', modalHTML);
-
-            // 모달 외부 클릭 시 닫기
-            document.getElementById('new-schedule-modal').addEventListener('click', function(e) {
-                if (e.target === this) {
-                    closeNewScheduleModal();
-                }
-            });
         }
 
         // 새 예약 모달 닫기 함수
@@ -10971,7 +12964,21 @@
                 recipients: recipientsText,
                 status: "활성",
                 nextSend: calculateNextSendTime(frequencyValue, timeValue),
-                message: messageText
+                message: messageText,
+                // 첨부 파일 설정 스냅샷
+                attachAllMembers: !!document.getElementById('attachment-all-members')?.checked,
+                attachInactiveMembers: !!document.getElementById('attachment-inactive-members')?.checked,
+                attachCustom: !!document.getElementById('attachment-custom')?.checked,
+                usagePeriodText: (document.getElementById('usage-attachment-period-text')?.textContent || '').trim(),
+                // 새 예약 모달에서 입력한 직접 입력 이메일 저장
+                customEmails: (function(){
+                    const chk = document.getElementById('new-custom-email-checkbox');
+                    const ta = document.getElementById('new-custom-emails');
+                    if (chk && chk.checked && ta && ta.value.trim()) {
+                        return ta.value.split(',').map(e => e.trim()).filter(Boolean);
+                    }
+                    return [];
+                })()
             };
 
             // 예약 리스트에 추가
@@ -11031,20 +13038,25 @@
             }
 
             // 선택된 수신자 그룹 확인 (직접 입력 제외)
+            // 수신자 그룹 전용 체크박스만 대상으로 한정하여 다른 설정(예: 사용량) 체크박스가 포함되지 않도록 함
             const selectedGroups = [];
-            const checkboxes = document.querySelectorAll('#settings input[type="checkbox"]');
-            checkboxes.forEach(checkbox => {
-                if (checkbox.checked) {
-                    const labelText = checkbox.nextElementSibling.textContent.trim();
-                    // 직접 입력은 selectedGroups에서 제외 (별도 처리)
-                    if (labelText && labelText !== '직접 입력') {
-                        selectedGroups.push(labelText);
-                    }
-                }
-            });
+            const adminCheckbox = document.getElementById('admin-checkbox');
+            const allMembersCheckbox = document.getElementById('all-members-checkbox');
+            const inactiveMembersCheckbox = document.getElementById('inactive-members-checkbox');
+            const customEmailToggle = document.getElementById('custom-email-checkbox');
+
+            if (adminCheckbox && adminCheckbox.checked) {
+                selectedGroups.push('관리자');
+            }
+            if (allMembersCheckbox && allMembersCheckbox.checked) {
+                selectedGroups.push('전체 멤버');
+            }
+            if (inactiveMembersCheckbox && inactiveMembersCheckbox.checked) {
+                selectedGroups.push('비활성 멤버');
+            }
 
             // 직접 입력 체크 시 이메일 주소 확인
-            const customEmailCheckbox = document.querySelector('input[type="checkbox"][onclick*="toggleCustomEmailInput"]');
+            const customEmailCheckbox = customEmailToggle;
             const customEmails = document.getElementById('custom-emails');
             
             // 수신자 그룹이나 직접 입력 중 하나라도 선택되어야 함
@@ -11108,7 +13120,6 @@
             let recipientsText = selectedGroups.join(', ');
             
             // 비활성 멤버가 선택된 경우 실시간 조회
-            const inactiveMembersCheckbox = document.getElementById('inactive-members-checkbox');
             if (inactiveMembersCheckbox && inactiveMembersCheckbox.checked) {
                 try {
                     // 실시간으로 비활성 멤버 조회
@@ -11138,7 +13149,21 @@
                 status: "활성",
                 currentSend: currentSendTime, // 이번 발송 시간
                 nextSend: calculateNextSendTime(frequencyValue, timeValue),
-                message: messageText
+                message: messageText,
+                // 첨부 파일 설정 스냅샷
+                attachAllMembers: !!document.getElementById('attachment-all-members')?.checked,
+                attachInactiveMembers: !!document.getElementById('attachment-inactive-members')?.checked,
+                attachCustom: !!document.getElementById('attachment-custom')?.checked,
+                usagePeriodText: (document.getElementById('usage-attachment-period-text')?.textContent || '').trim(),
+                // Settings에서의 직접 입력 이메일 저장
+                customEmails: (function(){
+                    const chk = document.getElementById('custom-email-checkbox');
+                    const ta = document.getElementById('custom-emails');
+                    if (chk && chk.checked && ta && ta.value.trim()) {
+                        return ta.value.split(',').map(e => e.trim()).filter(Boolean);
+                    }
+                    return [];
+                })()
             };
 
             // 예약 리스트에 추가 (전역 변수로 관리)
@@ -11527,12 +13552,9 @@
                 // SMTP를 통한 메일 발송
                 await sendEmailViaSMTP(emailData);
                 
-                // 성공 메시지
+                // 성공 메시지 (자동 닫기 제거)
                 showSimpleAlert('✅ 이메일이 성공적으로 발송되었습니다!', 'success');
                 console.log('✅ 미리보기에서 즉시 발송 완료');
-                
-                // 미리보기 팝업 닫기
-                closeEmailRecipientsModal();
                 
             } catch (error) {
                 console.error('❌ 이메일 발송 실패:', error);
@@ -11915,38 +13937,47 @@
             return shouldSend;
         }
 
-        // nextSend 문자열을 Date 객체로 변환
+        // nextSend 문자열을 Date 객체로 변환 (오전/오후 12시간형식과 24시간형식 모두 지원)
         function parseNextSendTime(nextSendStr) {
             try {
-                // "2025. 8. 7. 오전 9:00" 형태의 문자열 파싱
-                const parts = nextSendStr.split(' ');
-                const datePart = parts[0] + ' ' + parts[1] + ' ' + parts[2]; // "2025. 8. 7."
-                const timePart = parts[4]; // "9:00"
-                const ampm = parts[3]; // "오전" or "오후"
+                if (!nextSendStr || typeof nextSendStr !== 'string') return null;
 
-                // 날짜 파싱
-                const dateMatch = datePart.match(/(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})\./);
-                if (!dateMatch) return null;
+                // 1) "2025. 8. 7. 오전 9:00" 형식
+                const ampmPattern = /(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})\.\s*(오전|오후)\s*(\d{1,2}):(\d{2})/;
+                const ampmMatch = nextSendStr.match(ampmPattern);
+                if (ampmMatch) {
+                    const year = parseInt(ampmMatch[1]);
+                    const month = parseInt(ampmMatch[2]) - 1;
+                    const day = parseInt(ampmMatch[3]);
+                    const ampm = ampmMatch[4];
+                    let hour = parseInt(ampmMatch[5]);
+                    const minute = parseInt(ampmMatch[6]);
 
-                const year = parseInt(dateMatch[1]);
-                const month = parseInt(dateMatch[2]) - 1; // Date 객체는 0부터 시작
-                const day = parseInt(dateMatch[3]);
-
-                // 시간 파싱
-                const timeMatch = timePart.match(/(\d{1,2}):(\d{2})/);
-                if (!timeMatch) return null;
-
-                let hour = parseInt(timeMatch[1]);
-                const minute = parseInt(timeMatch[2]);
-
-                // 오후 처리
-                if (ampm === '오후' && hour !== 12) {
-                    hour += 12;
-                } else if (ampm === '오전' && hour === 12) {
-                    hour = 0;
+                    if (ampm === '오후' && hour !== 12) {
+                        hour += 12;
+                    } else if (ampm === '오전' && hour === 12) {
+                        hour = 0;
+                    }
+                    return new Date(year, month, day, hour, minute, 0, 0);
                 }
 
-                return new Date(year, month, day, hour, minute, 0, 0);
+                // 2) "2025. 8. 7. 09:00" 형식 (24시간)
+                const h24Pattern = /(\d{4})\.\s*(\d{1,2})\.\s*(\d{1,2})\.\s*(\d{1,2}):(\d{2})/;
+                const h24Match = nextSendStr.match(h24Pattern);
+                if (h24Match) {
+                    const year = parseInt(h24Match[1]);
+                    const month = parseInt(h24Match[2]) - 1;
+                    const day = parseInt(h24Match[3]);
+                    const hour = parseInt(h24Match[4]);
+                    const minute = parseInt(h24Match[5]);
+                    return new Date(year, month, day, hour, minute, 0, 0);
+                }
+
+                // 3) 일반 Date 파싱 시도 (fallback)
+                const fallback = new Date(nextSendStr);
+                if (!isNaN(fallback.getTime())) return fallback;
+
+                return null;
             } catch (error) {
                 console.error('nextSend 시간 파싱 오류:', error);
                 return null;
@@ -11975,7 +14006,7 @@
                 const recipients = schedule.recipients.split(', ');
                 const selectedRecipients = [];
                 let allRecipientEmails = [];
-                let customEmailList = [];
+                let customEmailList = Array.isArray(schedule.customEmails) ? schedule.customEmails : [];
 
                 // 각 수신자 그룹 처리
                 for (const recipient of recipients) {
@@ -12003,8 +14034,14 @@
                         selectedRecipients.push('비활성 멤버');
                         console.log(`✓ 비활성 멤버 ${inactiveMembers.length}명 추가`);
                     } else if (recipient === '직접입력') {
-                        // 직접 입력된 이메일은 별도 처리 필요
-                        console.log(`⚠️ 직접입력 이메일은 현재 예약에서 지원되지 않습니다.`);
+                        // 스케줄에 저장된 직접 입력 이메일 추가
+                        if (customEmailList.length > 0) {
+                            allRecipientEmails = allRecipientEmails.concat(customEmailList);
+                            selectedRecipients.push('직접입력');
+                            console.log(`✓ 직접입력 ${customEmailList.length}명 추가`);
+                        } else {
+                            console.warn('⚠️ 스케줄에 저장된 직접입력 이메일이 없습니다.');
+                        }
                     }
                 }
 
@@ -12347,7 +14384,7 @@
 
                     // 테이블 내용 재생성
                     const newHTML = scheduleList.map(item => `
-                        <div class="schedule-item" data-status="${item.status}" style="
+                        <div class="schedule-item" data-id="${item.id}" data-status="${item.status}" style="
                             display: grid;
                             grid-template-columns: 2fr 1fr 1.2fr 1.2fr 1.5fr 0.8fr 0.8fr 0.8fr;
                             gap: 15px;
@@ -12357,14 +14394,25 @@
                             font-size: 14px;
                             transition: background-color 0.2s ease;
                         " onmouseover="this.style.backgroundColor='#3a3a3a'" onmouseout="this.style.backgroundColor='transparent'">
-                            <div style="cursor: pointer;" onclick="showScheduleDetail(${item.id})">
-                                <div style="font-weight: 600; color: #fff; margin-bottom: 5px;">${item.title}</div>
+                            <!-- 제목 (편집 가능) -->
+                            <div style="cursor: pointer;" onclick="editField(this, ${item.id}, 'title')">
+                                <div class="editable-field" data-field="title" style="font-weight: 600; color: #fff; margin-bottom: 5px;">${item.title}</div>
                                 <div style="color: #7a7a7a; font-size: 12px;">${item.message}</div>
                             </div>
-                            <div>${item.frequency}</div>
-                            <div style="color: #ff9800; font-weight: 600;">${item.currentSend || item.nextSend}</div>
-                            <div style="color: #7a7a7a;">${item.nextSend}</div>
-                            <div>${item.recipients}</div>
+                            <!-- 주기 (편집 가능) -->
+                            <div style="cursor: pointer;" onclick="editField(this, ${item.id}, 'frequency')">
+                                <div class="editable-field" data-field="frequency">${item.frequency}</div>
+                            </div>
+                            <!-- 이번 발송 (편집 가능) -->
+                            <div style="cursor: pointer;" onclick="editField(this, ${item.id}, 'currentSend')">
+                                <div class="editable-field" data-field="currentSend" style="color: #ff9800; font-weight: 600;">${item.currentSend || item.nextSend}</div>
+                            </div>
+                            <!-- 다음 발송 (자동 계산) -->
+                            <div class="next-send-time" style="color: #7a7a7a;">${item.nextSend}</div>
+                            <!-- 수신자 (편집 가능) -->
+                            <div style="cursor: pointer;" onclick="editField(this, ${item.id}, 'recipients')">
+                                <div class="editable-field" data-field="recipients">${item.recipients}</div>
+                            </div>
                             <div style="text-align: center;">
                                 <input type="radio" name="status-${item.id}" value="active" ${item.status === '활성' ? 'checked' : ''} 
                                        onchange="updateScheduleStatus(${item.id}, '활성')" style="
@@ -12442,6 +14490,7 @@
                 // 시간 드롭다운 초기화
                 setTimeout(() => {
                     initializeTimeDropdowns();
+                    initializeBackupTimeDropdowns();
                 }, 1000); // UI 로드 후 시간 드롭다운 초기화
 
                 // 예약 메일 발송 관리 토글 상태 초기화
@@ -12455,10 +14504,364 @@
                         
                         // 스케줄러 시작
                         startEmailScheduler();
+
+                        // 초기 표시 상태 적용
+                        const freqEl = document.getElementById('email-frequency-setting');
+                        const timeEl = document.getElementById('email-time-setting');
+                        if (freqEl) freqEl.style.display = '';
+                        if (timeEl) timeEl.style.display = '';
                     }
+
+                    // 자동 백업 토글은 기본 비활성 상태 유지, 표시 상태만 초기화
+                    const backupToggleItem = Array.from(document.querySelectorAll('#settings .setting-item'))
+                        .find(item => item.querySelector('.setting-label') && item.querySelector('.setting-label').textContent.trim() === '자동 백업');
+                    if (backupToggleItem) {
+                        const toggle = backupToggleItem.querySelector('.toggle-switch');
+                        if (toggle && toggle.classList.contains('off')) {
+                            handleBackupToggle(false);
+                        }
+                    }
+
+                    // 첨부 리스트 초기 렌더링
+                    setTimeout(() => {
+                        renderAttachmentMemberLists();
+                        // Export 범위 초기 표시 상태 동기화
+                        // Export 종류 초기 상태: 모두 미선택
+                        ['export-type-summary','export-type-raw','export-type-members','export-type-all'].forEach(id => {
+                            const el = document.getElementById(id);
+                            if (el) el.checked = false;
+                        });
+                        handleExportTypeCheckboxChange();
+                        // Export 형식 옵션 초기 표시 상태 동기화
+                        const exportFormat = document.getElementById('export-format-select');
+                        if (exportFormat) handleExportFormatChange(exportFormat.value);
+                    }, 500);
                 }, 3000); // 데이터 로드 완료 후 토글 상태 초기화
             }, 100);
         });
+
+        // ===== 편집 가능한 테이블 관련 함수들 =====
+        
+        // 임시 저장용 변수 (사용자가 저장을 누르기 전까지의 변경사항 저장)
+        let tempScheduleChanges = {};
+        
+        // 필드 편집 함수
+        function editField(element, scheduleId, fieldName) {
+            console.log(`📝 [EDIT] 필드 편집 시작: ID=${scheduleId}, 필드=${fieldName}`);
+            
+            // 이미 편집 중인 다른 필드가 있으면 종료
+            const existingInput = document.querySelector('.editing-input');
+            if (existingInput) {
+                existingInput.blur();
+                return;
+            }
+            
+            // 올바른 편집 대상 요소 찾기
+            let editableElement;
+            if (element.querySelector) {
+                // 클릭된 요소 내에서 해당 필드의 편집 가능한 요소 찾기
+                editableElement = element.querySelector(`[data-field="${fieldName}"]`);
+                if (!editableElement) {
+                    // fallback: 일반적인 editable-field 찾기
+                    editableElement = element.querySelector('.editable-field');
+                }
+            } else {
+                editableElement = element;
+            }
+            
+            if (!editableElement) {
+                console.warn(`⚠️ [EDIT] 편집 대상 요소를 찾을 수 없습니다: ${fieldName}`);
+                return;
+            }
+            
+            const currentValue = editableElement.textContent.trim();
+            console.log(`📝 [EDIT] 현재 값: "${currentValue}"`);
+            
+            // 편집 UI 생성
+            let inputElement;
+            
+            if (fieldName === 'frequency') {
+                // 주기는 드롭다운으로 (기존 발송 주기와 동일한 옵션)
+                inputElement = document.createElement('select');
+                inputElement.innerHTML = `
+                    <option value="daily" ${currentValue === 'daily' || currentValue === '매일' ? 'selected' : ''}>매일</option>
+                    <option value="weekly" ${currentValue === 'weekly' || currentValue === '매주' ? 'selected' : ''}>매주</option>
+                    <option value="monthly" ${currentValue === 'monthly' || currentValue === '매월' ? 'selected' : ''}>매월</option>
+                `;
+                inputElement.style.cssText = `
+                    background: #2a2a2a;
+                    color: #fff;
+                    border: 1px solid #4a9eff;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    font-size: 14px;
+                    width: 100%;
+                `;
+                
+                // 드롭다운 클릭 시 이벤트 전파 방지
+                inputElement.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+                
+                // 드롭다운 변경 시 편집 완료
+                inputElement.addEventListener('change', function(e) {
+                    e.stopPropagation();
+                    finishEdit();
+                });
+            } else if (fieldName === 'currentSend') {
+                // 이번 발송은 datetime-local 입력
+                inputElement = document.createElement('input');
+                inputElement.type = 'datetime-local';
+                
+                // 현재 값을 datetime-local 형식으로 변환
+                const dateValue = parseNextSendTime(currentValue);
+                if (dateValue) {
+                    // UTC 시간을 로컬 시간으로 변환하여 datetime-local 형식으로 설정
+                    const year = dateValue.getFullYear();
+                    const month = String(dateValue.getMonth() + 1).padStart(2, '0');
+                    const day = String(dateValue.getDate()).padStart(2, '0');
+                    const hours = String(dateValue.getHours()).padStart(2, '0');
+                    const minutes = String(dateValue.getMinutes()).padStart(2, '0');
+                    inputElement.value = `${year}-${month}-${day}T${hours}:${minutes}`;
+                }
+                
+                inputElement.style.cssText = `
+                    background: #2a2a2a;
+                    color: #fff;
+                    border: 1px solid #4a9eff;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    font-size: 14px;
+                    width: 100%;
+                `;
+                
+                // datetime-local 클릭 시 이벤트 전파 방지
+                inputElement.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+                // 값 변경 시 즉시 완료 처리 (날짜/시간 변경 모두 반영)
+                inputElement.addEventListener('change', function(e) {
+                    e.stopPropagation();
+                    finishEdit();
+                });
+            } else {
+                // 기본 텍스트 입력
+                inputElement = document.createElement('input');
+                inputElement.type = 'text';
+                inputElement.value = currentValue;
+                inputElement.style.cssText = `
+                    background: #2a2a2a;
+                    color: #fff;
+                    border: 1px solid #4a9eff;
+                    padding: 4px 8px;
+                    border-radius: 4px;
+                    font-size: 14px;
+                    width: 100%;
+                `;
+                
+                // 텍스트 입력 클릭 시 이벤트 전파 방지
+                inputElement.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                });
+            }
+            
+            inputElement.className = 'editing-input';
+            
+            // 편집 완료 처리
+            function finishEdit() {
+                let newValue;
+                
+                if (fieldName === 'currentSend' && inputElement.value) {
+                    // datetime-local 값을 안정적으로 한국어 날짜 + 24시간 형식으로 변환 (타임존 영향 제거)
+                    const match = inputElement.value.match(/^(\d{4})-(\d{2})-(\d{2})T(\d{2}):(\d{2})$/);
+                    if (match) {
+                        const year = parseInt(match[1], 10);
+                        const month = parseInt(match[2], 10) - 1;
+                        const day = parseInt(match[3], 10);
+                        const hour = match[4];
+                        const minute = match[5];
+                        const datePart = new Date(year, month, day).toLocaleDateString('ko-KR'); // 예: "2025. 8. 7."
+                        newValue = `${datePart} ${hour}:${minute}`; // 예: "2025. 8. 7. 09:30"
+                    } else {
+                        // 예외적으로 포맷이 다를 경우의 안전 장치
+                        newValue = inputElement.value.replace('T', ' ').replace(/-/g, '. ');
+                    }
+                } else if (fieldName === 'frequency') {
+                    // 주기 값은 드롭다운의 텍스트로 변환
+                    const selectedOption = inputElement.options[inputElement.selectedIndex];
+                    newValue = selectedOption.text; // "매일", "매주", "매월"
+                } else {
+                    newValue = inputElement.value.trim();
+                }
+                
+                if (newValue && newValue !== currentValue) {
+                    console.log(`📝 [EDIT] 값 변경: "${currentValue}" → "${newValue}"`);
+                    console.log(`📝 [EDIT] 필드명: ${fieldName}, 스케줄ID: ${scheduleId}`);
+                    
+                    // 임시 변경사항 저장
+                    if (!tempScheduleChanges[scheduleId]) {
+                        tempScheduleChanges[scheduleId] = {};
+                    }
+                    tempScheduleChanges[scheduleId][fieldName] = newValue;
+                    
+                    // 주기나 이번 발송이 변경되었을 때 다음 발송 자동 계산
+                    if (fieldName === 'frequency' || fieldName === 'currentSend') {
+                        calculateAndUpdateNextSend(scheduleId);
+                    }
+                    
+                    // UI 업데이트 - 올바른 필드 찾기
+                    const scheduleRow = document.querySelector(`[data-id="${scheduleId}"]`);
+                    console.log(`📝 [EDIT] 스케줄 행 찾기: ${!!scheduleRow}`);
+                    if (scheduleRow) {
+                        const targetElement = scheduleRow.querySelector(`[data-field="${fieldName}"]`);
+                        console.log(`📝 [EDIT] 대상 요소 찾기: ${!!targetElement}, 선택자: [data-field="${fieldName}"]`);
+                        if (targetElement) {
+                            targetElement.textContent = newValue;
+                            targetElement.style.backgroundColor = '#3a4a3a'; // 변경됨 표시
+                            console.log(`📝 [EDIT] UI 업데이트 완료: ${fieldName} = ${newValue}`);
+                        } else {
+                            console.warn(`⚠️ [EDIT] 대상 필드를 찾을 수 없습니다: ${fieldName}`);
+                            // 디버깅을 위해 모든 data-field 요소 출력
+                            const allDataFields = scheduleRow.querySelectorAll('[data-field]');
+                            console.log(`📝 [EDIT] 사용 가능한 data-field 요소들:`, Array.from(allDataFields).map(el => el.getAttribute('data-field')));
+                        }
+                    }
+                    
+                    // 원래 편집 요소도 업데이트 (fallback)
+                    if (editableElement) {
+                        editableElement.textContent = newValue;
+                        editableElement.style.backgroundColor = '#3a4a3a';
+                        console.log(`📝 [EDIT] 원래 요소 업데이트 완료: ${fieldName} = ${newValue}`);
+                    }
+                    
+                    console.log(`📝 [EDIT] 임시 변경사항 저장 완료`);
+                }
+                
+                // 입력 필드를 원래 요소로 복원
+                const scheduleRow = document.querySelector(`[data-id="${scheduleId}"]`);
+                if (scheduleRow) {
+                    const targetElement = scheduleRow.querySelector(`[data-field="${fieldName}"]`);
+                    if (targetElement) {
+                        targetElement.style.display = 'block';
+                    }
+                }
+                inputElement.remove();
+            }
+            
+            // 이벤트 리스너 추가 (드롭다운은 change 이벤트로 처리되므로 blur 이벤트 제외)
+            if (fieldName !== 'frequency') {
+                inputElement.addEventListener('blur', finishEdit);
+            }
+            inputElement.addEventListener('keydown', function(e) {
+                if (e.key === 'Enter') {
+                    finishEdit();
+                } else if (e.key === 'Escape') {
+                    editableElement.style.display = 'block';
+                    inputElement.remove();
+                }
+            });
+            
+            // 기존 요소 숨기고 입력 필드 표시
+            editableElement.style.display = 'none';
+            editableElement.parentNode.insertBefore(inputElement, editableElement.nextSibling);
+            inputElement.focus();
+            
+            if (inputElement.type === 'text') {
+                inputElement.select();
+            }
+        }
+        
+        // 다음 발송 시간 자동 계산 및 업데이트
+        function calculateAndUpdateNextSend(scheduleId) {
+            console.log(`🔄 [CALC] 다음 발송 시간 계산 시작: ID=${scheduleId}`);
+            
+            const changes = tempScheduleChanges[scheduleId];
+            if (!changes) return;
+            
+            // 현재 스케줄 찾기
+            const currentSchedule = window.emailScheduleList.find(s => s.id == scheduleId);
+            if (!currentSchedule) return;
+            
+            // 변경된 주기와 이번 발송 시간 가져오기
+            const frequency = changes.frequency || currentSchedule.frequency;
+            const currentSend = changes.currentSend || currentSchedule.currentSend || currentSchedule.nextSend;
+            
+            console.log(`🔄 [CALC] 계산 기준: 주기=${frequency}, 이번발송=${currentSend}`);
+            
+            // 주기 값 변환
+            const frequencyValue = getFrequencyValue(frequency);
+            if (!frequencyValue) {
+                console.warn(`⚠️ [CALC] 유효하지 않은 주기: ${frequency}`);
+                return;
+            }
+            
+            // 다음 발송 시간 계산
+            const nextSend = calculateNextSendTimeFromCurrent(currentSend, frequencyValue);
+            console.log(`🔄 [CALC] 계산 결과: 다음발송=${nextSend}`);
+            
+            // 임시 변경사항에 다음 발송 시간 저장
+            changes.nextSend = nextSend;
+            
+            // UI에서 다음 발송 시간 업데이트 (정확한 선택자 사용)
+            const scheduleRow = document.querySelector(`[data-id="${scheduleId}"]`);
+            if (scheduleRow) {
+                const nextSendDiv = scheduleRow.querySelector('.next-send-time');
+                if (nextSendDiv) {
+                    nextSendDiv.textContent = nextSend;
+                    nextSendDiv.style.backgroundColor = '#3a4a3a'; // 변경됨 표시
+                    console.log(`🔄 [CALC] 다음 발송 시간 UI 업데이트 완료: ${nextSend}`);
+                } else {
+                    console.warn(`⚠️ [CALC] 다음 발송 시간 div를 찾을 수 없습니다`);
+                }
+            }
+            
+            console.log(`✅ [CALC] 다음 발송 시간 계산 및 UI 업데이트 완료`);
+        }
+        
+        // 모든 변경사항 저장
+        function saveScheduleChanges() {
+            console.log(`💾 [SAVE] 변경사항 저장 시작`);
+            console.log(`💾 [SAVE] 임시 변경사항:`, tempScheduleChanges);
+            
+            let savedCount = 0;
+            
+            // 각 변경된 스케줄에 대해 처리
+            for (const scheduleId in tempScheduleChanges) {
+                const changes = tempScheduleChanges[scheduleId];
+                const scheduleIndex = window.emailScheduleList.findIndex(s => s.id == scheduleId);
+                
+                if (scheduleIndex !== -1) {
+                    // 변경사항을 실제 데이터에 적용
+                    Object.assign(window.emailScheduleList[scheduleIndex], changes);
+                    savedCount++;
+                    
+                    console.log(`💾 [SAVE] 스케줄 ${scheduleId} 저장 완료:`, changes);
+                } else {
+                    console.warn(`⚠️ [SAVE] 스케줄을 찾을 수 없습니다: ID=${scheduleId}`);
+                }
+            }
+            
+            if (savedCount > 0) {
+                // 변경사항 초기화
+                tempScheduleChanges = {};
+                
+                // UI에서 변경됨 표시 제거
+                document.querySelectorAll('.schedule-item div[style*="background-color: rgb(58, 74, 58)"]').forEach(element => {
+                    element.style.backgroundColor = '';
+                });
+                
+                // 테이블 새로고침
+                refreshEmailScheduleList();
+                
+                // 성공 메시지
+                showSimpleAlert(`✅ ${savedCount}개의 예약 변경사항이 저장되었습니다!`, 'success');
+                
+                console.log(`✅ [SAVE] 총 ${savedCount}개 스케줄 저장 완료`);
+            } else {
+                showSimpleAlert('ℹ️ 저장할 변경사항이 없습니다.', 'info');
+                console.log(`ℹ️ [SAVE] 저장할 변경사항 없음`);
+            }
+        }
 
     </script>
 </body>
