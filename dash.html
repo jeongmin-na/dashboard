@@ -1790,6 +1790,21 @@
                                 </div>
                             </div>
 
+                            <!-- 발신인 설정 -->
+                            <div class="setting-item" style="flex-direction: column; align-items: flex-start; gap: 10px;">
+                                <div>
+                                    <div class="setting-label">발신인 설정</div>
+                                    <div class="setting-description">이메일의 발신 표시 이름과 발신 이메일을 설정하세요 (옵션)</div>
+                                </div>
+                                <div style="display: flex; gap: 12px; width: 100%; max-width: 800px; flex-wrap: wrap;">
+                                    <input type="text" id="email-sender-name" class="search-box" placeholder="표시 이름 (예: Samsung AI Dashboard)" style="flex:1; min-width: 240px;" />
+                                    <input type="email" id="email-sender-address" class="search-box" placeholder="발신 이메일 (예: your-name@gmail.com)" style="flex:1; min-width: 240px;" />
+                                </div>
+                                <div style="color:#7a7a7a; font-size:12px;">
+                                    참고: Gmail을 사용할 경우 실제 발신 계정은 서버에 설정된 Gmail 계정으로 인증됩니다. 발신 이메일을 임의로 변경하면 수신자 메일함에서 표시만 바뀌거나 Gmail 정책에 따라 원래 계정으로 표시될 수 있습니다.
+                                </div>
+                            </div>
+
                             <!-- 발송 메시지 입력 -->
                             <div class="setting-item" style="flex-direction: column; align-items: flex-start;">
                                 <div style="margin-bottom: 15px;">
@@ -1886,7 +1901,7 @@
                                     </div>
                                     <div id="attachment-all-list" style="margin-bottom: 8px; background: #1a1a1a; border: 1px solid #3a3a3a; border-radius: 6px; padding: 12px; color: #e1e1e1; max-height: 220px; overflow-y: auto;"></div>
                                     <div id="attachment-all-pagination" class="pagination-container" style="display:flex; justify-content: flex-end; gap:8px; align-items:center;"></div>
-                                    <label style="display:flex; align-items: center; gap: 6px;">
+                                    <label style="display:flex; align-items: center; gap: 6px; margin: 12px 0;">
                                         <input type="checkbox" id="attachment-all-usage" style="width: 16px; height: 16px;" onclick="toggleAttachmentUsageSection('all', this)">
                                         <span style="color: #e1e1e1; font-size: 14px;">사용량</span>
                                     </label>
@@ -1924,7 +1939,7 @@
                                     </div>
                                     <div id="attachment-inactive-list" style="margin-bottom: 8px; background: #1a1a1a; border: 1px solid #3a3a3a; border-radius: 6px; padding: 12px; color: #e1e1e1; max-height: 220px; overflow-y: auto;"></div>
                                     <div id="attachment-inactive-pagination" class="pagination-container" style="display:flex; justify-content: flex-end; gap:8px; align-items:center;"></div>
-                                    <label style="display:flex; align-items: center; gap: 6px;">
+                                    <label style="display:flex; align-items: center; gap: 6px; margin: 12px 0;">
                                         <input type="checkbox" id="attachment-inactive-usage" style="width: 16px; height: 16px;" onclick="toggleAttachmentUsageSection('inactive', this)">
                                         <span style="color: #e1e1e1; font-size: 14px;">사용량</span>
                                     </label>
@@ -1936,10 +1951,10 @@
                                         <div class="setting-label">직접 입력 이메일 주소</div>
                                         <div class="setting-description">쉼표로 구분하여 이메일 주소를 직접 입력하세요</div>
                                     </div>
-                                    <div style="position: relative; background-color: #1a1a1a; border: 1px solid #3a3a3a; border-radius: 4px; transition: all 0.2s ease; width: 100%; max-width: 800px; margin-bottom: 10px;">
+                                    <div style="position: relative; background-color: #1a1a1a; border: 1px solid #3a3a3a; border-radius: 4px; transition: all 0.2s ease; width: 100%; max-width: 800px; margin-bottom: 16px;">
                                         <textarea id="attachment-custom-emails" placeholder="email을 직접 입력 하세요.(example1@samsung.com, example2@samsung.com)" style="width: 100%; height: 120px; padding: 12px; border: none; background: transparent; color: #ff9800; font-size: 14px; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif; line-height: 1.5; outline: none; resize: vertical; min-height: 120px; max-height: 200px; box-sizing: border-box;" onfocus="this.parentElement.style.backgroundColor='#2a2a2a'; this.parentElement.style.borderColor='#4a9eff'" onblur="this.parentElement.style.backgroundColor='#1a1a1a'; this.parentElement.style.borderColor='#3a3a3a'"></textarea>
                                     </div>
-                                    <label style="display:flex; align-items: center; gap: 6px;">
+                                    <label style="display:flex; align-items: center; gap: 6px; margin: 16px 0 12px;">
                                         <input type="checkbox" id="attachment-custom-usage" style="width: 16px; height: 16px;" onclick="toggleAttachmentUsageSection('custom', this)">
                                         <span style="color: #e1e1e1; font-size: 14px;">사용량</span>
                                     </label>
@@ -5163,6 +5178,7 @@
                 setActiveUsageTarget(next);
             }
             refreshUsageAttachmentSettingsPlacement();
+            enforceAttachmentSectionOrder();
         }
 
         // 사용량 체크박스별로 설정 패널 표시 위치/상태 갱신
@@ -5178,6 +5194,16 @@
                     labelEl.parentNode.insertBefore(usageSettings, labelEl.nextSibling);
                 }
                 usageSettings.style.display = '';
+                enforceAttachmentSectionOrder();
+
+                // 사용량 활성 시 기간 기본값을 30d로 설정 (미설정/기본 문구인 경우)
+                const periodTextEl = document.getElementById('usage-attachment-period-text');
+                if (periodTextEl && (!periodTextEl.textContent || periodTextEl.textContent.trim() === '' || periodTextEl.textContent.trim() === '기간을 선택하세요')) {
+                    // 버튼 active 상태도 30d로 설정
+                    selectUsageAttachmentPeriod('30');
+                }
+                // 테이블 업데이트
+                updateAttachmentUsageTable();
             } else {
                 usageSettings.style.display = 'none';
             }
@@ -5190,6 +5216,7 @@
             const allUsage = document.getElementById('attachment-all-usage');
             const inactiveUsage = document.getElementById('attachment-inactive-usage');
             const customUsage = document.getElementById('attachment-custom-usage');
+            // 고정 순서: 전체 멤버 → 비활성 멤버 → 직접 입력
             const order = [allUsage, inactiveUsage, customUsage];
             const checkedInput = order.find(inp => inp && inp.checked);
             if (checkedInput) {
@@ -5198,9 +5225,32 @@
                     labelEl.parentNode.insertBefore(usageSettings, labelEl.nextSibling);
                 }
                 usageSettings.style.display = '';
+                enforceAttachmentSectionOrder();
+                // 기본 기간 30d 보장 및 테이블 갱신
+                const periodTextEl = document.getElementById('usage-attachment-period-text');
+                if (periodTextEl && (!periodTextEl.textContent || periodTextEl.textContent.trim() === '' || periodTextEl.textContent.trim() === '기간을 선택하세요')) {
+                    selectUsageAttachmentPeriod('30');
+                }
+                updateAttachmentUsageTable();
             } else {
                 usageSettings.style.display = 'none';
             }
+        }
+
+        // 첨부 파일 섹션(전체 → 비활성 → 직접 입력) DOM 순서를 항상 강제
+        function enforceAttachmentSectionOrder() {
+            try {
+                const allSec = document.getElementById('attachment-all-section');
+                const inactiveSec = document.getElementById('attachment-inactive-section');
+                const customSec = document.getElementById('attachment-custom-section');
+                if (!allSec || !inactiveSec || !customSec) return;
+                const parent = allSec.parentNode;
+                if (!parent) return;
+                // 원하는 순서로 재배치 (appendChild는 기존 노드를 이동시킴)
+                parent.appendChild(allSec);
+                parent.appendChild(inactiveSec);
+                parent.appendChild(customSec);
+            } catch (_) {}
         }
 
         // 사용량 체크박스는 한 섹션에만 노출되도록 제어
@@ -5472,7 +5522,223 @@
                     }
                     window.__usageAttachmentSelectedDays = days;
                 }
+                // 기간 변경 시 테이블 갱신
+                updateAttachmentUsageTable();
             }
+        }
+
+        // 첨부 사용량 테이블 (NAME, EMAIL, ROLE, REQUEST, SPEND, LAST ACT)
+        async function updateAttachmentUsageTable() {
+            try {
+                const containerId = 'usage-attachment-table-container';
+                let container = document.getElementById(containerId);
+                if (!container) {
+                    // usage settings 아래에 테이블 컨테이너 생성
+                    const usageSettings = document.getElementById('usage-attachment-settings');
+                    if (!usageSettings) return;
+                    container = document.createElement('div');
+                    container.id = containerId;
+                    container.style.marginTop = '12px';
+                    container.style.background = '#1a1a1a';
+                    container.style.border = '1px solid #3a3a3a';
+                    container.style.borderRadius = '6px';
+                    container.style.padding = '12px';
+                    usageSettings.parentNode.insertBefore(container, usageSettings.nextSibling);
+                }
+
+                // 캐시 상태 확인 후 로딩 표시 (캐시 없을 때만)
+                (function showLoadingIfNoCache(){
+                    try {
+                        const periodText = (document.getElementById('usage-attachment-period-text')?.textContent || '').trim();
+                        const m = periodText.match(/(\d{4}-\d{2}-\d{2})\s*~\s*(\d{4}-\d{2}-\d{2})/);
+                        let startDate = null, endDate = null;
+                        if (m) { startDate = m[1]; endDate = m[2]; }
+                        const membersCached = !!(window.__membersCache && window.__membersCache.data && (Date.now() - (window.__membersCache.fetchedAt || 0) < 10*60*1000));
+                        let eventsCached = false;
+                        if (startDate && endDate && window.__eventsCache) {
+                            const key = `${startDate}_${endDate}`;
+                            const cached = window.__eventsCache.get(key);
+                            eventsCached = !!(cached && cached.data && (Date.now() - (cached.fetchedAt || 0) < 5*60*1000));
+                        }
+                        if (!(membersCached && eventsCached)) {
+                            container.innerHTML = '<div style="padding: 12px; text-align: center; color: #7a7a7a; background-color: #1a1a1a;">데이터를 불러오는 중...</div>';
+                        }
+                    } catch (_) {}
+                })();
+
+                // 현재 선택된 그룹의 이메일 수집
+                const allOn = !!document.getElementById('attachment-all-members')?.checked;
+                const inactiveOn = !!document.getElementById('attachment-inactive-members')?.checked;
+                const customOn = !!document.getElementById('attachment-custom')?.checked;
+
+                if (!allOn && !inactiveOn && !customOn) {
+                    container.innerHTML = '<div style="color:#7a7a7a;">선택된 수신자 그룹이 없습니다.</div>';
+                    return;
+                }
+
+                // 멤버 로드(캐시 사용)
+                const membersData = await getTeamMembers();
+                const members = membersData?.teamMembers || [];
+
+                let targetEmails = new Set();
+                if (allOn) members.forEach(m => m.email && targetEmails.add(m.email));
+
+                if (inactiveOn) {
+                    // 첨부 섹션과 동일 기준: 최근 N일 무활동
+                    const inactivityDays = (window.attachmentInactiveState && window.attachmentInactiveState.days)
+                        || parseInt(document.getElementById('attachment-inactive-days')?.value)
+                        || 14;
+                    const rawEventsNow = (typeof currentRawEventsData !== 'undefined' && Array.isArray(currentRawEventsData)
+                        ? currentRawEventsData
+                        : (window.currentRawEventsData || []));
+                    const allowed = rawEventsNow.filter(ev => ev && ev.userEmail && typeof ev.requestsCosts === 'number' && ev.requestsCosts > 0 && !isNaN(parseInt(ev.timestamp)));
+                    const cutoff = Date.now() - (inactivityDays * 24 * 60 * 60 * 1000);
+                    const activeSet = new Set();
+                    for (const ev of allowed) { const ts = parseInt(ev.timestamp); if (ts >= cutoff) activeSet.add(ev.userEmail); }
+                    members.filter(m => m.email && !activeSet.has(m.email)).forEach(m => targetEmails.add(m.email));
+                }
+
+                if (customOn) {
+                    const customList = (document.getElementById('attachment-custom-emails')?.value || '')
+                        .split(',').map(s => s.trim()).filter(Boolean);
+                    customList.forEach(e => targetEmails.add(e));
+                }
+
+                // 이메일이 없으면 종료
+                const emailList = Array.from(targetEmails);
+                if (emailList.length === 0) {
+                    container.innerHTML = '<div style="color:#7a7a7a;">표시할 이메일이 없습니다.</div>';
+                    return;
+                }
+
+                // 기간 텍스트 파싱 (없으면 30d로 기본 설정됨)
+                const periodText = (document.getElementById('usage-attachment-period-text')?.textContent || '').trim();
+                const m = periodText.match(/(\d{4}-\d{2}-\d{2})\s*~\s*(\d{4}-\d{2}-\d{2})/);
+                let startDate = null, endDate = null;
+                if (m) { startDate = m[1]; endDate = m[2]; }
+
+                // 이벤트/지출 데이터 로드 (캐시 사용)
+                const [eventsData, spendingData] = await Promise.all([
+                    (startDate && endDate) ? getFilteredEvents(startDate, endDate) : Promise.resolve({ usageEvents: [] }),
+                    getTeamSpendingData()
+                ]);
+
+                // 집계: Usage 섹션 로직 재사용
+                const memberSpendMap = {};
+                if (spendingData && spendingData.teamMemberSpend) {
+                    spendingData.teamMemberSpend.forEach(spendInfo => {
+                        memberSpendMap[spendInfo.email] = {
+                            premiumRequests: spendInfo.fastPremiumRequests || 0,
+                            spend: (spendInfo.spendCents || 0) / 100,
+                            hardLimitOverride: spendInfo.hardLimitOverrideDollars || 0
+                        };
+                    });
+                }
+
+                const userPeriodStats = {};
+                if (eventsData && eventsData.usageEvents) {
+                    eventsData.usageEvents.forEach(event => {
+                        const userEmail = event.userEmail;
+                        const timestamp = parseInt(event.timestamp);
+                        if (!userPeriodStats[userEmail]) userPeriodStats[userEmail] = { lastTimestamp: timestamp, periodRequests: 0 };
+                        if (timestamp > userPeriodStats[userEmail].lastTimestamp) userPeriodStats[userEmail].lastTimestamp = timestamp;
+                        userPeriodStats[userEmail].periodRequests += (event.requestsCosts || 0);
+                    });
+                }
+
+                const emailSet = new Set(emailList);
+                const rows = members
+                    .filter(m => m.email && emailSet.has(m.email))
+                    .map(member => {
+                        const spendData = memberSpendMap[member.email] || {};
+                        const stats = userPeriodStats[member.email] || {};
+                        const lastTs = stats.lastTimestamp || 0;
+                        let lastAct = 'No Activity';
+                        if (lastTs) {
+                            const d = new Date(lastTs);
+                            const yyyy = d.getFullYear();
+                            const mm = String(d.getMonth()+1).padStart(2,'0');
+                            const dd = String(d.getDate()).padStart(2,'0');
+                            const hh = String(d.getHours()).padStart(2,'0');
+                            const mi = String(d.getMinutes()).padStart(2,'0');
+                            lastAct = `${yyyy}-${mm}-${dd} ${hh}:${mi}`;
+                        }
+                        return {
+                            name: member.name || 'Unnamed',
+                            email: member.email,
+                            role: member.role === 'owner' ? 'Admin' : 'Member',
+                            request: stats.periodRequests || 0,
+                            spend: spendData.spend || 0,
+                            lastAct,
+                            lastTs
+                        };
+                    });
+
+                // 정렬 및 페이지 상태 저장
+                rows.sort((a, b) => (b.lastTs||0) - (a.lastTs||0) || (b.request||0) - (a.request||0));
+                window.__attachmentUsageRows = rows;
+                window.__attachmentUsagePage = 1;
+                window.__attachmentUsagePageSize = window.__attachmentUsagePageSize || 20;
+                renderAttachmentUsageTablePage();
+            } catch (e) {
+                console.warn('첨부 사용량 테이블 업데이트 실패:', e);
+            }
+        }
+
+        function renderAttachmentUsageTablePage() {
+            const container = document.getElementById('usage-attachment-table-container');
+            if (!container) return;
+            const rows = window.__attachmentUsageRows || [];
+            const pageSize = window.__attachmentUsagePageSize || 20;
+            const page = window.__attachmentUsagePage || 1;
+            const total = rows.length;
+            const totalPages = Math.max(1, Math.ceil(total / pageSize));
+            const start = (page - 1) * pageSize;
+            const pageRows = rows.slice(start, start + pageSize);
+
+            const header = `
+                <div style="display:grid; grid-template-columns: 2fr 3fr 1fr 1fr 1fr 1fr; gap:12px; padding:8px 0; border-bottom:1px solid #3a3a3a; color:#e1e1e1;">
+                    <div>NAME</div><div>EMAIL</div><div>ROLE</div><div>REQUEST</div><div>SPEND</div><div>LAST ACT</div>
+                </div>`;
+            const body = pageRows.length ? pageRows.map(r => `
+                <div style="display:grid; grid-template-columns: 2fr 3fr 1fr 1fr 1fr 1fr; gap:12px; padding:6px 0; border-bottom:1px solid #2a2a2a; color:#b1b1b1;">
+                    <div>${r.name}</div>
+                    <div>${r.email}</div>
+                    <div><span class="role-badge ${r.role==='Admin'?'admin':''}">${r.role}</span></div>
+                    <div style="font-weight:600; color:#fff;">${r.request}</div>
+                    <div>$${(r.spend||0).toFixed(2)}</div>
+                    <div>${r.lastAct}</div>
+                </div>`).join('') : '<div style="color:#7a7a7a; padding:8px 0;">표시할 데이터가 없습니다.</div>';
+            const pagination = renderAttachmentUsagePagination(totalPages);
+            container.innerHTML = header + body + pagination;
+        }
+
+        function renderAttachmentUsagePagination(totalPages) {
+            const page = window.__attachmentUsagePage || 1;
+            let html = '<div style="display:flex; justify-content:flex-end; gap:4px; margin-top:8px;">';
+            if (page > 1) html += `<button class="page-btn" onclick="changeAttachmentUsagePage(${page-1})">‹</button>`;
+            let start = Math.max(1, page - 2);
+            let end = Math.min(totalPages, page + 2);
+            if (start > 1) {
+                html += `<button class="page-btn" onclick="changeAttachmentUsagePage(1)">1</button>`;
+                if (start > 2) html += `<span style="color:#7a7a7a; padding:0 4px;">...</span>`;
+            }
+            for (let i = start; i <= end; i++) {
+                const active = i === page;
+                html += `<button class="page-btn" onclick="changeAttachmentUsagePage(${i})" style="background:${active?'#4a9eff':'#3a3a3a'}; border:1px solid ${active?'#4a9eff':'#4a4a4a'}; color:${active?'#fff':'#e1e1e1'}">${i}</button>`;
+            }
+            if (end < totalPages) {
+                if (end < totalPages - 1) html += `<span style="color:#7a7a7a; padding:0 4px;">...</span>`;
+                html += `<button class="page-btn" onclick="changeAttachmentUsagePage(${totalPages})">${totalPages}</button>`;
+            }
+            if (page < totalPages) html += `<button class="page-btn" onclick="changeAttachmentUsagePage(${page+1})">›</button>`;
+            html += '</div>';
+            return html;
+        }
+
+        function changeAttachmentUsagePage(page) {
+            window.__attachmentUsagePage = page;
+            renderAttachmentUsageTablePage();
         }
 
         // 첨부 파일 - 사용량 기간 직접입력 적용
@@ -6572,9 +6838,29 @@
             }
         }
 
-        // 팀원 정보 가져오기
+        // Aggressive 캐시: 팀원/이벤트 데이터 캐시
+        window.__aggressivePreviewCacheEnabled = window.__aggressivePreviewCacheEnabled ?? true; // 기본 ON
+        window.__membersCache = window.__membersCache || null; // { data, fetchedAt }
+        window.__eventsCache = window.__eventsCache || new Map(); // key: `${startDate}_${endDate}` → { data, fetchedAt }
+
+        // 팀원 정보 가져오기 (공격적 캐시 적용)
         async function getTeamMembers() {
-            return await callAPI('/teams/members');
+            try {
+                if (window.__aggressivePreviewCacheEnabled && window.__membersCache && window.__membersCache.data) {
+                    const ttlMs = 10 * 60 * 1000; // 10분
+                    if (Date.now() - (window.__membersCache.fetchedAt || 0) < ttlMs) {
+                        return window.__membersCache.data;
+                    }
+                }
+                const data = await callAPI('/teams/members');
+                if (window.__aggressivePreviewCacheEnabled && data) {
+                    window.__membersCache = { data, fetchedAt: Date.now() };
+                }
+                return data;
+            } catch (e) {
+                if (window.__membersCache && window.__membersCache.data) return window.__membersCache.data;
+                throw e;
+            }
         }
 
         // 사용량 데이터 가져오기
@@ -6634,10 +6920,19 @@
             }
         }
 
-        // 필터링된 이벤트 가져오기 (모든 페이지 데이터 수집)
+        // 필터링된 이벤트 가져오기 (모든 페이지 데이터 수집) + 캐시
         async function getFilteredEvents(startDate, endDate) {
             try {
                 console.log('=== 필터링된 이벤트 데이터 가져오기 시작 ===');
+                const cacheKey = `${startDate}_${endDate}`;
+                if (window.__aggressivePreviewCacheEnabled && window.__eventsCache && window.__eventsCache.has(cacheKey)) {
+                    const cached = window.__eventsCache.get(cacheKey);
+                    const ttlMs = 5 * 60 * 1000; // 5분
+                    if (cached && cached.data && Date.now() - (cached.fetchedAt || 0) < ttlMs) {
+                        console.log('🗄️ 캐시된 이벤트 데이터 사용');
+                        return cached.data;
+                    }
+                }
                 
                 // 첫 번째 페이지 요청
                 let allEvents = [];
@@ -6675,18 +6970,28 @@
                 
                 console.log(`=== 필터링된 이벤트 데이터 수집 완료: 총 ${allEvents.length}개 이벤트 ===`);
                 
-                // 기존 형식으로 반환
-                return {
+                // 기존 형식으로 반환 + 캐시 저장
+                const result = {
                     totalUsageEventsCount: allEvents.length,
                     usageEvents: allEvents,
-                    period: {
-                        startDate: startDate,
-                        endDate: endDate
-                    }
+                    period: { startDate, endDate }
                 };
+                if (window.__aggressivePreviewCacheEnabled) {
+                    window.__eventsCache.set(cacheKey, { data: result, fetchedAt: Date.now() });
+                }
+                return result;
                 
             } catch (error) {
                 console.error('❌ 필터링된 이벤트 가져오기 실패:', error);
+                // 캐시 폴백
+                try {
+                    const cacheKey = `${startDate}_${endDate}`;
+                    const cached = window.__eventsCache && window.__eventsCache.get(cacheKey);
+                    if (cached && cached.data) {
+                        console.warn('⚠️ 캐시된 이벤트 데이터로 폴백');
+                        return cached.data;
+                    }
+                } catch (_) {}
                 throw error;
             }
         }
@@ -11010,9 +11315,15 @@
             const attAll = (typeof saved.attachAllMembers === 'boolean') ? saved.attachAllMembers : !!document.getElementById('attachment-all-members')?.checked;
             const attInactive = (typeof saved.attachInactiveMembers === 'boolean') ? saved.attachInactiveMembers : !!document.getElementById('attachment-inactive-members')?.checked;
             const attCustom = (typeof saved.attachCustom === 'boolean') ? saved.attachCustom : !!document.getElementById('attachment-custom')?.checked;
-            const attAllUsage = !!document.getElementById('attachment-all-usage')?.checked;
-            const attInactiveUsage = !!document.getElementById('attachment-inactive-usage')?.checked;
-            const attCustomUsage = !!document.getElementById('attachment-custom-usage')?.checked;
+            const attAllUsage = (typeof saved.attachAllUsage === 'boolean')
+                ? saved.attachAllUsage
+                : !!document.getElementById('attachment-all-usage')?.checked;
+            const attInactiveUsage = (typeof saved.attachInactiveUsage === 'boolean')
+                ? saved.attachInactiveUsage
+                : !!document.getElementById('attachment-inactive-usage')?.checked;
+            const attCustomUsage = (typeof saved.attachCustomUsage === 'boolean')
+                ? saved.attachCustomUsage
+                : !!document.getElementById('attachment-custom-usage')?.checked;
             const usagePeriodText = (() => {
                 const savedText = (saved.usagePeriodText && saved.usagePeriodText.trim()) || '';
                 const fromAttachment = (document.getElementById('usage-attachment-period-text')?.textContent || '').trim();
@@ -11025,6 +11336,67 @@
                 return fromOverview;
             })();
             const customAttachmentEmails = (document.getElementById('attachment-custom-emails')?.value || '').trim();
+
+            // 1) 즉시 표시용 미리보기 모달 쉘을 먼저 렌더링 (로딩 상태)
+            (function renderPreviewShell(){
+                try {
+                    if (document.getElementById('schedule-preview-modal')) return;
+                    const schedule = schedules[0] || {};
+                    const chipsHTML = (() => {
+                        const r=(schedule?.recipients||'');
+                        const map={ '관리자':'admin','전체 멤버':'all','비활성 멤버':'inactive','직접입력':'custom'};
+                        const chips=['관리자','전체 멤버','비활성 멤버','직접입력']
+                            .filter(x=>r.includes(x))
+                            .map(x=>`<span class=\"recipient-chip\" data-group=\"${map[x]}\" style=\"background:#2a2a2a; border:1px solid #ff9800; color:#ff9800; padding:4px 8px; border-radius:999px; font-size:12px; cursor:pointer;\">${x}</span>`)
+                            .join(' ');
+                        return chips || '<span style=\"color:#7a7a7a;\">선택된 그룹 없음</span>';
+                    })();
+                    const shell = `
+                        <div id=\"schedule-preview-modal\" style=\"position:fixed; inset:0; background:rgba(0,0,0,0.7); z-index:1100;\">
+                            <div style=\"position:absolute; top:50%; left:50%; transform:translate(-50%,-50%); width:90%; max-width:900px; max-height:85vh; overflow:auto; background:#2a2a2a; border:1px solid #3a3a3a; border-radius:8px; padding:20px;\">
+                                <div style=\"display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid #3a3a3a; padding-bottom:12px; margin-bottom:16px;\">
+                                    <div style=\"color:#fff; font-size:18px; font-weight:600;\">예약 미리보기</div>
+                                    <button class=\"chart-btn\" onclick=\"document.getElementById('schedule-preview-modal').remove()\">닫기</button>
+                                </div>
+                                <div style=\"background:#1a1a1a; border:1px solid #3a3a3a; border-radius:6px; padding:12px;\">
+                                    <div style=\"font-size:14px; margin-top:12px;\">
+                                        <div style=\"color:#fff; font-weight:600; margin-bottom:6px;\">발송 메시지</div>
+                                        <div id=\"preview-message-content\" style=\"background:#0f0f0f; border:1px solid #3a3a3a; border-radius:6px; padding:12px; color:#ff9800; white-space:pre-wrap;\">로딩 중...</div>
+                                    </div>
+                                    <div style=\"margin-top:12px;\">
+                                        <div style=\"color:#fff; font-weight:600; margin-bottom:8px;\">수신자 그룹</div>
+                                        <div id=\"recipient-chips\" style=\"display:flex; gap:8px; flex-wrap:wrap;\">${chipsHTML}</div>
+                                    </div>
+                                </div>
+                                <div style=\"color:#e1e1e1; font-size:14px; margin:16px 0;\">
+                                    <div style=\"color:#fff; font-size:16px; font-weight:600; margin-bottom:8px;\">첨부 파일 요약</div>
+                                    <div id=\"attachments-summary-content\" style=\"background:#1a1a1a; border:1px solid #3a3a3a; border-radius:6px; padding:12px; color:#7a7a7a;\">로딩 중...</div>
+                                </div>
+                                <div style=\"margin-top:16px; background:#1a1a1a; border:1px solid #3a3a3a; border-radius:6px;\">
+                                    <div style=\"display:flex; justify-content:space-between; align-items:center; color:#fff; font-size:16px; font-weight:600; border-bottom:1px solid #3a3a3a; padding:12px;\">
+                                        <div>첨부 파일 내용</div>
+                                        <div style=\"display:flex; gap:8px;\">
+                                            <button id=\"attachments-csv-download\" class=\"analytics-btn\" disabled>CSV 다운로드</button>
+                                        </div>
+                                    </div>
+                                    <div style=\"padding:12px;\">
+                                        <pre id=\"attachments-csv-content\" style=\"white-space:pre; overflow:auto; max-height:50vh; background:#0f0f0f; border:1px solid #3a3a3a; border-radius:6px; padding:12px; color:#7a7a7a;\">생성 중...</pre>
+                                    </div>
+                                </div>
+                                <div style=\"display:flex; justify-content:space-between; align-items:center; gap:10px; margin-top:16px; border-top:1px solid #3a3a3a; padding-top:16px;\">
+                                    <div>
+                                        <button id=\"schedule-preview-send-now-btn\" class=\"analytics-btn\" disabled>📧 즉시 발송</button>
+                                    </div>
+                                    <div style=\"display:flex; gap:10px;\">
+                                        <button id=\"schedule-preview-edit-btn\" class=\"chart-btn\" disabled>수정</button>
+                                        <button class=\"chart-btn\" onclick=\"document.getElementById('schedule-preview-modal').remove()\">닫기</button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>`;
+                    document.body.insertAdjacentHTML('beforeend', shell);
+                } catch (e) {}
+            })();
 
             // 표본 데이터 생성: 비활성 멤버 상위 N명, 전체 멤버 상위 N명, 직접입력 N개, 사용량 기간 요약
             const SAMPLE_COUNT = 10;
@@ -11112,6 +11484,7 @@
 
             // 이벤트 맵: 기간이 설정되면 이벤트 먼저 수집해 비활성 계산에 사용
             let emailToUsageCost = new Map();
+            let emailToLastTs = new Map();
             const anyUsage = (attAllUsage || attInactiveUsage || attCustomUsage) && startDate && endDate;
             const needEventsForInactivity = attInactive && startDate && endDate;
             const shouldFetchEvents = (anyUsage || needEventsForInactivity) && startDate && endDate;
@@ -11124,6 +11497,9 @@
                             if (!key) continue;
                             const prev = emailToUsageCost.get(key) || 0;
                             emailToUsageCost.set(key, prev + (ev.requestsCosts || 0));
+                            const ts = parseInt(ev.timestamp || 0) || 0;
+                            const prevTs = emailToLastTs.get(key) || 0;
+                            if (ts > prevTs) emailToLastTs.set(key, ts);
                         }
                     }
                 } catch (e) {
@@ -11210,10 +11586,11 @@
                 }
             }
 
-            // 비활성 멤버 (spendData.premiumRequests === 0 기준)
+            // 비활성 멤버 (첨부 섹션과 동일 기준: 최근 N일 무활동)
             if (attInactive) {
                 const usageOn = !!attInactiveUsage;
-                const inactives = members.filter(m => (m.spendData && m.spendData.premiumRequests === 0));
+                const byDaysSet = new Set(Array.isArray(window.__previewInactiveEmailsByPeriod) ? window.__previewInactiveEmailsByPeriod : []);
+                const inactives = (members || []).filter(m => byDaysSet.has(m.email));
                 for (const m of inactives) {
                     const row = [
                         '비활성',
@@ -11256,6 +11633,7 @@
             // CSV 문자열 생성
             const csvLines = rows.map(r => r.map(quote).join(delimiter));
             const csvContent = csvLines.join(newline);
+            window.__attachmentsCsvContent = csvContent;
 
             const schedule = schedules[0] || {};
             const html = `
@@ -11294,7 +11672,7 @@
                             <div id="attachments-summary-content" style="background:#1a1a1a; border:1px solid #3a3a3a; border-radius:6px; padding:12px; color:#e1e1e1; line-height:1.6;">${attachmentSummaryHTML}</div>
                         </div>
 
-                        <!-- 첨부 파일 내용 (CSV 미리보기) -->
+                        <!-- 첨부 파일 내용 (수신자 리스트 + 사용량 표 + CSV 미리보기) -->
                         <div style="margin-top:16px; background:#1a1a1a; border:1px solid #3a3a3a; border-radius:6px;">
                             <div style="display:flex; justify-content:space-between; align-items:center; color:#fff; font-size:16px; font-weight:600; border-bottom:1px solid #3a3a3a; padding:12px;">
                                 <div>첨부 파일 내용</div>
@@ -11302,8 +11680,21 @@
                                     <button class="analytics-btn" onclick="downloadAttachmentsPreviewCSV()">CSV 다운로드</button>
                                 </div>
                             </div>
-                            <div style="padding:12px;">
-                                <pre id="attachments-csv-content" style="white-space:pre; overflow:auto; max-height:50vh; background:#0f0f0f; border:1px solid #3a3a3a; border-radius:6px; padding:12px; color:#e1e1e1;">${csvContent}</pre>
+                            <div style="padding:12px; display:flex; flex-direction:column; gap:12px;">
+                                <!-- 박스 1: 체크박스 선택/입력된 수신자 리스트 -->
+                                <div id="attachments-detail-recipient-box" style="background:#1a1a1a; border:1px solid #3a3a3a; border-radius:6px; padding:12px;">
+                                    <div style="color:#fff; font-weight:600; margin-bottom:8px;">수신자 리스트</div>
+                                    <div style="color:#7a7a7a;">로딩 중...</div>
+                                </div>
+                                <!-- 박스 2: 사용량 체크 시 누적 사용량 표 -->
+                                <div id="attachments-detail-usage-box" style="background:#1a1a1a; border:1px solid #3a3a3a; border-radius:6px; padding:12px;">
+                                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                                        <div style="color:#fff; font-weight:600;">누적 사용량</div>
+                                        <div style="color:#ff9800; font-size:12px;">기간: ${usagePeriodText || '설정 없음'}</div>
+                                    </div>
+                                    <div style="margin-top:8px; color:#7a7a7a;">로딩 중...</div>
+                                </div>
+                                <!-- CSV 미리보기 박스 제거 (요청 사항) -->
                             </div>
                         </div>
 
@@ -11320,32 +11711,251 @@
                     </div>
                 </div>
             `;
-            document.body.insertAdjacentHTML('beforeend', html);
+            // 이미 쉘을 렌더링했다면, 해당 쉘의 콘텐츠를 실제 내용으로 교체
+            const shellModal = document.getElementById('schedule-preview-modal');
+            if (shellModal) {
+                shellModal.outerHTML = html;
+            } else {
+                document.body.insertAdjacentHTML('beforeend', html);
+            }
 
             // 미리보기 CSV 다운로드 핸들러를 위한 전역 함수 바인딩
-            window.downloadAttachmentsPreviewCSV = function() {
+            window.downloadAttachmentsPreviewCSV = async function() {
                 try {
-                    const pre = document.getElementById('attachments-csv-content');
-                    if (!pre) {
-                        showSimpleAlert('⚠️ 다운로드할 CSV 내용을 찾을 수 없습니다.', 'warning');
+                    const sheetsPayload = window.__attachmentsSheets;
+                    if (!sheetsPayload || !Array.isArray(sheetsPayload.sheets) || sheetsPayload.sheets.length === 0) {
+                        showSimpleAlert('⚠️ 다운로드할 첨부 데이터가 없습니다.', 'warning');
                         return;
                     }
-                    const content = pre.textContent || '';
-                    const bom = '\uFEFF';
-                    const blob = new Blob([bom + content], { type: 'text/csv;charset=utf-8;' });
+                    const resp = await fetch('/generate-xlsx', {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify(sheetsPayload)
+                    });
+                    if (!resp.ok) throw new Error(`HTTP ${resp.status}`);
+                    const blob = await resp.blob();
                     const url = URL.createObjectURL(blob);
                     const a = document.createElement('a');
                     a.href = url;
-                    a.download = `email_attachments_preview_${new Date().toISOString().split('T')[0]}.csv`;
+                    a.download = sheetsPayload.filename || `email_attachments_${new Date().toISOString().split('T')[0]}.xlsx`;
                     document.body.appendChild(a);
                     a.click();
                     a.remove();
                     URL.revokeObjectURL(url);
                 } catch (e) {
-                    console.error('CSV 다운로드 실패:', e);
-                    showSimpleAlert('❌ CSV 다운로드 중 오류가 발생했습니다.', 'error');
+                    console.error('XLSX 다운로드 실패:', e);
+                    showSimpleAlert('❌ 엑셀 파일 다운로드 중 오류가 발생했습니다.', 'error');
                 }
             };
+
+            // 첨부 상세 박스 렌더링 (수신자 리스트 + 누적 사용량 표)
+            (function renderAttachmentDetailBoxes(){
+                try {
+                    const recBox = document.getElementById('attachments-detail-recipient-box');
+                    const usageBox = document.getElementById('attachments-detail-usage-box');
+                    if (!recBox || !usageBox) return;
+
+                    // 1) 수신자 리스트 구성
+                    const sections = [];
+                    const monoList = (arr) => arr && arr.length
+                        ? `<pre style="white-space:pre-wrap; background:#0f0f0f; border:1px solid #3a3a3a; border-radius:6px; padding:10px; color:#ff9800; max-height:200px; overflow:auto;">${arr.join('\n')}</pre>`
+                        : `<div style="color:#7a7a7a;">표시할 항목이 없습니다.</div>`;
+
+                    // 전체 멤버
+                    if (attAll) {
+                        const emails = (members || []).map(m => m.email).filter(Boolean);
+                        const names = (members || []).map(m => `${m.name || m.email || 'unknown'} <${m.email || ''}>`).filter(Boolean);
+                        sections.push(`
+                            <div style="margin-bottom:10px;">
+                                <div style="color:#fff; font-weight:600;">전체 멤버 <span style="color:#b1b1b1; font-weight:400;">(${emails.length}명)</span></div>
+                                ${monoList(names)}
+                            </div>
+                        `);
+                    }
+
+                    // 비활성 멤버 (첨부 섹션과 동일 기준: 최근 N일 무활동)
+                    if (attInactive) {
+                        const byPeriod = Array.isArray(window.__previewInactiveEmailsByPeriod) ? window.__previewInactiveEmailsByPeriod : [];
+                        let inactiveEmails = byPeriod && byPeriod.length ? byPeriod : [];
+                        if (!inactiveEmails.length) {
+                            // 보조: 데이터가 없을 경우에만 spendData 기준 사용
+                            inactiveEmails = (members || []).filter(m => (m.spendData && m.spendData.premiumRequests === 0)).map(m => m.email).filter(Boolean);
+                        }
+                        const inactiveRows = (members || [])
+                            .filter(m => inactiveEmails.includes(m.email))
+                            .map(m => `${m.name || m.email || 'unknown'} <${m.email || ''}>`);
+                        sections.push(`
+                            <div style="margin-bottom:10px;">
+                                <div style="color:#fff; font-weight:600;">비활성 멤버 <span style="color:#b1b1b1; font-weight:400;">(${inactiveEmails.length}명)</span></div>
+                                ${monoList(inactiveRows)}
+                            </div>
+                        `);
+                    }
+
+                    // 직접 입력
+                    if (attCustom) {
+                        const customList = (customAttachmentEmails || '').split(',').map(s => s.trim()).filter(Boolean);
+                        sections.push(`
+                            <div style="margin-bottom:10px;">
+                                <div style="color:#fff; font-weight:600;">직접 입력 <span style="color:#b1b1b1; font-weight:400;">(${customList.length}명)</span></div>
+                                ${monoList(customList)}
+                            </div>
+                        `);
+                    }
+
+                    recBox.innerHTML = `
+                        <div style="color:#fff; font-weight:600; margin-bottom:8px;">수신자 리스트</div>
+                        ${sections.join('') || '<div style="color:#7a7a7a;">선택된 수신자 그룹이 없습니다.</div>'}
+                    `;
+
+                    // 2) 누적 사용량 표 구성
+                    const anyUsageSelected = (attAllUsage || attInactiveUsage || attCustomUsage);
+                    if (!anyUsageSelected) {
+                        usageBox.style.display = 'none';
+                        return;
+                    }
+
+                    if (!(startDate && endDate)) {
+                        usageBox.innerHTML = `
+                            <div style="display:flex; justify-content:space-between; align-items:center;">
+                                <div style="color:#fff; font-weight:600;">누적 사용량</div>
+                                <div style="color:#ff9800; font-size:12px;">기간: 설정 없음</div>
+                            </div>
+                            <div style="margin-top:8px; color:#7a7a7a;">사용량 기간이 설정되지 않았습니다. 첨부 사용량 기간을 먼저 선택하세요.</div>
+                        `;
+                        return;
+                    }
+
+                    const rows = [];
+                    const pushRow = (group, name, email, usage) => {
+                        rows.push({ group, name: name || '', email: email || '', usage: usage || 0 });
+                    };
+
+                    // 전체 멤버 사용량
+                    if (attAll && attAllUsage) {
+                        (members || []).forEach(m => {
+                            pushRow('전체', m.name || '', m.email || '', emailToUsageCost.get(m.email) || 0);
+                        });
+                    }
+
+                    // 비활성 멤버 사용량 (첨부 섹션과 동일 비활성 집합 기준)
+                    if (attInactive && attInactiveUsage) {
+                        const inactiveSet = new Set(Array.isArray(window.__previewInactiveEmailsByPeriod) ? window.__previewInactiveEmailsByPeriod : []);
+                        (members || []).forEach(m => {
+                            if (inactiveSet.has(m.email)) {
+                                pushRow('비활성', m.name || '', m.email || '', emailToUsageCost.get(m.email) || 0);
+                            }
+                        });
+                    }
+
+                    // 직접 입력 사용량
+                    if (attCustom && attCustomUsage) {
+                        const customList = (customAttachmentEmails || '').split(',').map(s => s.trim()).filter(Boolean);
+                        customList.forEach(email => {
+                            const m = (members || []).find(x => x.email === email);
+                            pushRow('직접입력', m?.name || '', email, emailToUsageCost.get(email) || 0);
+                        });
+                    }
+
+                    // 새 필드 구성: NAME, EMAIL, ROLE, REQUEST, SPEND, LAST ACT
+                    // rows: { group, name, email, usage } → 멤버 정보와 spendData, lastTs를 조합하여 변환
+                    const toLastAct = (email) => {
+                        const ts = emailToLastTs.get(email) || 0;
+                        if (!ts) return '-';
+                        const d = new Date(ts);
+                        const yyyy = d.getFullYear();
+                        const mm = String(d.getMonth() + 1).padStart(2, '0');
+                        const dd = String(d.getDate()).padStart(2, '0');
+                        const hh = String(d.getHours()).padStart(2, '0');
+                        const mi = String(d.getMinutes()).padStart(2, '0');
+                        return `${yyyy}-${mm}-${dd} ${hh}:${mi}`;
+                    };
+
+                    const emailToMember = new Map((members || []).map(m => [m.email, m]));
+                    const detailedRows = rows.map(r => {
+                        const m = emailToMember.get(r.email) || {};
+                        const roleLabel = (m.role === 'owner') ? 'Admin' : (m.role ? 'Member' : '');
+                        // REQUEST는 설정 섹션과 동일하게 기간 내 요청 합계(usageEvents.requestsCosts) 사용
+                        const req = (typeof r.usage === 'number') ? r.usage : 0;
+                        const spend = (m.spendData && typeof m.spendData.spend === 'number') ? m.spendData.spend : 0;
+                        return {
+                            name: r.name || '-',
+                            email: r.email || '-',
+                            role: roleLabel,
+                            request: req,
+                            spend: spend,
+                            lastAct: toLastAct(r.email)
+                        };
+                    });
+
+                    // 정렬: 요청수 내림차순
+                    detailedRows.sort((a, b) => (b.request || 0) - (a.request || 0));
+
+                    const headerHTML = `
+                        <div class="table-grid" style="display:grid; grid-template-columns: 2fr 3fr 1fr 1fr 1fr 1.5fr; gap:12px; align-items:center; font-weight:600; color:#e1e1e1; border-bottom:1px solid #3a3a3a; padding-bottom:8px;">
+                            <div>NAME</div>
+                            <div>EMAIL</div>
+                            <div>ROLE</div>
+                            <div>REQUEST</div>
+                            <div>SPEND</div>
+                            <div>LAST ACT</div>
+                        </div>`;
+
+                    const bodyHTML = detailedRows.length ? detailedRows.map(r => `
+                        <div style="display:grid; grid-template-columns: 2fr 3fr 1fr 1fr 1fr 1.5fr; gap:12px; align-items:center; padding:8px 10px; border-bottom:1px solid #2a2a2a; background:#000; color:#ff9800;">
+                            <div>${r.name}</div>
+                            <div>${r.email}</div>
+                            <div>${r.role}</div>
+                            <div>${r.request}</div>
+                            <div>$${(r.spend || 0).toFixed(2)}</div>
+                            <div>${r.lastAct}</div>
+                        </div>
+                    `).join('') : `<div style="padding:8px 0; color:#7a7a7a;">표시할 데이터가 없습니다.</div>`;
+
+                    usageBox.innerHTML = `
+                        <div style="display:flex; justify-content:space-between; align-items:center;">
+                            <div style="color:#fff; font-weight:600;">누적 사용량</div>
+                            <div style="color:#ff9800; font-size:12px;">기간: ${usagePeriodText || '설정 없음'}</div>
+                        </div>
+                        <div style="margin-top:10px;">${headerHTML}${bodyHTML}</div>
+                    `;
+
+                    // 첨부용 XLSX 시트 데이터 구성: Recipients + Usage(있을 때)
+                    const recipientsRows = [];
+                    if (attAll) {
+                        (members || []).forEach(m => {
+                            recipientsRows.push([m.name || '', m.email || '', '전체']);
+                        });
+                    }
+                    if (attInactive) {
+                        const inactiveSet = new Set(Array.isArray(window.__previewInactiveEmailsByPeriod) ? window.__previewInactiveEmailsByPeriod : []);
+                        (members || []).forEach(m => {
+                            if (inactiveSet.has(m.email)) {
+                                recipientsRows.push([m.name || '', m.email || '', '비활성']);
+                            }
+                        });
+                    }
+                    if (attCustom) {
+                        const customList = (customAttachmentEmails || '').split(',').map(s => s.trim()).filter(Boolean);
+                        customList.forEach(email => {
+                            recipientsRows.push(['', email, '직접입력']);
+                        });
+                    }
+
+                    const usageRows = detailedRows.map(r => [
+                        r.name, r.email, r.role, r.request, Number(r.spend || 0).toFixed(2), r.lastAct
+                    ]);
+
+                    window.__attachmentsSheets = {
+                        filename: `email_attachments_${new Date().toISOString().split('T')[0]}.xlsx`,
+                        sheets: [
+                            { name: 'Recipients', headers: ['Name','Email','Group'], rows: recipientsRows }
+                        ].concat(usageRows.length ? [{ name: 'Usage', headers: ['NAME','EMAIL','ROLE','REQUEST','SPEND','LAST ACT'], rows: usageRows }] : [])
+                    };
+                } catch (e) {
+                    console.warn('첨부 상세 박스 렌더링 실패:', e);
+                }
+            })();
 
             // 첨부 요약의 '전체 보기' 버튼 및 수신자 그룹 칩 클릭 시 실제 이메일 리스트 표시
             (function(){
@@ -11440,7 +12050,12 @@
                             emails = emails.concat((members || []).map(m => m.email).filter(Boolean));
                         }
                         if (r.includes('비활성 멤버')) {
-                            emails = emails.concat((members || []).filter(m => (m.spendData && m.spendData.premiumRequests === 0)).map(m => m.email).filter(Boolean));
+                            const byDays = Array.isArray(window.__previewInactiveEmailsByPeriod) ? window.__previewInactiveEmailsByPeriod : [];
+                            if (byDays && byDays.length) {
+                                emails = emails.concat(byDays);
+                            } else {
+                                emails = emails.concat((members || []).filter(m => (m.spendData && m.spendData.premiumRequests === 0)).map(m => m.email).filter(Boolean));
+                            }
                         }
                         if (r.includes('직접입력') && Array.isArray(schedule.customEmails)) {
                             emails = emails.concat(schedule.customEmails);
@@ -11454,7 +12069,8 @@
                             allEmails: unique,
                             timestamp: new Date().toLocaleString('ko-KR'),
                             source: 'preview',
-                            scheduleTitle: schedule.title || '예약 리포트'
+                            scheduleTitle: schedule.title || '예약 리포트',
+                            attachmentsSheets: (window.__attachmentsSheets || schedule.attachmentsSheets || null)
                         };
                         await sendEmailViaSMTP(payload);
                         showSimpleAlert('✅ 이메일이 성공적으로 발송되었습니다!', 'success');
@@ -12969,6 +13585,9 @@
                 attachAllMembers: !!document.getElementById('attachment-all-members')?.checked,
                 attachInactiveMembers: !!document.getElementById('attachment-inactive-members')?.checked,
                 attachCustom: !!document.getElementById('attachment-custom')?.checked,
+                attachAllUsage: !!document.getElementById('attachment-all-usage')?.checked,
+                attachInactiveUsage: !!document.getElementById('attachment-inactive-usage')?.checked,
+                attachCustomUsage: !!document.getElementById('attachment-custom-usage')?.checked,
                 usagePeriodText: (document.getElementById('usage-attachment-period-text')?.textContent || '').trim(),
                 // 새 예약 모달에서 입력한 직접 입력 이메일 저장
                 customEmails: (function(){
@@ -12978,7 +13597,9 @@
                         return ta.value.split(',').map(e => e.trim()).filter(Boolean);
                     }
                     return [];
-                })()
+                })(),
+                // 첨부 시트 스냅샷 (있으면 저장)
+                attachmentsSheets: (window.__attachmentsSheets || null)
             };
 
             // 예약 리스트에 추가
@@ -13154,6 +13775,9 @@
                 attachAllMembers: !!document.getElementById('attachment-all-members')?.checked,
                 attachInactiveMembers: !!document.getElementById('attachment-inactive-members')?.checked,
                 attachCustom: !!document.getElementById('attachment-custom')?.checked,
+                attachAllUsage: !!document.getElementById('attachment-all-usage')?.checked,
+                attachInactiveUsage: !!document.getElementById('attachment-inactive-usage')?.checked,
+                attachCustomUsage: !!document.getElementById('attachment-custom-usage')?.checked,
                 usagePeriodText: (document.getElementById('usage-attachment-period-text')?.textContent || '').trim(),
                 // Settings에서의 직접 입력 이메일 저장
                 customEmails: (function(){
@@ -13163,7 +13787,9 @@
                         return ta.value.split(',').map(e => e.trim()).filter(Boolean);
                     }
                     return [];
-                })()
+                })(),
+                // 첨부 시트 스냅샷 (있으면 저장)
+                attachmentsSheets: (window.__attachmentsSheets || null)
             };
 
             // 예약 리스트에 추가 (전역 변수로 관리)
@@ -13521,12 +14147,20 @@
             const uniqueEmails = [...new Set(allRecipientEmails)];
             console.log(`📬 총 수신자 ${uniqueEmails.length}명 (중복 제거 후):`, uniqueEmails);
             
+            // 발신자 정보 수집 (옵션)
+            const senderNameEl = document.getElementById('email-sender-name');
+            const senderEmailEl = document.getElementById('email-sender-address');
+            const fromName = senderNameEl ? senderNameEl.value.trim() : '';
+            const fromEmail = senderEmailEl ? senderEmailEl.value.trim() : '';
+
             return {
                 message: messageText,
                 selectedGroups: selectedRecipients,
                 customEmails: customEmailList,
                 allEmails: uniqueEmails, // 모든 수신자 이메일 (중복 제거)
-                timestamp: new Date().toLocaleString('ko-KR')
+                timestamp: new Date().toLocaleString('ko-KR'),
+                fromName,
+                fromEmail
             };
         }
 
@@ -13655,6 +14289,12 @@
                 }
             }
             
+            // 발신자 정보 수집 (옵션)
+            const senderNameEl = document.getElementById('email-sender-name');
+            const senderEmailEl = document.getElementById('email-sender-address');
+            const fromName = senderNameEl ? senderNameEl.value.trim() : '';
+            const fromEmail = senderEmailEl ? senderEmailEl.value.trim() : '';
+
             // 중복 이메일 제거
             const uniqueEmails = [...new Set(allRecipientEmails)];
             console.log(`📬 총 수신자 ${uniqueEmails.length}명 (중복 제거 후):`, uniqueEmails);
@@ -13665,11 +14305,14 @@
                 customEmails: customEmailList,
                 allEmails: uniqueEmails,
                 timestamp: new Date().toLocaleString('ko-KR'),
-                source: 'preview' // 미리보기에서 발송됨을 표시
+                source: 'preview', // 미리보기에서 발송됨을 표시
+                attachmentsSheets: (window.__attachmentsSheets || null),
+                fromName,
+                fromEmail
             };
         }
 
-        // SMTP를 통한 메일 발송 함수
+            // SMTP를 통한 메일 발송 함수
         async function sendEmailViaSMTP(emailData) {
             console.log('📤 SMTP를 통한 메일 발송 시작');
             
@@ -13694,7 +14337,10 @@
                 recipients: recipientText,
                 timestamp: emailData.timestamp,
                 dashboard_url: window.location.href,
-                recipient_count: emailData.allEmails ? emailData.allEmails.length : 0
+                recipient_count: emailData.allEmails ? emailData.allEmails.length : 0,
+                attachmentsSheets: emailData.attachmentsSheets || null,
+                from_email: (emailData.fromEmail || '').trim() || null,
+                from_name: (emailData.fromName || '').trim() || null
             };
             
             console.log('📧 SMTP 발송 데이터:', emailPayload);
@@ -14061,8 +14707,26 @@
                     allEmails: uniqueEmails,
                     timestamp: new Date().toLocaleString('ko-KR'),
                     source: 'scheduled',
+                    fromName: (document.getElementById('email-sender-name')?.value || '').trim(),
+                    fromEmail: (document.getElementById('email-sender-address')?.value || '').trim(),
                     scheduleId: schedule.id,
-                    scheduleTitle: schedule.title
+                    scheduleTitle: schedule.title,
+                    attachmentsSheets: (function(){
+                        try {
+                            // 스케줄에 저장된 사용량 첨부 옵션과 기간 텍스트가 있는 경우, 가능하면 최신 데이터로 재구성
+                            const usageText = (document.getElementById('usage-attachment-period-text')?.textContent || '').trim();
+                        const sheets = (schedule.attachmentsSheets && Array.isArray(schedule.attachmentsSheets.sheets))
+                            ? schedule.attachmentsSheets.sheets
+                            : (window.__attachmentsSheets && Array.isArray(window.__attachmentsSheets.sheets) ? window.__attachmentsSheets.sheets : []);
+                            if (sheets.length) {
+                                return {
+                                    filename: `email_attachments_${new Date().toISOString().split('T')[0]}.xlsx`,
+                                    sheets: sheets
+                                };
+                            }
+                            return null;
+                        } catch(e){ return null; }
+                    })()
                 };
 
             } catch (error) {
